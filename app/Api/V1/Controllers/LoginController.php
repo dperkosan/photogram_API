@@ -21,6 +21,12 @@ class LoginController extends Controller
             if(!$token) {
                 throw new AccessDeniedHttpException();
             }
+            
+            //check if user is active (clicked on confirmation mail)
+            $currentUser = $JWTAuth->authenticate($token);
+            if(!$currentUser->active) {
+                throw new AccessDeniedHttpException();
+            }
 
         } catch (JWTException $e) {
             throw new HttpException(500);

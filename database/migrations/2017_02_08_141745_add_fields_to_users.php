@@ -14,10 +14,11 @@ class AddFieldsToUsers extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('username', 25);
+            $table->string('username', 25)->unique();
             $table->char('gender', 1)->nullable();
             $table->string('phone', 25)->nullable();
             $table->text('about')->nullable();
+            $table->boolean('active')->default(false);
             $table->string('name')->nullable()->change();
         });
     }
