@@ -7,7 +7,7 @@ $api = app(Router::class);
 
 $api->version('v1', function (Router $api) {
     //authentication
-    $api->group(['prefix' => 'auth', 'middleware' => 'cors'], function(Router $api) {
+    $api->group(['prefix' => 'auth'], function(Router $api) {
         $api->post('signup', 'App\\Api\\V1\\Controllers\\SignUpController@signUp');
         $api->post('login', 'App\\Api\\V1\\Controllers\\LoginController@login');
 
