@@ -7,8 +7,6 @@ use Tymon\JWTAuth\JWTAuth;
 use App\Http\Controllers\Controller;
 use App\Api\V1\Requests\SignUpRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use App\Mail\ConfirmationMail;
-use Illuminate\Support\Facades\Mail;
 
 class SignUpController extends Controller
 {
@@ -24,8 +22,7 @@ class SignUpController extends Controller
         $token = $JWTAuth->fromUser($user);
 
         //send confirmation mail
-        $confirmationUrl = url('api/auth/signup/confirmation').'?token='.$token;
-        Mail::to($user->email)->send(new ConfirmationMail($confirmationUrl));
+        $user->sendConfirmEmailNotification($token);
 
         //send response with or without token
         if (!Config::get('boilerplate.sign_up.release_token')) {

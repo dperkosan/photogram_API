@@ -1,10 +1,11 @@
 <?php
-
 namespace App;
 
 use Hash;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Notifications\ResetPassword as ResetPasswordNotification;
+use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
 
 class User extends Authenticatable
 {
@@ -37,5 +38,27 @@ class User extends Authenticatable
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+    
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendConfirmEmailNotification($token)
+    {
+        $this->notify(new ConfirmEmailNotification($token));
     }
 }
