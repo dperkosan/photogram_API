@@ -35,9 +35,32 @@ There are four controllers you can find in the `App\Api\V1\Controllers` for auth
 For each controller there's an already setup route in `routes/api.php` file:
 
 * `POST api/auth/login`, to do the login and get your access token;
+    Expecting parameters:
+    `{
+        "email": "user.mail@example.com",
+        "password": "123456789"
+    }`
 * `POST api/auth/signup`, to create a new user into your application;
-* `POST api/auth/recovery`, to recover your credentials;
+    Expecting parameters:
+    `{
+        "username": "username",
+        "name": "name",
+        "email": "user.mail@example.com",
+        "password": "123456789"
+    }`
+* `POST api/auth/recovery`, to recover your credentials (sends forgot password mail);
+    Expecting parameters:
+    `{
+        "email": "user.mail@example.com"
+    }`
 * `POST api/auth/reset`, to reset your password after the recovery;
+    Expecting parameters:
+    `{
+        "email": "user.mail@example.com",
+        "password": "123456789",
+        "password_confirmation": "123456789",
+        "token": "3c9eb6063b0d15eaf6e37ffe5f663b3bc9ee2a4c412218ae46e0777d11d14fba"
+    }`
 
 ### A Separate File for Routes
 
