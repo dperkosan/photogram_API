@@ -36,10 +36,12 @@ For each controller there's an already setup route in `routes/api.php` file:
 
 * `POST api/auth/login`, to do the login and get your access token;
     Expecting parameters:
+```
     {
         "email": "user.mail@example.com",
         "password": "123456789"
     }
+```
 * `POST api/auth/signup`, to create a new user into your application;
     Expecting parameters:
     {
