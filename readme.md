@@ -42,7 +42,7 @@ For each controller there's an already setup route in `routes/api.php` file:
         "password": "123456789"
     }
 ```
-* `POST api/auth/signup`, to create a new user into your application;
+* `POST api/auth/signup`, to create a new user into your application;<br>
     Expecting parameters:
 ```
     {
@@ -52,14 +52,14 @@ For each controller there's an already setup route in `routes/api.php` file:
         "password": "123456789"
     }
 ```
-* `POST api/auth/recovery`, to recover your credentials (sends forgot password mail);
+* `POST api/auth/recovery`, to recover your credentials (sends forgot password mail);<br>
     Expecting parameters:
 ```
     {
         "email": "user.mail@example.com"
     }
 ```
-* `POST api/auth/reset`, to reset your password after the recovery;
+* `POST api/auth/reset`, to reset your password after the recovery;<br>
     Expecting parameters:
 ```
     {
