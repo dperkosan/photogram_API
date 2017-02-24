@@ -2,14 +2,13 @@
 
 namespace App\Api\V1\Controllers;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tymon\JWTAuth\JWTAuth;
-use App\Http\Controllers\Controller;
 use App\Api\V1\Requests\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class LoginController extends Controller
+class LoginController extends ApiController
 {
     public function login(LoginRequest $request, JWTAuth $JWTAuth)
     {
@@ -32,10 +31,10 @@ class LoginController extends Controller
             throw new HttpException(500);
         }
 
-        return response()
-            ->json([
-                'status' => 'ok',
-                'token' => $token
-            ]);
+        return $this->respond([
+            'status_code' => 200,
+            'token' => $token
+        ]);
+
     }
 }

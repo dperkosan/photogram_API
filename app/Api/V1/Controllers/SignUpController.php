@@ -2,21 +2,47 @@
 namespace App\Api\V1\Controllers;
 
 use Config;
-use App\User;
 use Tymon\JWTAuth\JWTAuth;
-use App\Http\Controllers\Controller;
 use App\Api\V1\Requests\SignUpRequest;
+use App\Validators\CreateUserValidator;
+use App\Api\V1\Controllers\ApiController;
+use App\Interfaces\UserRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class SignUpController extends Controller
+class SignUpController extends ApiController
 {
+    /**
+     * @var UserRepositoryInterface
+     */
+    private $user;
+
+    /**
+     * @var CreateUserValidator
+     */
+    private $createUserValidator;
+
+    public function __construct(UserRepositoryInterface $user, CreateUserValidator $createUserValidator)
+    {
+        $this->user = $user;
+        $this->createUserValidator = $createUserValidator;
+    }
+
     public function signUp(SignUpRequest $request, JWTAuth $JWTAuth)
     {
-        //create and save user
-        $user = new User($request->all());
-        if (!$user->save()) {
-            throw new HttpException(500);
+        //validate input
+        if(!$this->createUserValidator->passes())
+        {
+            return $this->respondWrongArgs($this->createUserValidator->errors);
         }
+
+        //create and save user
+        $user = $this->user->store($request->all());
+        if(!$user)
+        {
+            return $this->respondInternalError();
+        }
+
+        return $user;
 
         //get the token
         $token = $JWTAuth->fromUser($user);
