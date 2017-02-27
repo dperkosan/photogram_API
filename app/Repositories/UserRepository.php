@@ -33,10 +33,8 @@ class UserRepository implements UserRepositoryInterface
 
     public function store($data)
     {
-        return $data;
         $user = $this->fillUserObject($this->user, $data);
-        return $user;
-        if($user->save()) return true;
+        if($user->save()) return $user;
         return false;
     }
 
@@ -55,7 +53,7 @@ class UserRepository implements UserRepositoryInterface
 
         if(isset($data['password']))
         {
-            $object->password = $data['password'];
+            $object->password = bcrypt($data['password']);
         }
 
         if(isset($data['username']))
@@ -82,6 +80,10 @@ class UserRepository implements UserRepositoryInterface
         {
             $object->about = $data['about'];
         }
+
+        $object->active = 0;
+
+        return $object;
     }
 
     /**

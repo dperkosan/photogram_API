@@ -42,8 +42,6 @@ class SignUpController extends ApiController
             return $this->respondInternalError();
         }
 
-        return $user;
-
         //get the token
         $token = $JWTAuth->fromUser($user);
 
