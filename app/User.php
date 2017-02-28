@@ -25,4 +25,24 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    /**
+     * Users that follow me
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function followers()
+    {
+        return $this->hasMany('App\Follower', 'followed_id');
+    }
+
+    /**
+     * Users that I follow
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function following()
+    {
+        return $this->hasMany('App\Follower', 'follower_id');
+    }
 }

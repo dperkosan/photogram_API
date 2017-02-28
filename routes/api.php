@@ -26,6 +26,12 @@ $api->version('v1', function (Router $api) {
             ]);
         });
 
+        //followers
+        $api->get('/followers', 'App\\Api\\V1\\Controllers\\FollowersController@getFollowers');
+        $api->get('/followings', 'App\\Api\\V1\\Controllers\\FollowersController@getFollowings');
+        $api->post('/followers', 'App\\Api\\V1\\Controllers\\FollowersController@follow');
+        $api->delete('/followers/{followed_id}', 'App\\Api\\V1\\Controllers\\FollowersController@unfollow');
+
         $api->get('refresh', [
             'middleware' => 'jwt.refresh',
             function() {

@@ -10,7 +10,6 @@ use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
 
 class UserRepository implements UserRepositoryInterface
 {
-
     /**
      * @var User
      */
@@ -29,6 +28,11 @@ class UserRepository implements UserRepositoryInterface
     public function getById($userId)
     {
         return $this->user->find($userId);
+    }
+
+    public function getByEmail($email)
+    {
+        return $this->user->where('email', $email)->firstOrFail();
     }
 
     public function store($data)
@@ -84,17 +88,6 @@ class UserRepository implements UserRepositoryInterface
         $object->active = 0;
 
         return $object;
-    }
-
-    /**
-     * Automatically creates hash for the user password.
-     *
-     * @param  string  $value
-     * @return void
-     */
-    public function setPasswordAttribute($value)
-    {
-        $this->user->attributes['password'] = Hash::make($value);
     }
 
     /**

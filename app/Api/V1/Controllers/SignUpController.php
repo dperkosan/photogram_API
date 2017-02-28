@@ -4,7 +4,7 @@ namespace App\Api\V1\Controllers;
 use Config;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\SignUpRequest;
-use App\Validators\CreateUserValidator;
+use App\Validators\User\CreateUserValidator;
 use App\Api\V1\Controllers\ApiController;
 use App\Interfaces\UserRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -37,6 +37,7 @@ class SignUpController extends ApiController
 
         //create and save user
         $user = $this->user->store($request->all());
+
         if(!$user)
         {
             return $this->respondInternalError();
@@ -46,7 +47,7 @@ class SignUpController extends ApiController
         $token = $JWTAuth->fromUser($user);
 
         //send confirmation mail
-        $user->sendConfirmEmailNotification($token);
+        $this->user->sendConfirmEmailNotification($token);
 
         //send response with or without token
         if (!Config::get('boilerplate.sign_up.release_token')) {
