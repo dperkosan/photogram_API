@@ -55,6 +55,12 @@ class FollowersController extends ApiController
             return $this->respondWrongArgs($this->createFollowValidator->errors);
         }
 
+        //check if user exists
+        if(!$this->followers->userExists($followedId))
+        {
+            return $this->respondNotFound('User does not exist');
+        }
+
         //check if the following already exists
         if($this->followers->followExists(Auth::user()->id, $followedId))
         {
