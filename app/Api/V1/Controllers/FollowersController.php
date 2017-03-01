@@ -55,8 +55,22 @@ class FollowersController extends ApiController
 
         return $this->respondInternalError('There was an error while trying to follow this user.');
 
-
         //TODO: broadcast the event for notifications
+
+    }
+
+    public function unfollow($followed_id)
+    {
+        $user_id = Auth::user()->id;
+        if($this->followers->followExists($user_id, $followed_id))
+        {
+            $follow = $this->followers->unfollow($user_id, $followed_id);
+            if($follow) return $this->respondSuccess('You no longer follow this user.');
+
+            return false;
+        }
+
+        return $this->respondNotFound('You are not following this user.');
     }
 
 

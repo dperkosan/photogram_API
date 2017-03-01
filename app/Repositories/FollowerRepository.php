@@ -47,7 +47,10 @@ class FollowerRepository implements FollowerRepositoryInterface
 
     public function unfollow($followerId, $followedId)
     {
+        $follow = $this->follower->where(['follower_id' => $followerId, 'followed_id' => $followedId])->first();
+        if($follow->delete()) return true;
 
+        return false;
     }
 
     private function fillFollowerObject($object, $data)
