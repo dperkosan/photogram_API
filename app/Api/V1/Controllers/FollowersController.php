@@ -15,7 +15,9 @@ class FollowersController extends ApiController
      */
     private $followers;
 
-
+    /**
+     * @var CreateFollowValidator
+     */
     private $createFollowValidator;
 
     public function __construct(JWTAuth $jwtAuth, FollowerRepositoryInterface $followers, CreateFollowValidator $createFollowValidator)
@@ -25,15 +27,26 @@ class FollowersController extends ApiController
         $this->createFollowValidator = $createFollowValidator;
     }
 
+    /**
+     * Get followers for authenticated user
+     *
+     * @return mixed
+     */
     public function getFollowers()
     {
         $user = Auth::user();
         return $this->followers->getFollowers($user->id);
     }
 
+    /**
+     * Follow another user
+     *
+     * @param Request $request
+     * @return json|mixed
+     */
     public function follow(Request $request)
     {
-        //TODO: get followed user id
+        //get followed user id
         $followedId = $request->get('followed_id');
 
         // validation
@@ -42,7 +55,7 @@ class FollowersController extends ApiController
             return $this->respondWrongArgs($this->createFollowValidator->errors);
         }
 
-        //TODO: check if the following already exists
+        //check if the following already exists
         if($this->followers->followExists(Auth::user()->id, $followedId))
         {
             return $this->respondWrongArgs('You already follow this user.');
@@ -55,10 +68,16 @@ class FollowersController extends ApiController
 
         return $this->respondInternalError('There was an error while trying to follow this user.');
 
-        //TODO: broadcast the event for notifications
+        //TODO: broadcast the event for notifications...
 
     }
 
+    /**
+     * Unfollow another user
+     *
+     * @param $followed_id
+     * @return json|bool|mixed
+     */
     public function unfollow($followed_id)
     {
         $user_id = Auth::user()->id;

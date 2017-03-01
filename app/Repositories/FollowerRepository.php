@@ -33,11 +33,10 @@ class FollowerRepository implements FollowerRepositoryInterface
 
     public function follow($followerId, $followedId)
     {
-        $this->follower->follower_id = $followerId;
-        $this->follower->followed_id = $followedId;
-        $this->follower->save();
+        $follow = $this->fillFollowerObject($this->follower, $followerId, $followedId);
+        if($follow->save()) return $follow;
 
-        return $this->follower;
+        return false;
     }
 
     public function followExists($followerId, $followedId)
@@ -53,16 +52,16 @@ class FollowerRepository implements FollowerRepositoryInterface
         return false;
     }
 
-    private function fillFollowerObject($object, $data)
+    private function fillFollowerObject($object, $follower_id, $followed_id)
     {
-        if(isset($data['follower_id']))
+        if($follower_id)
         {
-            $object->follower_id = $data['follower_id'];
+            $object->follower_id = $follower_id;
         }
 
-        if(isset($data['followed_id']))
+        if($followed_id)
         {
-            $object->followed_id = $data['followed_id'];
+            $object->followed_id = $followed_id;
         }
 
         return $object;
