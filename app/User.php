@@ -1,11 +1,8 @@
 <?php
 namespace App;
 
-use Hash;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Notifications\ResetPassword as ResetPasswordNotification;
-use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
 
 class User extends Authenticatable
 {
@@ -30,35 +27,22 @@ class User extends Authenticatable
     ];
 
     /**
-     * Automatically creates hash for the user password.
+     * Users that follow me
      *
-     * @param  string  $value
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function setPasswordAttribute($value)
+    public function followers()
     {
-        $this->attributes['password'] = Hash::make($value);
+        return $this->hasMany('App\Follower', 'followed_id');
     }
 
     /**
-     * Send the password reset notification.
+     * Users that I follow
      *
-     * @param  string  $token
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function sendPasswordResetNotification($token)
+    public function following()
     {
-        $this->notify(new ResetPasswordNotification($token));
-    }
-    
-    /**
-     * Send the password reset notification.
-     *
-     * @param  string  $token
-     * @return void
-     */
-    public function sendConfirmEmailNotification($token)
-    {
-        $this->notify(new ConfirmEmailNotification($token));
+        return $this->hasMany('App\Follower', 'follower_id');
     }
 }

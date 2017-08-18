@@ -26,6 +26,12 @@ $api->version('v1', function (Router $api) {
             ]);
         });
 
+        //followers
+        $api->get('/followers', 'App\\Api\\V1\\Controllers\\FollowersController@getFollowers');
+        $api->get('/followings', 'App\\Api\\V1\\Controllers\\FollowersController@getFollowings');
+        $api->post('/followers', 'App\\Api\\V1\\Controllers\\FollowersController@follow');
+        $api->delete('/followers/{followed_id}', 'App\\Api\\V1\\Controllers\\FollowersController@unfollow');
+
         $api->get('refresh', [
             'middleware' => 'jwt.refresh',
             function() {
@@ -33,12 +39,6 @@ $api->version('v1', function (Router $api) {
                     'message' => 'By accessing this endpoint, you can refresh your access token at each request. Check out this response headers!'
                 ]);
             }
-        ]);
-    });
-
-    $api->get('hello', function() {
-        return response()->json([
-            'message' => 'This is a simple example of item returned by your APIs. Everyone can see it.'
         ]);
     });
 });
