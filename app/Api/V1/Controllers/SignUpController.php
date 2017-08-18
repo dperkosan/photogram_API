@@ -51,15 +51,15 @@ class SignUpController extends ApiController
 
         //send response with or without token
         if (!Config::get('boilerplate.sign_up.release_token')) {
-            return response()->json([
-                    'status' => 'ok'
-                    ], 201);
+            return $this->respond([
+                'status_code' => 201
+            ]);
         }
 
-        return response()->json([
-                'status' => 'ok',
-                'token' => $token
-                ], 201);
+        return $this->respond([
+            'status_code' => 201,
+            'token' => $token
+        ]);
     }
 
     public function confirmSignUp(JWTAuth $JWTAuth)
@@ -67,7 +67,7 @@ class SignUpController extends ApiController
         $currentUser = $JWTAuth->parseToken()->authenticate();
         $currentUser->active = true;
         if (!$currentUser->save()) {
-            throw new HttpException(500);
+            return $this->respondInternalError();
         }
         return "Thank you for your confirmation!";
     }

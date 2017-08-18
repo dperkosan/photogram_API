@@ -2,33 +2,44 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\User;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Password;
 use App\Api\V1\Requests\ForgotPasswordRequest;
+use App\Api\V1\Controllers\ApiController;
+use App\Interfaces\UserRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class ForgotPasswordController extends Controller
+class ForgotPasswordController extends ApiController
 {
+    /**
+     * @var UserRepositoryInterface
+     */
+    private $user;
+    
+    public function __construct(UserRepositoryInterface $user)
+    {
+        $this->user = $user;
+    }
+    
     public function sendResetEmail(ForgotPasswordRequest $request)
     {
-        $user = User::where('email', '=', $request->get('email'))->first();
+        //get user by email
+        $user = $this->user->getByEmail($request->get('email'));
 
         if(!$user) {
-            throw new NotFoundHttpException();
+            return $this->respondNotFound();
         }
 
         $broker = $this->getPasswordBroker();
         $sendingResponse = $broker->sendResetLink($request->only('email'));
 
         if($sendingResponse !== Password::RESET_LINK_SENT) {
-            throw new HttpException(500);
+            return $this->respondInternalError();
         }
 
-        return response()->json([
-            'status' => 'ok'
-        ], 200);
+        return $this->respond([
+            'status_code' => 200
+        ]);
     }
 
     /**

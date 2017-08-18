@@ -35,16 +35,16 @@ class ResetPasswordController extends ApiController
         }
 
         if(!Config::get('boilerplate.reset_password.release_token')) {
-            return response()->json([
-                'status' => 'ok',
+            return $this->respond([
+                'status_code' => 200
             ]);
         }
 
         //get user by email
         $user = $this->user->getByEmail($request->get('email'));
 
-        return response()->json([
-            'status' => 'ok',
+        return $this->respond([
+            'status_code' => 200,
             'token' => $JWTAuth->fromUser($user)
         ]);
     }
