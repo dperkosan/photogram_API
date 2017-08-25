@@ -18,6 +18,11 @@ $api->version('v1', function (Router $api) {
     $api->group(['prefix' => 'auth', 'middleware' => 'jwt.auth'], function(Router $api) {
         $api->get('signup/confirmation', 'App\\Api\\V1\\Controllers\\SignUpController@confirmSignUp')->name('confirmation');
     });
+    
+    //unprotected posts
+    $api->group(['prefix' => 'posts'], function(Router $api) {
+        $api->get('list/{numPosts}', 'App\\Api\\V1\\Controllers\\PostsController@getPosts');
+    });
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
         $api->get('protected', function() {
@@ -28,6 +33,7 @@ $api->version('v1', function (Router $api) {
 
         //followers
         $api->get('/followers', 'App\\Api\\V1\\Controllers\\FollowersController@getFollowers');
+        $api->get('/followings', 'App\\Api\\V1\\Controllers\\FollowersController@getFollowings');
         $api->post('/followers', 'App\\Api\\V1\\Controllers\\FollowersController@follow');
         $api->delete('/followers/{followed_id}', 'App\\Api\\V1\\Controllers\\FollowersController@unfollow');
 
