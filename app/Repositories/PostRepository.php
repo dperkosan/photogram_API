@@ -8,7 +8,7 @@ use App\Interfaces\PostRepositoryInterface;
 class PostRepository implements PostRepositoryInterface
 {
     /**
-     * @var Post
+     * @var post
      */
     private $post;
 
@@ -18,10 +18,10 @@ class PostRepository implements PostRepositoryInterface
     }
 
     /**
-     * Get followers for authenticated user
+     * Get latest posts
      *
-     * @param $numPosts
-     * @return mixed
+     * @param integer $numPosts number of posts to return
+     * @return \App\Post
      */
     public function getPosts($numPosts)
     {
