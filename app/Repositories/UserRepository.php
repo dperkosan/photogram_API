@@ -10,7 +10,7 @@ use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * @var User
+     * @var \App\User
      */
     private $user;
 
@@ -53,6 +53,7 @@ class UserRepository implements UserRepositoryInterface
     {
         $object = ($object) ? $object : $this->user;
 
+        // In order not to write the same if condition 7 times
         $attributesToFill = ['email', 'password', 'username', 'name', 'gender', 'phone', 'about'];
 
         foreach ($attributesToFill as $attribute)

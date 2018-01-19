@@ -5,9 +5,11 @@ return [
     'sign_up' => [
         'release_token' => env('SIGN_UP_RELEASE_TOKEN'),
         'validation_rules' => [
-            'username' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8'
+          'email' => 'required|email|unique:users',
+          'name' => 'required|max:100',
+          'username' => 'required|max:100',
+          'password' => 'required|min:8|confirmed',
+          'password_confirmation' => 'required',
         ]
     ],
 

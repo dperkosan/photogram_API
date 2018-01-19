@@ -45,21 +45,15 @@ class SignUpController extends ApiController
 
         //get the token
         $token = $JWTAuth->fromUser($user);
-
         //send confirmation mail
         $this->user->sendConfirmEmailNotification($token);
 
         //send response with or without token
         if (!Config::get('boilerplate.sign_up.release_token')) {
-            return $this->respond([
-                'status_code' => 201
-            ]);
+            return $this->setStatusCode(201)->respond(['message' => 'success']);
         }
 
-        return $this->respond([
-            'status_code' => 201,
-            'token' => $token
-        ]);
+        return $this->setStatusCode(201)->respond(['token' => $token]);
     }
 
     public function confirmSignUp(JWTAuth $JWTAuth)

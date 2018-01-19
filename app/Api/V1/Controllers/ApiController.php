@@ -71,6 +71,17 @@ class ApiController extends Controller
     }
 
     /**
+     * Respond - Created (Status Code - 201)
+     *
+     * @param  string $message
+     * @return mixed
+     */
+    public function respondCreated($message = 'Wrong Args')
+    {
+        return $this->setStatusCode(201)->respondWithError($message);
+    }
+
+    /**
      * Respond - Wrong Arguments (Status Code - 400)
      *
      * @param  string $message
