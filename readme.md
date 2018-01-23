@@ -1,5 +1,18 @@
 ## Laravel Photogram API
 
+# New doc
+
+### 2018-01-22
+This is now upgraderd to Laravel 5.5. 
+All packages were upgraded also to their most recent versions.
+
+Database was redone and the schema name is photogram_s_u.
+
+Validation was moved from App\Validators to App\Api\V1\Requests.
+
+# Original doc
+#### original doc is from around november 2017 or before
+
 This version is built on Laravel 5.3. Boilerplate used for this API:
 
 * Laravel API Boilerplate (JWT Edition) - (https://github.com/francescomalatesta/laravel-api-boilerplate-jwt)

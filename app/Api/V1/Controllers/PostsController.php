@@ -4,14 +4,13 @@ namespace App\Api\V1\Controllers;
 
 use Auth;
 use Tymon\JWTAuth\JWTAuth;
-use Dingo\Api\Http\Request;
 use App\Interfaces\PostRepositoryInterface;
 use App\Validators\Post\CreatePostValidator;
 
 class PostsController extends ApiController
 {
     /**
-     * @var FollowerRepositoryInterface
+     * @var \App\Interfaces\FollowerRepositoryInterface
      */
     private $posts;
 
@@ -35,6 +34,9 @@ class PostsController extends ApiController
      */
     public function getPosts($numPosts)
     {
+//        $dbgBAarHead = \Debugbar::getJavascriptRenderer()->renderHead();
+//        $dbgBar = \Debugbar::getJavascriptRenderer()->render();
+//        echo $dbgBAarHead . $dbgBar;
         return $this->posts->getPosts($numPosts);
     }
 }

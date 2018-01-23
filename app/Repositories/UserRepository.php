@@ -14,6 +14,10 @@ class UserRepository implements UserRepositoryInterface
      */
     private $user;
 
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
+
     public function __construct(User $user)
     {
         $this->user = $user;

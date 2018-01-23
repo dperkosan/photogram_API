@@ -5,9 +5,9 @@ return [
     'sign_up' => [
         'release_token' => env('SIGN_UP_RELEASE_TOKEN'),
         'validation_rules' => [
-          'email' => 'required|email|unique:users',
+          'email' => 'required|email|max:100|unique:users',
           'name' => 'required|max:100',
-          'username' => 'required|max:100',
+          'username' => 'required|max:100|unique:users',
           'password' => 'required|min:8|confirmed',
           'password_confirmation' => 'required',
         ]
@@ -33,6 +33,12 @@ return [
             'email' => 'required|email',
             'password' => 'required|confirmed'
         ]
-    ]
+    ],
+
+    'follow' => [
+      'validation_rules' => [
+        'followed_id' => 'required|integer'
+      ]
+    ],
 
 ];

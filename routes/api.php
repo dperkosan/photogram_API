@@ -21,7 +21,7 @@ $api->version('v1', function (Router $api) {
     
     //unprotected posts
     $api->group(['prefix' => 'posts'], function(Router $api) {
-        $api->get('list/{numPosts}', 'App\\Api\\V1\\Controllers\\PostsController@getPosts');
+        $api->get('list/{numPosts}', 'PostsController@getPosts');
     });
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {

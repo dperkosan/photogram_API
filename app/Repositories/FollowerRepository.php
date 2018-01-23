@@ -54,12 +54,16 @@ class FollowerRepository implements FollowerRepositoryInterface
      *
      * @param $followerId
      * @param $followedId
-     * @return bool
+     * @return bool|Follower
      */
     public function follow($followerId, $followedId)
     {
-        $follow = $this->fillFollowerObject($this->follower, $followerId, $followedId);
-        if($follow->save()) return $follow;
+        $follow = new Follower();
+        $follow->follower_id = $followerId;
+        $follow->followed_id = $followedId;
+        if ($follow->save()) {
+            return $follow;
+        }
 
         return false;
     }
@@ -98,31 +102,10 @@ class FollowerRepository implements FollowerRepositoryInterface
     public function unfollow($followerId, $followedId)
     {
         $follow = $this->follower->where(['follower_id' => $followerId, 'followed_id' => $followedId])->first();
-        if($follow->delete()) return true;
+        if ($follow->delete()) {
+            return true;
+        }
 
         return false;
-    }
-
-    /**
-     * Fill follower object
-     *
-     * @param $object
-     * @param $follower_id
-     * @param $followed_id
-     * @return mixed
-     */
-    private function fillFollowerObject($object, $follower_id, $followed_id)
-    {
-        if($follower_id)
-        {
-            $object->follower_id = $follower_id;
-        }
-
-        if($followed_id)
-        {
-            $object->followed_id = $followed_id;
-        }
-
-        return $object;
     }
 }

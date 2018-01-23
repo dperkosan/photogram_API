@@ -5,7 +5,6 @@ namespace App\Api\V1\Controllers;
 use Config;
 use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Support\Facades\Password;
-use App\Api\V1\Controllers\ApiController;
 use App\Interfaces\UserRepositoryInterface;
 use App\Api\V1\Requests\ResetPasswordRequest;
 use Symfony\Component\HttpKernel\Exception\HttpException;

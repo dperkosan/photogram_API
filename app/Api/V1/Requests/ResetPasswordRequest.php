@@ -2,18 +2,7 @@
 
 namespace App\Api\V1\Requests;
 
-use Config;
-use Dingo\Api\Http\FormRequest;
-
-class ResetPasswordRequest extends FormRequest
+class ResetPasswordRequest extends BaseRequest
 {
-    public function rules()
-    {
-        return Config::get('boilerplate.reset_password.validation_rules');
-    }
-
-    public function authorize()
-    {
-        return true;
-    }
+    protected $configName = 'reset_password';
 }

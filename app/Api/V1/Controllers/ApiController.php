@@ -11,12 +11,12 @@ use App\Http\Controllers\Controller;
 class ApiController extends Controller
 {
     /**
-     * @var integer
+     * @var int
      */
     protected $statusCode = 200;
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getStatusCode()
     {
@@ -24,7 +24,9 @@ class ApiController extends Controller
     }
 
     /**
-     * @return mixed
+     * @param int $statusCode
+     *
+     * @return $this
      */
     public function setStatusCode($statusCode)
     {
@@ -140,7 +142,7 @@ class ApiController extends Controller
      * Respond - Internal Error (Status Code - 500)
      *
      * @param  string $message
-     * @return json
+     * @return mixed
      */
     public function respondInternalError($message = 'Internal Error')
     {

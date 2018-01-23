@@ -8,9 +8,12 @@ use App\Interfaces\PostRepositoryInterface;
 class PostRepository implements PostRepositoryInterface
 {
     /**
-     * @var post
+     * @var \App\Post
      */
     private $post;
+
+    const TYPE_IMAGE = 1;
+    const TYPE_VIDEO = 2;
 
     public function __construct(Post $post)
     {
@@ -25,6 +28,14 @@ class PostRepository implements PostRepositoryInterface
      */
     public function getPosts($numPosts)
     {
-        return $this->post->orderBy('created_at', 'DESC')->limit($numPosts)->get();
+        return $posts = $this->post->orderBy('created_at', 'DESC')->with(['user:id,username,image', 'comments'])->limit($numPosts)->get();
+
+        $processedPosts = [];
+
+        foreach ($posts as $post) {
+            foreach ($post->comments as $comment) {
+
+            }
+        }
     }
 }
