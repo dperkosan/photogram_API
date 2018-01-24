@@ -3,6 +3,9 @@
 namespace App\Api\V1\Controllers;
 
 use App\Http\Controllers\Controller;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 
 /**
@@ -14,6 +17,24 @@ class ApiController extends Controller
      * @var int
      */
     protected $statusCode = 200;
+
+    public function getAuthenticatedUser()
+    {
+        try {
+            if (!$user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json(['token_expired'], $e->getStatusCode());
+        } catch (TokenInvalidException $e) {
+            return response()->json(['token_invalid'], $e->getStatusCode());
+        } catch (JWTException $e) {
+            return response()->json(['token_absent'], $e->getStatusCode());
+        }
+
+        // the token is valid and we have found the user via the sub claim
+        return response()->json(compact('user'));
+    }
 
     /**
      * @return int
@@ -36,117 +57,70 @@ class ApiController extends Controller
     }
 
     /**
-     * @param  $data
+     * @param  array $jsonData
      * @param  array $headers
-     * @return mixed
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function respond($data, $headers = [])
+    public function respond($jsonData = [], $headers = [])
     {
-        return response()->json($data, $this->getStatusCode(), $headers);
+        return response()->json($jsonData, $this->getStatusCode(), $headers);
     }
 
-    /**
-     * @param  string $message
-     * @return mixed
-     */
-    public function respondWithError($message)
+    public function respondWithData($data)
     {
         return $this->respond([
-
-            'error' => [
-                'message'      => $message,
-                'status_code'  => $this->getStatusCode()
-            ]
-
+          'success' => true,
+          'data' => $data
         ]);
     }
 
-    /**
-     * Respond - Success (Status Code - 200)
-     *
-     * @param  string $message
-     * @return mixed
-     */
-    public function respondSuccess($message = 'Success')
+    public function respondWithMessage($message, $success = true)
     {
-        return $this->setStatusCode(200)->respondWithError($message);
+        return $this->respond([
+          'success' => $success,
+          'message' => $message,
+        ]);
     }
 
-    /**
-     * Respond - Created (Status Code - 201)
-     *
-     * @param  string $message
-     * @return mixed
-     */
-    public function respondCreated($message = 'Wrong Args')
+    public function respondSuccess()
     {
-        return $this->setStatusCode(201)->respondWithError($message);
+        return $this->setStatusCode(200)->respond();
     }
 
-    /**
-     * Respond - Wrong Arguments (Status Code - 400)
-     *
-     * @param  string $message
-     * @return mixed
-     */
-    public function respondWrongArgs($message = 'Wrong Args')
+    public function respondCreated($message = 'Resource created')
     {
-        return $this->setStatusCode(400)->respondWithError($message);
+        return $this->setStatusCode(201)->respondWithMessage($message);
     }
 
-    /**
-     * Respond - Unauthorized (Status Code - 401)
-     *
-     * @param  string $message
-     * @return mixed
-     */
+    public function respondWrongArgs($message = 'Wrong args')
+    {
+        return $this->setStatusCode(400)->respondWithMessage($message);
+    }
+
     public function respondUnauthorized($message = 'Unauthorized')
     {
-        return $this->setStatusCode(401)->respondWithError($message);
+        return $this->setStatusCode(401)->respondWithMessage($message);
     }
 
-    /**
-     * Respond - Forbidden (Status Code - 403)
-     *
-     * @param  string $message
-     * @return mixed
-     */
     public function respondForbidden($message = 'Forbidden')
     {
-        return $this->setStatusCode(403)->respondWithError($message);
+        return $this->setStatusCode(403)->respondWithMessage($message);
     }
 
-    /**
-     * Respond - Not Found (Status Code - 404)
-     *
-     * @param  string $message
-     * @return json
-     */
     public function respondNotFound($message = 'Not Found')
     {
-        return $this->setStatusCode(404)->respondWithError($message);
+        return $this->setStatusCode(404)->respondWithMessage($message);
     }
 
-    /**
-     * Respond - Method Not Allowed (Status Code - 405)
-     *
-     * @param  string $message
-     * @return mixed
-     */
     public function respondNotAllowed($message = 'Method Not Allowed')
     {
-        return $this->setStatusCode(405)->respondWithError($message);
+        return $this->setStatusCode(405)->respondWithMessage($message);
     }
 
-    /**
-     * Respond - Internal Error (Status Code - 500)
-     *
-     * @param  string $message
-     * @return mixed
-     */
     public function respondInternalError($message = 'Internal Error')
     {
-        return $this->setStatusCode(500)->respondWithError($message);
+        return $this->setStatusCode(500)->respondWithMessage($message);
     }
 
 }

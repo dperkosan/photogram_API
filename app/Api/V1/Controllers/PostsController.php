@@ -2,9 +2,10 @@
 
 namespace App\Api\V1\Controllers;
 
-use Auth;
+use App\Events\NewFollower;
+use App\Repositories\PostRepository;
+use App\User;
 use Tymon\JWTAuth\JWTAuth;
-use App\Interfaces\PostRepositoryInterface;
 use App\Validators\Post\CreatePostValidator;
 
 class PostsController extends ApiController
@@ -13,17 +14,12 @@ class PostsController extends ApiController
      * @var \App\Interfaces\FollowerRepositoryInterface
      */
     private $posts;
+    private $jwtAuth;
 
-    /**
-     * @var CreatePostValidator
-     */
-    private $createPostValidator;
-
-    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts, CreatePostValidator $createPostValidator)
+    public function __construct(JWTAuth $jwtAuth, PostRepository $posts)
     {
         $this->jwtAuth = $jwtAuth;
         $this->posts = $posts;
-        $this->createPostValidator = $createPostValidator;
     }
 
     /**
@@ -34,9 +30,12 @@ class PostsController extends ApiController
      */
     public function getPosts($numPosts)
     {
-//        $dbgBAarHead = \Debugbar::getJavascriptRenderer()->renderHead();
-//        $dbgBar = \Debugbar::getJavascriptRenderer()->render();
-//        echo $dbgBAarHead . $dbgBar;
-        return $this->posts->getPosts($numPosts);
+//        event(new NewFollower(User::find(1)));
+        return $this->posts->getPosts($numPosts)->toJson();
+    }
+    
+    public function likes($id)
+    {
+        $likes = $this->posts->getLikes($id);
     }
 }

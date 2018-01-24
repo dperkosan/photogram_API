@@ -11,7 +11,7 @@ class BaseRequest extends FormRequest
 
     public function rules()
     {
-        return Config::get('boilerplate.' . $this->getConfigName() . '.validation_rules');
+        return Config::get('validations.' . $this->getConfigName());
     }
 
     public function authorize()

@@ -2,6 +2,9 @@
 
 # New doc
 
+#### TODO:
+* Deal with tokens expiring
+
 ### 2018-01-22
 This is now upgraderd to Laravel 5.5. 
 All packages were upgraded also to their most recent versions.

@@ -28,14 +28,15 @@ class PostRepository implements PostRepositoryInterface
      */
     public function getPosts($numPosts)
     {
-        return $posts = $this->post->orderBy('created_at', 'DESC')->with(['user:id,username,image', 'comments'])->limit($numPosts)->get();
+        return $this->post
+          ->orderBy('created_at', 'DESC')
+          ->with('comments')
+          ->limit($numPosts)
+          ->get();
+    }
 
-        $processedPosts = [];
-
-        foreach ($posts as $post) {
-            foreach ($post->comments as $comment) {
-
-            }
-        }
+    public function getLikes($postId)
+    {
+        $this->post->find($postId)->likes;
     }
 }

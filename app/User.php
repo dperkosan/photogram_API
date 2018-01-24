@@ -4,6 +4,13 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+/**
+ * Class User
+ *
+ * @attribute integer gender_id 1-male, 2-female, 3-other
+ *
+ * @package App
+ */
 class User extends Authenticatable
 {
     use Notifiable;

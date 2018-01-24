@@ -12,7 +12,7 @@ class Comment extends Model
         parent::boot();
 
         static::addGlobalScope('withStuff', function (Builder $builder) {
-            $builder->with(['user:id,username,image', 'likes:id,user_id']);
+            $builder->with('user:id,username,image')->withCount('likes');
         });
     }
 
