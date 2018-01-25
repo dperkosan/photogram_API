@@ -83,6 +83,7 @@ class FollowersController extends ApiController
         return $this->respondInternalError('There was an error while trying to follow this user.');
 
         //TODO: broadcast the event for notifications...
+        // event(new NewFollower(User::find(1)));
 
     }
 

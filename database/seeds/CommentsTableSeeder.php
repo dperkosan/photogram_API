@@ -29,6 +29,12 @@ class CommentsTableSeeder extends Seeder
             'post_id' => 1,
             'comment_id' => 3,
           ],
+          [
+            'body' => 'Gangnam style',
+            'user_id' => 3,
+            'post_id' => 1,
+            'comment_id' => 3,
+          ],
         ];
 
         foreach ($comments as $comment) {
