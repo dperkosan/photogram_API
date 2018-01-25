@@ -28,33 +28,14 @@ class UsersController extends ApiController
             $updateData['username'] = $requestUsername;
         }
 
-//        $requestEmail = $request->email;
-//
-//        // Handle updating email
-//        if ($requestEmail && $requestEmail !== $user->email) {
-//            $this->validate($request, [
-//              'email' => 'required|email|max:100|unique:users,email,' . $user->id,
-//            ]);
-//            $updateData['email'] = $requestEmail;
-//            $updateData['active'] = 0;
-//            $token = $JWTAuth->fromUser($user);
-//            $user->sendConfirmEmailNotification($token);
-//        }
-
         $requestData = $request->only([
           'name', 'gender_id', 'phone', 'about'
         ]);
 
         $updateData = array_merge($updateData, $requestData);
-
-        $responseData = ['updatedData' => $updateData];
-
-        if (isset($token)) {
-            $responseData['token'] = $token;
-        }
-
+        
         if ($user->update($updateData)) {
-            return $this->setStatusCode(204)->respond($responseData);
+            return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
         }
 
         return $this->respondInternalError();
