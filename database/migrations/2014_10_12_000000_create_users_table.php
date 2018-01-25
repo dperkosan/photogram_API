@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('phone', 25)->nullable();
             $table->text('about')->nullable();
             $table->string('image')->nullable();
-            $table->integer('type_id')->unsigned(); // for admin rights
+            $table->integer('type_id')->unsigned()->default(1); // for admin rights
             $table->boolean('active')->default(false);
             $table->rememberToken();
             $table->timestamp('created_at')->useCurrent();
