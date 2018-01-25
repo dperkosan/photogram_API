@@ -30,4 +30,18 @@ interface FollowerRepositoryInterface
      * @return mixed
      */
     public function unfollow($followerId, $followedId);
+
+    /**
+     * @param $user_id
+     *
+     * @return mixed
+     */
+    public function userExists($user_id);
+
+    /**
+     * @param $user_id
+     *
+     * @return mixed
+     */
+    public function followExists($followerId, $followedId);
 }

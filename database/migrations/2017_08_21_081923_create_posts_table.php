@@ -17,11 +17,13 @@ class CreatePostsTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->string('type');
+            $table->integer('type_id')->unsigned();
             $table->string('media');
-            $table->string('title');
-            $table->longText('description');
-            $table->timestamps();
+            $table->string('thumbnail')->nullable();
+            $table->string('description', 2200);
+            $table->boolean('deleted')->default(false);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->nullable();
         });
     }
 

@@ -8,9 +8,12 @@ use App\Interfaces\PostRepositoryInterface;
 class PostRepository implements PostRepositoryInterface
 {
     /**
-     * @var Post
+     * @var \App\Post
      */
     private $post;
+
+    const TYPE_IMAGE = 1;
+    const TYPE_VIDEO = 2;
 
     public function __construct(Post $post)
     {
@@ -18,13 +21,22 @@ class PostRepository implements PostRepositoryInterface
     }
 
     /**
-     * Get followers for authenticated user
+     * Get latest posts
      *
-     * @param $numPosts
-     * @return mixed
+     * @param integer $numPosts number of posts to return
+     * @return \App\Post
      */
     public function getPosts($numPosts)
     {
-        return $this->post->orderBy('created_at', 'DESC')->limit($numPosts)->get();
+        return $this->post
+          ->orderBy('created_at', 'DESC')
+          ->with('comments')
+          ->limit($numPosts)
+          ->get();
+    }
+
+    public function getLikes($postId)
+    {
+        $this->post->find($postId)->likes;
     }
 }

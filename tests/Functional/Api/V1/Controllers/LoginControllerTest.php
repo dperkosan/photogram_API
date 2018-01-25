@@ -9,32 +9,25 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class LoginControllerTest extends TestCase
 {
-    use DatabaseMigrations;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $user = new User([
-            'name' => 'Test',
-            'email' => 'test@email.com',
-            'password' => '123456'
-        ]);
-
-        $user->save();
-    }
+//    public function setUp()
+//    {
+//        parent::setUp();
+//
+//        $user = new User([
+//            'name' => 'Test',
+//            'email' => 'test@email.com',
+//            'password' => '123456'
+//        ]);
+//
+//        $user->save();
+//    }
 
     public function testLoginSuccessfully()
     {
-        $this->post('api/auth/login', [
-            'email' => 'test@email.com',
-            'password' => '123456'
-        ])->seeJson([
-            'status' => 'ok'
-        ])->seeJsonStructure([
-            'status',
-            'token'
-        ])->assertResponseOk();
+        $this->call('POST', 'api/auth/login', [
+            'email' => 'uroshcs@gmail.com',
+            'password' => 'urosadmin'
+        ])->assertSuccessful();
     }
 
     public function testLoginWithReturnsWrongCredentialsError()
@@ -43,7 +36,7 @@ class LoginControllerTest extends TestCase
             'email' => 'unknown@email.com',
             'password' => '123456'
         ])->seeJsonStructure([
-            'error'
+          'success' => false
         ])->assertResponseStatus(403);
     }
 
@@ -52,7 +45,7 @@ class LoginControllerTest extends TestCase
         $this->post('api/auth/login', [
             'email' => 'test@email.com'
         ])->seeJsonStructure([
-            'error'
+          'success' => false
         ])->assertResponseStatus(422);
     }
 }

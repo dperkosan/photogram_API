@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-use Hash;
 use App\User;
 use App\Interfaces\UserRepositoryInterface;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
@@ -11,9 +10,13 @@ use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * @var User
+     * @var \App\User
      */
     private $user;
+
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
 
     public function __construct(User $user)
     {
@@ -37,7 +40,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function store($data)
     {
-        $user = $this->fillUserObject($this->user, $data);
+        $user = $this->fillUserObject($data);
         if($user->save()) return $user;
         return false;
     }
@@ -45,44 +48,30 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Fill User Object
      *
-     * @param $object
      * @param array $data
+     * @param       $object
+     *
+     * @return mixed
      */
-    private function fillUserObject($object, array $data)
+    private function fillUserObject(array $data, $object = null)
     {
-        if(isset($data['email']))
+        $object = ($object) ? $object : $this->user;
+
+        // In order not to write the same if condition 7 times
+        $attributesToFill = ['email', 'password', 'username', 'name', 'gender', 'phone', 'about'];
+
+        foreach ($attributesToFill as $attribute)
         {
-            $object->email = $data['email'];
+            if (isset($data[$attribute]))
+            {
+                $object->$attribute = $data[$attribute];
+            }
         }
 
+        // Only setting the password is unique because of the bcrypt
         if(isset($data['password']))
         {
             $object->password = bcrypt($data['password']);
-        }
-
-        if(isset($data['username']))
-        {
-            $object->username = $data['username'];
-        }
-
-        if(isset($data['name']))
-        {
-            $object->name = $data['name'];
-        }
-
-        if(isset($data['gender']))
-        {
-            $object->gender = $data['gender'];
-        }
-
-        if(isset($data['phone']))
-        {
-            $object->phone = $data['phone'];
-        }
-
-        if(isset($data['about']))
-        {
-            $object->about = $data['about'];
         }
 
         $object->active = 0;

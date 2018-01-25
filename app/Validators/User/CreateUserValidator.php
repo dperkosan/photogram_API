@@ -3,7 +3,9 @@
 namespace App\Validators\User;
 
 
-class CreateUserValidator extends \App\Validators\Validator
+use App\Validators\Validator;
+
+class CreateUserValidator extends Validator
 {
     public static $rules = [
         'name' => 'required|max:100',

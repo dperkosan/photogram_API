@@ -2,29 +2,24 @@
 
 namespace App\Api\V1\Controllers;
 
-use Auth;
+use App\Events\NewFollower;
+use App\Repositories\PostRepository;
+use App\User;
 use Tymon\JWTAuth\JWTAuth;
-use Dingo\Api\Http\Request;
-use App\Interfaces\PostRepositoryInterface;
 use App\Validators\Post\CreatePostValidator;
 
 class PostsController extends ApiController
 {
     /**
-     * @var FollowerRepositoryInterface
+     * @var \App\Interfaces\FollowerRepositoryInterface
      */
     private $posts;
+    private $jwtAuth;
 
-    /**
-     * @var CreatePostValidator
-     */
-    private $createPostValidator;
-
-    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts, CreatePostValidator $createPostValidator)
+    public function __construct(JWTAuth $jwtAuth, PostRepository $posts)
     {
         $this->jwtAuth = $jwtAuth;
         $this->posts = $posts;
-        $this->createPostValidator = $createPostValidator;
     }
 
     /**
@@ -35,6 +30,11 @@ class PostsController extends ApiController
      */
     public function getPosts($numPosts)
     {
-        return $this->posts->getPosts($numPosts);
+        return $this->posts->getPosts($numPosts)->toJson();
+    }
+    
+    public function likes($id)
+    {
+        $likes = $this->posts->getLikes($id);
     }
 }

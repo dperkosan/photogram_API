@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class ResetPasswordControllerTest extends TestCase
 {
-    use DatabaseMigrations;
+//    use DatabaseMigrations;
 
     public function setUp()
     {
@@ -39,7 +39,7 @@ class ResetPasswordControllerTest extends TestCase
             'password' => 'mynewpass',
             'password_confirmation' => 'mynewpass'
         ])->seeJson([
-            'status' => 'ok'
+          'success' => true
         ])->assertResponseOk();
     }
 
@@ -56,7 +56,7 @@ class ResetPasswordControllerTest extends TestCase
             'status',
             'token'
         ])->seeJson([
-            'status' => 'ok'
+          'success' => true
         ])->assertResponseOk();
     }
 
@@ -68,7 +68,7 @@ class ResetPasswordControllerTest extends TestCase
             'password' => 'mynewpass',
             'password_confirmation' => 'mynewpass'
         ])->seeJsonStructure([
-            'error'
+          'success' => false
         ])->assertResponseStatus(500);
     }
 
@@ -79,7 +79,7 @@ class ResetPasswordControllerTest extends TestCase
             'token' => 'my_super_secret_code',
             'password' => 'mynewpass'
         ])->seeJsonStructure([
-            'error'
+          'success' => false
         ])->assertResponseStatus(422);
     }
 }
