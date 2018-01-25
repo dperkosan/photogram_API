@@ -60,6 +60,6 @@ class SignUpController extends ApiController
         if (!$currentUser->save()) {
             return $this->respondInternalError();
         }
-        return view('thank-you');
+        return "Thank you for your confirmation!";
     }
 }
