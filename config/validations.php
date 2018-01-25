@@ -5,7 +5,7 @@ return [
   'sign_up' => [
       'email' => 'required|email|max:100|unique:users',
       'name' => 'required|max:100',
-      'username' => 'required|max:100|unique:users',
+      'username' => 'required|max:25|unique:users',
       'password' => 'required|min:8|confirmed',
       'password_confirmation' => 'required',
   ],
@@ -29,9 +29,6 @@ return [
       'followed_id' => 'required|integer'
   ],
 
-  'user' => [
-      'name' => 'required|max:100',
-      'gender_id' => 'integer|between:1,3',
-  ]
+// 'user' validation is in the UserRequest because of the logic
 
 ];

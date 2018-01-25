@@ -18,6 +18,8 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->get('signup/confirmation', 'SignUpController@confirmSignUp')->name('confirmation');
         });
     });
+
+    $api->get('/test', 'TestController@index');
     
     //unprotected posts
     $api->group(['prefix' => 'posts'], function(Router $api) {
@@ -37,15 +39,19 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
         $api->group(['prefix' => 'users'], function (Router $api) {
             $api->get('/check/{username}', 'UsersController@checkUsername');
-            $api->patch('/auth/update', 'UsersController@updateUser');
+            $api->group(['prefix' => 'auth'], function (Router $api) {
+                $api->get('/', 'UsersController@getAuthUser');
+                $api->get('/image', 'UsersController@getAuthProfileImage');
+                $api->post('/image', 'UsersController@updateAuthProfileImage');
+                $api->patch('/update', 'UsersController@updateAuthUser');
+            });
         });
 
 
-        $api->get('refresh', [
-            'middleware' => 'jwt.refresh',
-            function() {
+        $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
                 return response()->json([
-                    'message' => 'By accessing this endpoint, you can refresh your access token at each request. Check out this response headers!'
+                  'success' => true,
+                  'message' => 'Token is refreshed, grab it from the header.'
                 ]);
             }
         ]);

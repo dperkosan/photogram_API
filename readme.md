@@ -7,6 +7,7 @@
 
 ### 2018-01-22
 This is now upgraderd to Laravel 5.5. 
+Because of this, PHP 7 is required now.
 All packages were upgraded also to their most recent versions.
 
 Database was redone and the schema name is photogram_s_u.
