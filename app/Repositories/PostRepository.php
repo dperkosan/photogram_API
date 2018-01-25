@@ -39,4 +39,6 @@ class PostRepository implements PostRepositoryInterface
     {
         $this->post->find($postId)->likes;
     }
+
+
 }

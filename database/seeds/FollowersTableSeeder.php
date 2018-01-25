@@ -33,8 +33,6 @@ class FollowersTableSeeder extends Seeder
           ],
         ];
 
-        foreach ($followers as $follower) {
-            DB::table('followers')->insert($follower);
-        }
+        DB::table('followers')->insert($followers);
     }
 }

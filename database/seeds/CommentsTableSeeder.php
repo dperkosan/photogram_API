@@ -11,11 +11,13 @@ class CommentsTableSeeder extends Seeder
             'body' => 'Sexy lady',
             'user_id' => 1,
             'post_id' => 1,
+            'comment_id' => null,
           ],
           [
             'body' => 'Indeed',
             'user_id' => 2,
             'post_id' => 1,
+            'comment_id' => null,
           ],
           [
             'body' => 'Shame shame shame',
@@ -37,8 +39,6 @@ class CommentsTableSeeder extends Seeder
           ],
         ];
 
-        foreach ($comments as $comment) {
-            DB::table('comments')->insert($comment);
-        }
+        DB::table('comments')->insert($comments);
     }
 }

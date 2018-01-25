@@ -34,8 +34,6 @@ class LikesTableSeeder extends Seeder
           ],
         ];
 
-        foreach ($likes as $like) {
-            DB::table('likes')->insert($like);
-        }
+        DB::table('likes')->insert($likes);
     }
 }

@@ -11,12 +11,23 @@ class PostsTableSeeder extends Seeder
      */
     public function run()
     {
+        $this->someCustomSeed();
+
+        $allUserIds = collect(App\User::pluck('id')->toArray());
+
+        factory(App\Post::class, 200)->create([
+          'user_id' => $allUserIds->random()
+        ]);
+    }
+
+    public function someCustomSeed()
+    {
         $user1Posts = [];
         $images1 = [
-          'post/1/00-best-background.jpg',
-          'post/1/1d1261130ad.jpg',
-          'post/1/1440x720.jpg',
-          'post/1/4732506-images-for-wallpaper.jpg',
+          'images/post/1/00-best-background.jpg',
+          'images/post/1/1d1261130ad.jpg',
+          'images/post/1/1440x720.jpg',
+          'images/post/1/4732506-images-for-wallpaper.jpg',
         ];
 
         foreach ($images1 as $image) {
@@ -25,14 +36,14 @@ class PostsTableSeeder extends Seeder
               'media' => $image,
               'type_id' => 1,
               'description' => str_random(20),
-          ];
+            ];
         }
 
         $user2Posts = [];
         $images2 = [
-          'post/2/c40aa0d.jpg',
-          'post/2/mobile-wallpaper-13-610x1084.jpg',
-          'post/2/photo-144526.jpeg',
+          'images/post/2/c40aa0d.jpg',
+          'images/post/2/mobile-wallpaper-13-610x1084.jpg',
+          'images/post/2/photo-144526.jpeg',
         ];
 
         foreach ($images2 as $image) {
@@ -45,9 +56,6 @@ class PostsTableSeeder extends Seeder
         }
 
         $posts = array_merge($user1Posts, $user2Posts);
-
-        foreach ($posts as $post) {
-            DB::table('posts')->insert($post);
-        }
+        DB::table('posts')->insert($posts);
     }
 }

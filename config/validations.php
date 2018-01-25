@@ -6,7 +6,7 @@ return [
     'email'                 => 'required|email|max:100|unique:users',
     'name'                  => 'required|max:100',
     'username'              => 'required|max:25|unique:users',
-    'password'              => 'required|min:8|confirmed',
+    'password'              => 'required|min:5|confirmed',
     'password_confirmation' => 'required',
   ],
 

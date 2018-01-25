@@ -27,12 +27,6 @@ class SignUpController extends ApiController
 
     public function signUp(SignUpRequest $request, JWTAuth $JWTAuth)
     {
-//        //validate input
-//        if(!$this->createUserValidator->passes())
-//        {
-//            return $this->respondWrongArgs($this->createUserValidator->errors);
-//        }
-
         //create and save user
         $user = $this->user->store($request->all());
 
