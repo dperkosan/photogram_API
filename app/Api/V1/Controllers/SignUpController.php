@@ -1,6 +1,7 @@
 <?php
 namespace App\Api\V1\Controllers;
 
+use Illuminate\Support\Facades\Config;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\SignUpRequest;
 use App\Validators\User\CreateUserValidator;
@@ -26,12 +27,6 @@ class SignUpController extends ApiController
 
     public function signUp(SignUpRequest $request, JWTAuth $JWTAuth)
     {
-//        //validate input
-//        if(!$this->createUserValidator->passes())
-//        {
-//            return $this->respondWrongArgs($this->createUserValidator->errors);
-//        }
-
         //create and save user
         $user = $this->user->store($request->all());
 

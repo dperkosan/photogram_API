@@ -27,10 +27,13 @@ class LikesTableSeeder extends Seeder
             'likable_id' => 1,
             'likable_type' => 1,
           ],
+          [
+            'user_id' => 3,
+            'likable_id' => 1,
+            'likable_type' => 1,
+          ],
         ];
 
-        foreach ($likes as $like) {
-            DB::table('likes')->insert($like);
-        }
+        DB::table('likes')->insert($likes);
     }
 }

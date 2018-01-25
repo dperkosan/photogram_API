@@ -25,7 +25,6 @@ class CreateUsersTable extends Migration
             $table->string('image')->nullable();
             $table->integer('type_id')->unsigned()->default(1); // for admin rights
             $table->boolean('active')->default(false);
-            $table->rememberToken();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });
