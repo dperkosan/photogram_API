@@ -30,7 +30,6 @@ class PostsController extends ApiController
      */
     public function getPosts($numPosts)
     {
-//        event(new NewFollower(User::find(1)));
         return $this->posts->getPosts($numPosts)->toJson();
     }
     

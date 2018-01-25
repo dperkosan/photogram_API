@@ -18,22 +18,24 @@ class ApiController extends Controller
      */
     protected $statusCode = 200;
 
-    public function getAuthenticatedUser()
-    {
-        try {
-            if (!$user = JWTAuth::parseToken()->authenticate()) {
-                return response()->json(['user_not_found'], 404);
-            }
-        } catch (TokenExpiredException $e) {
-            return response()->json(['token_expired'], $e->getStatusCode());
-        } catch (TokenInvalidException $e) {
-            return response()->json(['token_invalid'], $e->getStatusCode());
-        } catch (JWTException $e) {
-            return response()->json(['token_absent'], $e->getStatusCode());
-        }
+    /**
+     * Used temporarily to send messages in json response
+     *
+     * @var string
+     */
+    protected $debugMessage = '';
 
-        // the token is valid and we have found the user via the sub claim
-        return response()->json(compact('user'));
+    /**
+     * If you use this method there will be another property in json called debug
+     *
+     * @param $message
+     */
+    public function dLog($message)
+    {
+        if ($this->debugMessage) {
+            $this->debugMessage .= '|';
+        }
+        $this->debugMessage .= $message;
     }
 
     /**
@@ -64,6 +66,9 @@ class ApiController extends Controller
      */
     public function respond($jsonData = [], $headers = [])
     {
+        if ($this->debugMessage) {
+            $jsonData['debug'] = $this->debugMessage;
+        }
         return response()->json($jsonData, $this->getStatusCode(), $headers);
     }
 
