@@ -33,7 +33,7 @@ class UsersController extends ApiController
         ]);
 
         $updateData = array_merge($updateData, $requestData);
-        
+
         if ($user->update($updateData)) {
             return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
         }

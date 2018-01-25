@@ -2,11 +2,9 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Events\NewFollower;
-use App\Repositories\PostRepository;
-use App\User;
+use App\Interfaces\PostRepositoryInterface;
+use App\Post;
 use Tymon\JWTAuth\JWTAuth;
-use App\Validators\Post\CreatePostValidator;
 
 class PostsController extends ApiController
 {
@@ -16,7 +14,7 @@ class PostsController extends ApiController
     private $posts;
     private $jwtAuth;
 
-    public function __construct(JWTAuth $jwtAuth, PostRepository $posts)
+    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts)
     {
         $this->jwtAuth = $jwtAuth;
         $this->posts = $posts;
