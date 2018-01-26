@@ -3,11 +3,15 @@
 namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\FollowRequest;
+use App\Events\NewFollower;
+use App\User;
 use Auth;
 use Tymon\JWTAuth\JWTAuth;
 use Dingo\Api\Http\Request;
 use App\Interfaces\FollowerRepositoryInterface;
 use App\Validators\Follower\CreateFollowValidator;
+use App\Interfaces\UserRepositoryInterface;
+use App\Repositories\UserRepository;
 
 class FollowersController extends ApiController
 {
@@ -74,16 +78,27 @@ class FollowersController extends ApiController
             return $this->respondWrongArgs('You already follow this user.');
         }
 
+        //check if dude try to follow himself
+        if($followerId == $followedId)
+        {
+            return $this->respondWrongArgs('You already follow yourself.');
+        }
+
         $follow = $this->followers->follow($followerId, $followedId);
 
         if ($follow) {
+
+            // broadcast the event for notifications...
+//            $followedUser = (new UserRepository(User::find($followedId)))->getById($followedId);
+//            $followedUser = User::find($followedId);
+//            event(new NewFollower($followedUser, $this->jwtAuth), $this->jwtAuth);
+
+            event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
+
             return $follow;
         }
 
         return $this->respondInternalError('There was an error while trying to follow this user.');
-
-        //TODO: broadcast the event for notifications...
-        // event(new NewFollower(User::find(1)));
 
     }
 
