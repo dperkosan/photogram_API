@@ -93,7 +93,9 @@ class FollowersController extends ApiController
 //            $followedUser = User::find($followedId);
 //            event(new NewFollower($followedUser, $this->jwtAuth), $this->jwtAuth);
 
-            event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
+            if(env('SEND_NOTIFICATION_ON_FOLLOW')){
+                event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
+            }
 
             return $follow;
         }
