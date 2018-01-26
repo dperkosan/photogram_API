@@ -25,4 +25,9 @@ class Comment extends Model
     {
         return $this->morphMany('App\Like', 'likable');
     }
+
+    public function hashtags()
+    {
+        return $this->morphMany('App\HashtagsLink', 'taggable');
+    }
 }

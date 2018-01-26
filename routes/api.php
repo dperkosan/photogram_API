@@ -21,7 +21,7 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
     $api->get('/test', 'TestController@index');
     
-    //unprotected posts
+    //unprotected posts JUST FOR TESTING
     $api->group(['prefix' => 'posts'], function(Router $api) {
         $api->get('list', 'PostsController@getPosts');
     });
@@ -41,10 +41,17 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->get('/check/{username}', 'UsersController@checkUsername');
             $api->group(['prefix' => 'auth'], function (Router $api) {
                 $api->get('/', 'UsersController@getAuthUser');
-                $api->get('/image', 'UsersController@getAuthProfileImage');
                 $api->post('/image', 'UsersController@updateAuthProfileImage');
                 $api->patch('/update', 'UsersController@updateAuthUser');
             });
+        });
+
+        $api->group(['prefix' => 'posts'], function(Router $api) {
+            $api->get('/', 'PostsController@index');
+            $api->get('{post}', 'PostsController@show');
+            $api->post('/', 'PostsController@store');
+            $api->patch('/{post}', 'PostsController@update');
+            $api->delete('/{post}', 'PostsController@destroy');
         });
 
 

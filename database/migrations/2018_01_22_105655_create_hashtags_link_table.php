@@ -15,11 +15,11 @@ class CreateHashtagsLinkTable extends Migration
     {
         Schema::create('hashtags_link', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->integer('hashtag_id')->unsigned();
+            $table->foreign('hashtag_id')->references('id')->on('hashtags');
             $table->integer('taggable_id')->unsigned();
             $table->tinyInteger('taggable_type')->unsigned();
-            $table->unique(['user_id', 'taggable_id', 'taggable_type']);
+            $table->unique(['hashtag_id', 'taggable_id', 'taggable_type']);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

@@ -8,10 +8,12 @@ interface PostRepositoryInterface
     /**
      * Get all posts
      *
-     * @param $numPosts
+     * @param integer $numPosts
+     * @param integer $page
+     *
      * @return mixed
      */
-    public function getPosts($numPosts);
+    public function getPosts($numPosts, $page);
 
     
 }

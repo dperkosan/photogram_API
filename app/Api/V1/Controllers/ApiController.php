@@ -2,15 +2,9 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Hashtag;
 use App\Http\Controllers\Controller;
-use Tymon\JWTAuth\Exceptions\JWTException;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
-
-/**
- * Api Controller
- */
 class ApiController extends Controller
 {
     /**
@@ -36,6 +30,21 @@ class ApiController extends Controller
             $this->debugMessage .= '|';
         }
         $this->debugMessage .= $message;
+    }
+
+    protected function authUser()
+    {
+        return \Auth::user();
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Model|mixed $model
+     *
+     * @return bool
+     */
+    protected function belongsToAuthUser($model)
+    {
+        return $model->user_id === $this->authUser()->id;
     }
 
     /**
@@ -69,6 +78,7 @@ class ApiController extends Controller
         if ($this->debugMessage) {
             $jsonData['debug'] = $this->debugMessage;
         }
+
         return response()->json($jsonData, $this->getStatusCode(), $headers);
     }
 
@@ -76,7 +86,7 @@ class ApiController extends Controller
     {
         return $this->respond([
           'success' => true,
-          'data' => $data
+          'data'    => $data,
         ]);
     }
 
@@ -100,32 +110,32 @@ class ApiController extends Controller
 
     public function respondWrongArgs($message = 'Wrong args')
     {
-        return $this->setStatusCode(400)->respondWithMessage($message);
+        return $this->setStatusCode(400)->respondWithMessage($message, false);
     }
 
     public function respondUnauthorized($message = 'Unauthorized')
     {
-        return $this->setStatusCode(401)->respondWithMessage($message);
+        return $this->setStatusCode(401)->respondWithMessage($message, false);
     }
 
     public function respondForbidden($message = 'Forbidden')
     {
-        return $this->setStatusCode(403)->respondWithMessage($message);
+        return $this->setStatusCode(403)->respondWithMessage($message, false);
     }
 
     public function respondNotFound($message = 'Not Found')
     {
-        return $this->setStatusCode(404)->respondWithMessage($message);
+        return $this->setStatusCode(404)->respondWithMessage($message, false);
     }
 
     public function respondNotAllowed($message = 'Method Not Allowed')
     {
-        return $this->setStatusCode(405)->respondWithMessage($message);
+        return $this->setStatusCode(405)->respondWithMessage($message, false);
     }
 
     public function respondInternalError($message = 'Internal Error')
     {
-        return $this->setStatusCode(500)->respondWithMessage($message);
+        return $this->setStatusCode(500)->respondWithMessage($message, false);
     }
 
 }

@@ -39,11 +39,4 @@ class PostRepository implements PostRepositoryInterface
           ->limit($numPosts)
           ->get();
     }
-
-    public function getLikes($postId)
-    {
-        $this->post->find($postId)->likes;
-    }
-
-
 }

@@ -58,7 +58,7 @@ class UserRepository implements UserRepositoryInterface
         $object = ($object) ? $object : $this->user;
 
         // In order not to write the same if condition 7 times
-        $attributesToFill = ['email', 'password', 'username', 'name', 'gender', 'phone', 'about'];
+        $attributesToFill = ['email', 'password', 'username', 'name', 'gender_id', 'phone', 'about'];
 
         foreach ($attributesToFill as $attribute)
         {

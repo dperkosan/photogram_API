@@ -7,11 +7,6 @@ use Illuminate\Support\Facades\Auth;
 
 class UsersController extends ApiController
 {
-    private function authUser()
-    {
-        return Auth::user();
-    }
-
     public function updateAuthUser(Request $request)
     {
         $updateData = [];
@@ -80,8 +75,6 @@ class UsersController extends ApiController
         $path = $imagesStorage->putFileAs("/user/{$user->id}", $image, $imageName);
 
         if ($user->image !== $path) {
-            $this->dLog('new path is different');
-            $this->dLog('old path - '.$user->image.', new path - ' . $path);
             $user->image = $path;
             $user->save();
         }
