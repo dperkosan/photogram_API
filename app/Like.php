@@ -7,14 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
 {
-//    protected static function boot()
-//    {
-//        parent::boot();
-//
-//        static::addGlobalScope('withStuff', function (Builder $builder) {
-//            $builder->with('user:id,username');
-//        });
-//    }
+    // likable_type
+    const LIKABLE_POST = 1;
+    const LIKABLE_COMMENT = 2;
 
     /**
      * Get all of the owning commentable models.

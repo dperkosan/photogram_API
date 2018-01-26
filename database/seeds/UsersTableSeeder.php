@@ -1,10 +1,37 @@
 <?php
 
+use App\User;
 use Illuminate\Database\Seeder;
 
 class UsersTableSeeder extends Seeder
 {
     public function run()
+    {
+        $this->customSeed();
+
+        $faker = Faker\Factory::create();
+
+        $allUsers = [];
+
+        foreach (range(1, 50) as $index) {
+            $allUsers[] = [
+              'name' => $faker->name,
+              'username' => $faker->unique()->userName,
+              'email' => $faker->unique()->safeEmail,
+              'password' => bcrypt('admin'),
+              'gender_id' => $faker->randomElement([1, 2, 3]),
+              'phone' => $faker->phoneNumber,
+              'about' => $faker->text(200),
+              'image' => 'user/placeholder.png',
+              'type_id' => 1,
+              'active' => 1,
+            ];
+        }
+
+        DB::table('users')->insert($allUsers);
+    }
+
+    public function customSeed()
     {
         $users = [
           [
@@ -12,7 +39,7 @@ class UsersTableSeeder extends Seeder
             'name'      => 'Uroš Anđelić',
             'email'     => 'uroshcs@gmail.com',
             'password'  => bcrypt('urosadmin'),
-            'gender_id' => 1,
+            'gender_id' => User::GENDER_MALE,
             'phone'     => '555-333',
             'about'     => 'My name is Neo',
             'image'     => 'user/1/uros.jpg',
@@ -24,7 +51,7 @@ class UsersTableSeeder extends Seeder
             'name'      => 'Stefan Petković',
             'email'     => 'stefan.petkovic@diwanee.com',
             'password'  => bcrypt('stefanadmin'),
-            'gender_id' => 1,
+            'gender_id' => User::GENDER_MALE,
             'phone'     => '123456',
             'about'     => 'about me something',
             'image'     => '',
@@ -36,7 +63,7 @@ class UsersTableSeeder extends Seeder
             'name'      => 'Stefan Milić',
             'email'     => 'stefan.milic@diwanee.com',
             'password'  => bcrypt('stefanadmin'),
-            'gender_id' => 1,
+            'gender_id' => User::GENDER_MALE,
             'phone'     => '123456',
             'about'     => 'about me something',
             'image'     => '',
@@ -48,7 +75,7 @@ class UsersTableSeeder extends Seeder
             'name'      => 'Bojan Lazarević',
             'email'     => 'bojan.lazarevic@diwanee.com',
             'password'  => bcrypt('bojanadmin'),
-            'gender_id' => 1,
+            'gender_id' => User::GENDER_MALE,
             'phone'     => '123456',
             'about'     => 'about me something',
             'image'     => '',
@@ -60,7 +87,7 @@ class UsersTableSeeder extends Seeder
             'name'      => 'Damir Perkošan',
             'email'     => 'damir.perkosan@diwanee.com',
             'password'  => bcrypt('12345'),
-            'gender_id' => 3,
+            'gender_id' => User::GENDER_OTHER,
             'phone'     => '123456',
             'about'     => 'about me something',
             'image'     => '',
@@ -71,6 +98,5 @@ class UsersTableSeeder extends Seeder
 
 
         DB::table('users')->insert($users);
-        factory(App\User::class, 50)->create();
     }
 }

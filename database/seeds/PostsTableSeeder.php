@@ -1,5 +1,6 @@
 <?php
 
+use App\Post;
 use Illuminate\Database\Seeder;
 
 class PostsTableSeeder extends Seeder
@@ -11,16 +12,43 @@ class PostsTableSeeder extends Seeder
      */
     public function run()
     {
-        $this->someCustomSeed();
+        $this->customSeeder();
+
+        $faker = Faker\Factory::create();
 
         $allUserIds = collect(App\User::pluck('id')->toArray());
 
-        factory(App\Post::class, 200)->create([
-          'user_id' => $allUserIds->random()
-        ]);
+        $allPosts = [];
+
+        foreach (range(1, 200) as $index) {
+            $num = mt_rand(1, 10);
+
+            if ($num === 10) {
+                $post['media'] = 'videos/post/placeholder.mp4';
+                $post['type_id'] = Post::TYPE_VIDEO;
+                $post['thumbnail'] = 'images/thumbnail.png';
+            } else {
+                $post['media'] = 'images/post/placeholder.jpg';
+                $post['type_id'] = POST::TYPE_IMAGE;
+                $post['thumbnail'] = null;
+            }
+
+            $newPost = [
+              'user_id'     => $allUserIds->random(),
+              'type_id'     => $post['type_id'],
+              'media'       => $post['media'],
+              'description' => $faker->text(mt_rand(5, 200)),
+              'thumbnail'   => $post['thumbnail'],
+            ];
+
+            $allPosts[] = $newPost;
+        }
+
+        DB::table('posts')->insert($allPosts);
+
     }
 
-    public function someCustomSeed()
+    public function customSeeder()
     {
         $user1Posts = [];
         $images1 = [
@@ -32,9 +60,9 @@ class PostsTableSeeder extends Seeder
 
         foreach ($images1 as $image) {
             $user1Posts[] = [
-              'user_id' => 1,
-              'media' => $image,
-              'type_id' => 1,
+              'user_id'     => 1,
+              'media'       => $image,
+              'type_id'     => Post::TYPE_IMAGE,
               'description' => str_random(20),
             ];
         }
@@ -48,9 +76,9 @@ class PostsTableSeeder extends Seeder
 
         foreach ($images2 as $image) {
             $user2Posts[] = [
-              'user_id' => 2,
-              'media' => $image,
-              'type_id' => 1,
+              'user_id'     => 2,
+              'media'       => $image,
+              'type_id'     => Post::TYPE_IMAGE,
               'description' => str_random(20),
             ];
         }

@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
+    const TYPE_IMAGE = 1;
+    const TYPE_VIDEO = 2;
+
+    protected $hidden = [
+      'deleted', 'updated_at',
+    ];
+
     protected static function boot()
     {
         parent::boot();

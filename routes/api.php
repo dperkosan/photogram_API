@@ -23,7 +23,7 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
     
     //unprotected posts
     $api->group(['prefix' => 'posts'], function(Router $api) {
-        $api->get('list/{numPosts}', 'PostsController@getPosts');
+        $api->get('list', 'PostsController@getPosts');
     });
 
     $api->get('likes', 'LikesController@index');

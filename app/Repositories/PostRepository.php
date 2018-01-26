@@ -24,13 +24,18 @@ class PostRepository implements PostRepositoryInterface
      * Get latest posts
      *
      * @param integer $numPosts number of posts to return
-     * @return \App\Post
+     * @param int     $page
+     *
+     * @return Post
      */
-    public function getPosts($numPosts)
+    public function getPosts($numPosts, $page = 1)
     {
+        $offset = ($page - 1) * $numPosts;
+
         return $this->post
           ->orderBy('created_at', 'DESC')
           ->with('comments')
+          ->offset($offset)
           ->limit($numPosts)
           ->get();
     }

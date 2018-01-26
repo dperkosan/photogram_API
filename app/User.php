@@ -13,6 +13,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 1;
+    const GENDER_OTHER = 1;
+
     use Notifiable;
 
     /**

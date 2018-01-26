@@ -4,6 +4,7 @@ namespace App\Api\V1\Controllers;
 
 use App\Interfaces\PostRepositoryInterface;
 use App\Post;
+use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
 
 class PostsController extends ApiController
@@ -23,12 +24,17 @@ class PostsController extends ApiController
     /**
      * Get x number of latest posts
      *
-     * @param $numPosts
+     * @param Request $request
+     *
      * @return mixed
      */
-    public function getPosts($numPosts)
+    public function getPosts(Request $request)
     {
-        return $this->posts->getPosts($numPosts)->toJson();
+        if (!$request->amount || !$request->page) {
+            return $this->respondWrongArgs('Query parameters \'amount\' and \'page\' are required.');
+        }
+
+        return $this->posts->getPosts($request->amount, $request->page)->toJson();
     }
     
     public function likes($id)

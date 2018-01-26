@@ -72,8 +72,8 @@ class UsersController extends ApiController
         $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
 
         $imagesStorage = \Storage::disk('public_images');
-        if ($imagesStorage->exists($user->slika)) {
-            $imagesStorage->delete($user->slika);
+        if ($imagesStorage->exists($user->image)) {
+            $imagesStorage->delete($user->image);
             $this->dLog('deleted old img');
         }
 
@@ -81,6 +81,7 @@ class UsersController extends ApiController
 
         if ($user->image !== $path) {
             $this->dLog('new path is different');
+            $this->dLog('old path - '.$user->image.', new path - ' . $path);
             $user->image = $path;
             $user->save();
         }
