@@ -6,6 +6,7 @@ use App\User;
 use App\Interfaces\UserRepositoryInterface;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
+use App\Notifications\Followed as FollowedNotification;
 
 class UserRepository implements UserRepositoryInterface
 {
@@ -99,5 +100,16 @@ class UserRepository implements UserRepositoryInterface
     public function sendConfirmEmailNotification($token)
     {
         $this->user->notify(new ConfirmEmailNotification($token));
+    }
+
+    /**
+     * Send notification about new follower to followed user.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendNotificationToFollowed($token)
+    {
+        $this->user->notify(new FollowedNotification($token));
     }
 }
