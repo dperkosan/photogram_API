@@ -2,6 +2,8 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Api\V1\Requests\PostDataRequest;
+use App\Api\V1\Requests\PostRequest;
 use App\HashtagsLink;
 use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\PostRepositoryInterface;
@@ -12,7 +14,7 @@ use Tymon\JWTAuth\JWTAuth;
 class PostsController extends ApiController
 {
     /**
-     * @var \App\Interfaces\FollowerRepositoryInterface
+     * @var \App\Repositories\PostRepository
      */
     private $posts;
     private $jwtAuth;
@@ -26,28 +28,34 @@ class PostsController extends ApiController
     /**
      * Get x number of latest posts
      *
-     * @param Request $request
+     * @param PostDataRequest $request
      *
      * @return mixed
      */
-    public function getPosts(Request $request)
+    public function getPosts(PostDataRequest $request)
     {
-        if (!$request->amount || !$request->page) {
-            return $this->respondWrongArgs('Query parameters \'amount\' and \'page\' are required.');
-        }
         $posts = $this->posts->getPosts($request->amount, $request->page);
 
         return $this->respondWithData($posts);
     }
 
-    public function index(Request $request)
+    public function newsFeed(PostDataRequest $request)
     {
-        $this->validate($request, [
-          'amount' => 'required|max:100',
-          'page'   => 'required|max:50',
-        ]);
+        $posts = $this->posts->newsFeed($this->authUser()->id, $request->amount, $request->page);
 
-        $posts = $this->posts->getPosts($request->amount, $request->page);
+        return $this->respondWithData($posts);
+    }
+
+    public function index(PostDataRequest $request)
+    {
+        $userId = null;
+        if ($request->username) {
+            $userId = \App\User::where('username', $request->username)->first()->id;
+        } else if ($request->user_id) {
+            $userId = $request->user_id;
+        }
+
+        $posts = $this->posts->getPosts($request->amount, $request->page, $userId);
 
         return $this->respondWithData($posts);
     }
@@ -57,85 +65,68 @@ class PostsController extends ApiController
         return $this->respondWithData($post);
     }
 
-    public function store(Request $request, HashtagRepositoryInterface $hashtags)
+    public function store(PostRequest $request, HashtagRepositoryInterface $hashtags)
     {
-        if (!$request->hasFile('media')) {
-            return $this->respondWrongArgs('Image or video with the param name \'media\' is required');
-        }
+        $mediaType = $request->image ? 'image' : 'video';
+        $isImage = $mediaType === 'image';
 
-        $media = $request->file('media');
+        $media = $request->file($mediaType);
         $mediaExtension = $media->getClientOriginalExtension();
 
-        // TODO: check for mime type instead of extension
-
-        if (in_array($mediaExtension, \Config::get('boilerplate.allowed.formats.image'))) {
-            $isImage = true;
-        } else if (in_array($mediaExtension, \Config::get('boilerplate.allowed.formats.video'))) {
-            $isImage = false;
-        } else {
-            return $this->respondWrongArgs('Format ' . $mediaExtension . ' is not allowed.');
-        }
-
         $user = $this->authUser();
+        $userId = $user->id;
+        $currentYear = date('Y');
+
         $mediaName = date('Ymdhis') . "-{$user->username}.{$mediaExtension}";
-        $folder = $isImage ? 'images' : 'videos';
-        $path = "{$folder}/post/{$user->id}/" . date('Ymd');
+        $folder = $mediaType . 's';
+        $path = "{$folder}/post/{$userId}/{$currentYear}";
+        $storage = \Storage::disk('public');
 
-        $path = \Storage::disk('public')->putFileAs($path, $media, $mediaName);
+        $mediaPath = $storage->putFileAs($path, $media, $mediaName);
 
-        $thumbnail = null;
+        $thumbnailPath = null;
         if (!$isImage) {
-            $thumbnail = $this->processThumbnail($request);
+            $thumbnail = $request->file('thumbnail');
+            $user = $this->authUser();
+            $thumbnailName = date('Ymdhis') . "-{$user->username}.{$thumbnail->getClientOriginalExtension()}";
+            $path = "videos/post/{$userId}/{$currentYear}";
+
+            $thumbnailPath = $storage->putFileAs($path, $thumbnail, $thumbnailName);
         }
 
-        $post = Post::make([
+        $post = Post::create([
           'user_id'     => $user->id,
           'type_id'     => $isImage ? Post::TYPE_IMAGE : Post::TYPE_VIDEO,
-          'media'       => $path,
-          'thumbnail'   => $thumbnail,
+          'media'       => $mediaPath,
+          'thumbnail'   => $thumbnailPath,
           'description' => $request->description,
         ]);
-
-        if (!$post->save()) {
-            return $this->respondInternalError('Falied to save post');
-        }
 
         $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
 
         return $this->respondCreated();
     }
 
-    private function processThumbnail(Request $request)
-    {
-        $this->validate($request, [
-          'thumbnail' => 'required|image',
-        ]);
-
-        $thumbnail = $request->file('thumbnail');
-        $user = $this->authUser();
-        $thumbnailName = date('Ymdhis') . "-{$user->username}.{$thumbnail->getClientOriginalExtension()}";
-        $storage = \Storage::disk('public');
-
-        return $storage->putFileAs("videos/post/{$user->id}/" . date('Ymd'), $thumbnail, $thumbnailName);
-    }
-
     public function update(Request $request, Post $post, HashtagRepositoryInterface $hashtags)
     {
-        if (!isset($request->description)) {
-            return $this->respondWrongArgs('Only description can and must be sent in the request body');
-        }
-
         if (!$this->belongsToAuthUser($post)) {
             return $this->respondForbidden('This post is not yours!');
         }
 
-        $post->description = $request->description;
-
-        if (!$post->save()) {
-            $this->respondInternalError('Falied to save post');
+        if (isset($request->description)) {
+            $post->description = $request->description;
+            $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
         }
 
-        $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
+        if (isset($request->thumbnail)) {
+            $storage = \Storage::disk('public');
+            if ($storage->exists($post->thumbnail)) {
+                $storage->delete($post->thumbnail);
+            }
+            $post->thumbnail = $request->thumbnail;
+        }
+
+        $post->save();
 
         return $this->respondSuccess();
     }

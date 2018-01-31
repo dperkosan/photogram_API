@@ -6,7 +6,7 @@ use Dingo\Api\Routing\Router;
 $api = app(Router::class);
 
 $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
-    //authentication
+
     $api->group(['prefix' => 'auth'], function(Router $api) {
         $api->post('signup', 'SignUpController@signUp');
         $api->post('login', 'LoginController@login');
@@ -20,18 +20,16 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
     });
 
     $api->get('/test', 'TestController@index');
+
+    $api->get('/config', 'ConfigController@index');
     
-    //unprotected posts JUST FOR TESTING
+    // unprotected posts JUST FOR TESTING
     $api->group(['prefix' => 'posts'], function(Router $api) {
         $api->get('list', 'PostsController@getPosts');
     });
 
-    $api->get('likes', 'LikesController@index');
-
-
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
-        //followers
         $api->get('/followers', 'FollowersController@getFollowers');
         $api->get('/followings', 'FollowersController@getFollowings');
         $api->post('/followers', 'FollowersController@follow');
@@ -39,12 +37,15 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
         $api->group(['prefix' => 'users'], function (Router $api) {
             $api->get('/check/{username}', 'UsersController@checkUsername');
+
             $api->group(['prefix' => 'auth'], function (Router $api) {
                 $api->get('/', 'UsersController@getAuthUser');
                 $api->post('/image', 'UsersController@updateAuthProfileImage');
                 $api->patch('/update', 'UsersController@updateAuthUser');
             });
         });
+
+        $api->get('/home', 'PostsController@newsFeed');
 
         $api->group(['prefix' => 'posts'], function(Router $api) {
             $api->get('/', 'PostsController@index');
@@ -54,6 +55,11 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->delete('/{post}', 'PostsController@destroy');
         });
 
+        $api->group(['prefix' => 'likes'], function(Router $api) {
+            $api->get('/', 'LikesController@index');
+            $api->post('/', 'LikesController@store');
+            $api->delete('/', 'LikesController@destroy');
+        });
 
         $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
                 return response()->json([

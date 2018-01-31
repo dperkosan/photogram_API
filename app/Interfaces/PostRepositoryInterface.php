@@ -13,7 +13,9 @@ interface PostRepositoryInterface
      *
      * @return mixed
      */
-    public function getPosts($numPosts, $page);
+    public function getPosts($numPosts, $page, $userId);
+
+    public function newsFeed($userId, $amount, $page);
 
     
 }

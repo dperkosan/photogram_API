@@ -21,7 +21,7 @@ class CommentsTableSeeder extends Seeder
 
         $allPosts = Post::with('comments')->get();
 
-        foreach (range(1, 400) as $index) {
+        foreach (range(1, 1000) as $index) {
 
             $userId = $allUserIds->random();
             $postId = $allPostIds->random();

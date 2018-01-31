@@ -3,9 +3,9 @@
 namespace App\Api\V1\Requests;
 
 use Config;
-use Dingo\Api\Http\FormRequest;
+use Dingo\Api\Http\FormRequest as DingoRequest;
 
-class BaseRequest extends FormRequest
+class BaseRequest extends DingoRequest
 {
     protected $configName;
 

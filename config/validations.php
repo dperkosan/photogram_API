@@ -34,4 +34,20 @@ return [
     'gender_id' => 'integer|between:1,3',
   ],
 
+  'post' => [
+    'image' => 'required_without:video|image',
+    'video' => 'required_without:image|mimes:mp4,flv,wmv,avi,mpeg,qt',
+    'thumbnail' => 'image',
+  ],
+
+  'post_data' => [
+    'amount' => 'required|max:100',
+    'page' => 'required|max:50',
+  ],
+
+  'like' => [
+    'likable_id' => 'required|integer',
+    'likable_type' => 'required|integer',
+  ],
+
 ];

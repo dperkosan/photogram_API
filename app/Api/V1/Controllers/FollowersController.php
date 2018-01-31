@@ -9,32 +9,23 @@ use Auth;
 use Tymon\JWTAuth\JWTAuth;
 use Dingo\Api\Http\Request;
 use App\Interfaces\FollowerRepositoryInterface;
-use App\Validators\Follower\CreateFollowValidator;
-use App\Interfaces\UserRepositoryInterface;
-use App\Repositories\UserRepository;
 
 class FollowersController extends ApiController
 {
     /**
-     * @var FollowerRepositoryInterface
+     * @var \App\Repositories\FollowerRepository
      */
     private $followers;
-
-    /**
-     * @var CreateFollowValidator
-     */
-    private $createFollowValidator;
 
     /**
      * @var JWTAuth
      */
     private $jwtAuth;
 
-    public function __construct(JWTAuth $jwtAuth, FollowerRepositoryInterface $followers, CreateFollowValidator $createFollowValidator)
+    public function __construct(JWTAuth $jwtAuth, FollowerRepositoryInterface $followers)
     {
         $this->jwtAuth = $jwtAuth;
         $this->followers = $followers;
-        $this->createFollowValidator = $createFollowValidator;
     }
 
     /**
@@ -44,8 +35,7 @@ class FollowersController extends ApiController
      */
     public function getFollowers()
     {
-        $user = Auth::user();
-        return $this->followers->getFollowers($user->id);
+        return $this->followers->getFollowers($this->authUser()->id);
     }
 
     /**
@@ -59,28 +49,20 @@ class FollowersController extends ApiController
     {
         $followedId = $request->get('followed_id');
 
-//        if(!$this->createFollowValidator->passes())
-//        {
-//            return $this->respondWrongArgs($this->createFollowValidator->errors);
-//        }
-
         //check if user exists
-        if(!$this->followers->userExists($followedId))
-        {
+        if(!$this->followers->userExists($followedId)) {
             return $this->respondNotFound('User does not exist');
         }
 
-        $followerId = Auth::user()->id;
+        $followerId = $this->authUser()->id;
 
         //check if the following already exists
-        if($this->followers->followExists($followerId, $followedId))
-        {
+        if($this->followers->followExists($followerId, $followedId)) {
             return $this->respondWrongArgs('You already follow this user.');
         }
 
         //check if dude try to follow himself
-        if($followerId == $followedId)
-        {
+        if($followerId == $followedId) {
             return $this->respondWrongArgs('You already follow yourself.');
         }
 
@@ -97,7 +79,7 @@ class FollowersController extends ApiController
                 event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
             }
 
-            return $follow;
+            return $this->respondSuccess();
         }
 
         return $this->respondInternalError('There was an error while trying to follow this user.');
@@ -118,12 +100,12 @@ class FollowersController extends ApiController
         $followedId = $request->get('followed_id');
 
         if (!$this->followers->followExists($userId, $followedId)) {
-            return $this->respondNotFound('You are not following this user.');
+            return $this->respondWrongArgs('You are not following this user.');
         }
 
         $unfollowSuccessful = $this->followers->unfollow($userId, $followedId);
         if ($unfollowSuccessful) {
-            return $this->respondSuccess('You no longer follow this user.');
+            return $this->respondWithMessage('You no longer follow this user.');
         }
 
         return false;

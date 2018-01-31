@@ -24,8 +24,8 @@ class LikesTableSeeder extends Seeder
         $allCommentIds = collect(Comment::pluck('id')->toArray());
         $allCommentIds = $allCommentIds->random($allCommentIds->count() / 10);
 
-        $this->seed($allUserIds, $allPostIds, Like::LIKABLE_POST, 1000);
-        $this->seed($allUserIds, $allCommentIds, Like::LIKABLE_COMMENT, 1000);
+        $this->seed($allUserIds, $allPostIds, Like::LIKABLE_POST, 2000);
+        $this->seed($allUserIds, $allCommentIds, Like::LIKABLE_COMMENT, 2000);
     }
 
     public function seed($allUserIds, $allLikableIds, $likableType, $amount)

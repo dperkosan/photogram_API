@@ -20,7 +20,7 @@ class PostsTableSeeder extends Seeder
 
         $allPosts = [];
 
-        foreach (range(1, 200) as $index) {
+        foreach (range(1, 500) as $index) {
             $num = mt_rand(1, 10);
 
             if ($num === 10) {

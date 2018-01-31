@@ -31,9 +31,12 @@ class LoginController extends ApiController
             throw new HttpException(500);
         }
 
+        $this->addDataToUser($currentUser);
+
         return $this->respond([
             'status_code' => 200,
-            'token' => $token
+            'token' => $token,
+            'data' => $currentUser
         ]);
 
     }

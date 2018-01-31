@@ -1,13 +1,13 @@
 <?php
 namespace App\Api\V1\Controllers;
 
+use App\Api\V1\Requests\UserRequest;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class UsersController extends ApiController
 {
-    public function updateAuthUser(Request $request)
+    public function updateAuthUser(UserRequest $request)
     {
         $updateData = [];
 
@@ -38,7 +38,15 @@ class UsersController extends ApiController
 
     public function getAuthUser()
     {
-        return $this->authUser();
+        $user = $this->authUser();
+
+        if (!$user) {
+            return $this->respondForbidden();
+        }
+
+        $this->addDataToUser($user);
+
+        return $this->respondWithData($user);
     }
 
     public function checkUsername($username)
@@ -52,24 +60,19 @@ class UsersController extends ApiController
 
     public function updateAuthProfileImage(Request $request)
     {
-        if (!$request->hasFile('image')) {
-            return $this->respondWrongArgs('Image param name needs to be \'image\'');
-        }
+        $this->validate($request, [
+          'image' => 'required|image'
+        ]);
 
         $image = $request->file('image');
-
-        if (!in_array($image->getClientOriginalExtension(), ['jpg', 'png'])) {
-            return $this->respondWithMessage('Only jpg or png format images allowed', false);
-        }
-
         $user = $this->authUser();
 
-        $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
+        $imageName = $image->getClientOriginalName();
+//        $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
 
         $imagesStorage = \Storage::disk('public_images');
         if ($imagesStorage->exists($user->image)) {
             $imagesStorage->delete($user->image);
-            $this->dLog('deleted old img');
         }
 
         $path = $imagesStorage->putFileAs("/user/{$user->id}", $image, $imageName);
