@@ -2,7 +2,7 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Api\V1\Requests\PostDataRequest;
+use App\Api\V1\Requests\PostPaginationRequest;
 use App\Api\V1\Requests\PostRequest;
 use App\HashtagsLink;
 use App\Interfaces\HashtagRepositoryInterface;
@@ -28,25 +28,29 @@ class PostsController extends ApiController
     /**
      * Get x number of latest posts
      *
-     * @param PostDataRequest $request
+     * @param PostPaginationRequest $request
      *
      * @return mixed
      */
-    public function getPosts(PostDataRequest $request)
+    public function getPosts(PostPaginationRequest $request)
     {
         $posts = $this->posts->getPosts($request->amount, $request->page);
 
         return $this->respondWithData($posts);
     }
 
-    public function newsFeed(PostDataRequest $request)
+    public function newsFeed(PostPaginationRequest $request)
     {
-        $posts = $this->posts->newsFeed($this->authUser()->id, $request->amount, $request->page);
+        $userId = $this->authUser()->id;
+
+        $posts = $this->posts->newsFeed($userId, $request->amount, $request->page);
+
+        $this->posts->addAuthLike($posts, $userId);
 
         return $this->respondWithData($posts);
     }
 
-    public function index(PostDataRequest $request)
+    public function index(PostPaginationRequest $request)
     {
         $userId = null;
         if ($request->username) {
@@ -56,6 +60,11 @@ class PostsController extends ApiController
         }
 
         $posts = $this->posts->getPosts($request->amount, $request->page, $userId);
+
+        $authUser = $this->authUser();
+        if ($authUser) {
+            $this->posts->addAuthLike($posts, $authUser->id);
+        }
 
         return $this->respondWithData($posts);
     }

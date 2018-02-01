@@ -2,56 +2,37 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Api\V1\Requests\LikePaginationRequest;
 use App\Api\V1\Requests\LikeRequest;
+use App\Interfaces\LikeRepositoryInterface;
 use App\Like;
-use Illuminate\Http\Request;
 
 class LikesController extends ApiController
 {
-    public function index(Request $request)
+    public function index(LikePaginationRequest $request, LikeRepositoryInterface $likeRepository)
     {
-        $likeData = $request->only(['likable_id', 'likable_type']);
+        $users = $likeRepository->usersFromLikes(
+          $request->likable_id,
+          $request->likable_type,
+          $request->amount,
+          $request->page
+        );
 
-        $usernames = \DB::table('likes')
-          ->select('users.username')
-          ->join('users', 'users.id', '=', 'likes.user_id')
-          ->where($likeData)
-          ->limit(5)
-          ->pluck('username')
-          ->toArray();
-
-        $count = \DB::table('likes')->where($likeData)->count();
-
-        $usernamesCount = count($usernames);
-
-        $string = implode(',', $usernames);
-        if ($count > $usernamesCount) {
-            $diff = $count - $usernamesCount;
-            $string .= ',and ' . $diff . ' more';
-        }
-
-        return $this->respondWithData(compact('usernames', 'count', 'string'));
+        return $this->respondWithData($users);
     }
 
     public function store(LikeRequest $request)
     {
         $likeData = $request->only(['likable_id', 'likable_type']);
-
         $likeData['user_id'] = $this->authUser()->id;
 
-        Like::create($likeData);
+        $like = Like::create($likeData);
 
-        return $this->respondSuccess();
+        return $this->respondWithData($like);
     }
 
-    public function destroy(LikeRequest $request)
+    public function destroy(Like $like)
     {
-        $likeData = $request->only(['likable_id', 'likable_type']);
-
-        $likeData['user_id'] = $this->authUser()->id;
-
-        $like = Like::where($likeData)->first();
-
         if (!$this->belongsToAuthUser($like)) {
             return $this->respondForbidden('This like is not yours!');
         }

@@ -55,22 +55,7 @@ class Post extends Model
       'description',
     ];
 
-    protected $hidden = [
-      'deleted',
-      'updated_at',
-    ];
-
-//    protected static function boot()
-//    {
-//        parent::boot();
-//
-//        static::addGlobalScope('withStuff', function (Builder $builder) {
-//            $builder
-//              ->with('user:id,username,image')
-//              ->withCount('comments')
-//              ->withCount('likes');
-//        });
-//    }
+    protected $hidden = ['deleted', 'updated_at'];
 
     public function user()
     {

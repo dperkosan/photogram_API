@@ -24,7 +24,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register()
     {
         $repositories = [
-          'Post', 'Follower', 'User', 'Hashtag'
+          'Post', 'Follower', 'User', 'Hashtag', 'Like', 'Comment'
         ];
 
         foreach ($repositories as $repo) {

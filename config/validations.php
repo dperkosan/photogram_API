@@ -35,19 +35,40 @@ return [
   ],
 
   'post' => [
-    'image' => 'required_without:video|image',
-    'video' => 'required_without:image|mimes:mp4,flv,wmv,avi,mpeg,qt',
+    'image'     => 'required_without:video|image',
+    'video'     => 'required_without:image|mimes:mp4,flv,wmv,avi,mpeg,qt',
     'thumbnail' => 'image',
   ],
 
-  'post_data' => [
-    'amount' => 'required|max:100',
-    'page' => 'required|max:50',
+  'post_pagination' => [
+    'amount'   => 'required|max:100',
+    'page'     => 'required|max:50',
+    'user_id'  => 'nullable|integer',
+    'username' => 'nullable|integer',
+  ],
+
+  'comment_pagination' => [
+    'amount'  => 'required|max:100',
+    'page'    => 'required|max:50',
+    'post_id' => 'required|integer',
   ],
 
   'like' => [
-    'likable_id' => 'required|integer',
+    'likable_id'   => 'required|integer',
     'likable_type' => 'required|integer',
+  ],
+
+  'comment' => [
+    'body'       => 'required|max:255',
+    'post_id'    => 'required|integer',
+    'comment_id' => 'nullable|integer',
+  ],
+
+  'like_pagination' => [
+    'likable_id'   => 'required|integer',
+    'likable_type' => 'required|integer',
+    'amount'       => 'required|max:100',
+    'page'         => 'required|max:50',
   ],
 
 ];

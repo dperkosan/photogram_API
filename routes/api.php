@@ -25,7 +25,7 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
     
     // unprotected posts JUST FOR TESTING
     $api->group(['prefix' => 'posts'], function(Router $api) {
-        $api->get('list', 'PostsController@getPosts');
+        $api->get('/test', 'PostsController@index');
     });
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
@@ -55,10 +55,17 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->delete('/{post}', 'PostsController@destroy');
         });
 
+        $api->group(['prefix' => 'comments'], function(Router $api) {
+            $api->get('/', 'CommentsController@index');
+            $api->post('/', 'CommentsController@store');
+            $api->patch('/{comment}', 'PostsController@update');
+            $api->delete('/{comment}', 'CommentsController@destroy');
+        });
+
         $api->group(['prefix' => 'likes'], function(Router $api) {
             $api->get('/', 'LikesController@index');
             $api->post('/', 'LikesController@store');
-            $api->delete('/', 'LikesController@destroy');
+            $api->delete('/{like}', 'LikesController@destroy');
         });
 
         $api->get('refresh', ['middleware' => 'jwt.refresh', function() {

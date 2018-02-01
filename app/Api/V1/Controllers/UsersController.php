@@ -70,12 +70,12 @@ class UsersController extends ApiController
         $imageName = $image->getClientOriginalName();
 //        $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
 
-        $imagesStorage = \Storage::disk('public_images');
-        if ($imagesStorage->exists($user->image)) {
-            $imagesStorage->delete($user->image);
+        $storage = \Storage::disk('public');
+        if ($storage->exists($user->image)) {
+            $storage->delete($user->image);
         }
 
-        $path = $imagesStorage->putFileAs("/user/{$user->id}", $image, $imageName);
+        $path = $storage->putFileAs("/images/user/{$user->id}", $image, $imageName);
 
         if ($user->image !== $path) {
             $user->image = $path;

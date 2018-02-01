@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Follower;
 use App\Interfaces\FollowerRepositoryInterface;
+use App\Interfaces\LikeRepositoryInterface;
 use App\Post;
 use App\Interfaces\PostRepositoryInterface;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
-class PostRepository implements PostRepositoryInterface
+class PostRepository extends Repository implements PostRepositoryInterface
 {
     /**
      * @var \App\Post
@@ -45,6 +45,15 @@ class PostRepository implements PostRepositoryInterface
         return $query->get();
     }
 
+    /**
+     * This is for the home page, so it returns posts from followed users
+     *
+     * @param int $userId
+     * @param int $amount
+     * @param int $page
+     *
+     * @return Collection
+     */
     public function newsFeed($userId, $amount, $page = 1)
     {
         $followedIds = $this->follower->getFollowings($userId)->pluck('followed_id');
@@ -54,27 +63,45 @@ class PostRepository implements PostRepositoryInterface
           ->get();
     }
 
-    private function calcOffset($amount, $page)
-    {
-        return ($page - 1) * $amount;
-    }
-
+    /**
+     * Post with user, comments*, comments_count, likes_count, order, offset, limit
+     *
+     * comments* with user, likes_count, limit 5
+     *
+     * @param int $amount
+     * @param int $page
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     private function fullQuery($amount = 3, $page)
     {
         $offset = $this->calcOffset($amount, $page);
 
-        return $this->post->with('user:id,username,image')
+        return $this->post
+          ->with('user:id,username,image')
           ->with(['comments' => function($query){
               return $query
                 ->with('user:id,username,image')
                 ->withCount('likes')
                 ->take(5);
           }])
-          ->with('user:id,username,image')
           ->withCount('comments')
           ->withCount('likes')
           ->orderBy('created_at', 'DESC')
           ->offset($offset)
           ->limit($amount);
+    }
+
+    /**
+     * Adds is_liked (by auth user) to every post and nested comment
+     *
+     * @param Collection $posts
+     * @param integer    $userId
+     *
+     * @return Collection
+     */
+    public function addAuthLike($posts, $userId)
+    {
+        return app(LikeRepositoryInterface::class)->addAuthLikeToPosts($posts, $userId);
     }
 }
