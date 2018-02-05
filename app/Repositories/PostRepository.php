@@ -25,6 +25,11 @@ class PostRepository extends Repository implements PostRepositoryInterface
         $this->follower = $follower;
     }
 
+    public function getPost($id)
+    {
+        $this->fullQuery()->find($id);
+    }
+
     /**
      * Get latest posts
      *
@@ -73,7 +78,7 @@ class PostRepository extends Repository implements PostRepositoryInterface
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    private function fullQuery($amount = 3, $page)
+    private function fullQuery($amount = 1, $page = 1)
     {
         $offset = $this->calcOffset($amount, $page);
 

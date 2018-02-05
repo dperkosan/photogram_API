@@ -2,6 +2,7 @@
 namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\UserRequest;
+use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -49,13 +50,23 @@ class UsersController extends ApiController
         return $this->respondWithData($user);
     }
 
-    public function checkUsername($username)
+    public function exists(Request $request, UserRepositoryInterface $userRepository)
     {
-        $exists = false;
-        if (User::where('username', '=', $username)->exists()) {
-            $exists = true;
-        }
+        $exists = $userRepository->existsWhere($request->only([
+          'username', 'email', 'name', 'gender_id'
+        ]));
         return $this->respondWithData(['exists' => $exists]);
+    }
+
+    public function find(Request $request)
+    {
+        $user = User::where($request->only([
+          'username', 'email', 'name', 'gender_id'
+        ]));
+
+        $this->addDataToUser($user);
+
+        return $this->respondWithData($user);
     }
 
     public function updateAuthProfileImage(Request $request)

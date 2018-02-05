@@ -69,9 +69,9 @@ class PostsController extends ApiController
         return $this->respondWithData($posts);
     }
 
-    public function show(Post $post)
+    public function show($post)
     {
-        return $this->respondWithData($post);
+        return $this->respondWithData($this->posts->getPost($post));
     }
 
     public function store(PostRequest $request, HashtagRepositoryInterface $hashtags)

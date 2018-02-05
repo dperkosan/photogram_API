@@ -6,12 +6,12 @@ return [
     'email'                 => 'required|email|max:100|unique:users',
     'name'                  => 'required|max:100',
     'username'              => 'required|max:25|unique:users',
-    'password'              => 'required|min:5|confirmed',
+    'password'              => 'required|min:1|confirmed',
     'password_confirmation' => 'required',
   ],
 
   'login' => [
-    'email'    => 'required|email',
+    'email'    => 'required',
     'password' => 'required',
   ],
 
@@ -43,8 +43,8 @@ return [
   'post_pagination' => [
     'amount'   => 'required|max:100',
     'page'     => 'required|max:50',
-    'user_id'  => 'nullable|integer',
-    'username' => 'nullable|integer',
+    'user_id'  => 'nullable',
+    'username' => 'nullable',
   ],
 
   'comment_pagination' => [

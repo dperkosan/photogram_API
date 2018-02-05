@@ -97,6 +97,17 @@ class ApiController extends Controller
         ]);
     }
 
+    public function respondError($message)
+    {
+        return $this->respond([
+          'success' => false,
+          'error'   => [
+            'message'     => $message,
+            'status_code' => $this->statusCode,
+          ],
+        ]);
+    }
+
     public function respondWithMessage($message, $success = true)
     {
         return $this->respond([
@@ -117,32 +128,32 @@ class ApiController extends Controller
 
     public function respondWrongArgs($message = 'Wrong args')
     {
-        return $this->setStatusCode(400)->respondWithMessage($message, false);
+        return $this->setStatusCode(400)->respondError($message);
     }
 
     public function respondUnauthorized($message = 'Unauthorized')
     {
-        return $this->setStatusCode(401)->respondWithMessage($message, false);
+        return $this->setStatusCode(401)->respondError($message);
     }
 
     public function respondForbidden($message = 'Forbidden')
     {
-        return $this->setStatusCode(403)->respondWithMessage($message, false);
+        return $this->setStatusCode(403)->respondError($message);
     }
 
     public function respondNotFound($message = 'Not Found')
     {
-        return $this->setStatusCode(404)->respondWithMessage($message, false);
+        return $this->setStatusCode(404)->respondError($message);
     }
 
     public function respondNotAllowed($message = 'Method Not Allowed')
     {
-        return $this->setStatusCode(405)->respondWithMessage($message, false);
+        return $this->setStatusCode(405)->respondError($message);
     }
 
     public function respondInternalError($message = 'Internal Error')
     {
-        return $this->setStatusCode(500)->respondWithMessage($message, false);
+        return $this->setStatusCode(500)->respondError($message);
     }
 
 }

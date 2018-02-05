@@ -8,6 +8,10 @@ class TestController extends ApiController
 {
     public function index(Request $request)
     {
-        return $this->respondWithData($this->authUser());
+        $data = [];
+
+        $data = ceil(-19/20);
+
+        return $this->respondWithData($data);
     }
 }

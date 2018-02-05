@@ -36,7 +36,8 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
         $api->delete('/followers/{followed_id}', 'FollowersController@unfollow');
 
         $api->group(['prefix' => 'users'], function (Router $api) {
-            $api->get('/check/{username}', 'UsersController@checkUsername');
+            $api->get('/exists', 'UsersController@exists');
+            $api->get('/find', 'UsersController@find');
 
             $api->group(['prefix' => 'auth'], function (Router $api) {
                 $api->get('/', 'UsersController@getAuthUser');

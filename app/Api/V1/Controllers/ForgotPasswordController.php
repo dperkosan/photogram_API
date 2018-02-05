@@ -4,10 +4,7 @@ namespace App\Api\V1\Controllers;
 
 use Illuminate\Support\Facades\Password;
 use App\Api\V1\Requests\ForgotPasswordRequest;
-use App\Api\V1\Controllers\ApiController;
 use App\Interfaces\UserRepositoryInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ForgotPasswordController extends ApiController
 {
@@ -24,10 +21,10 @@ class ForgotPasswordController extends ApiController
     public function sendResetEmail(ForgotPasswordRequest $request)
     {
         //get user by email
-        $user = $this->user->getByEmail($request->get('email'));
+        $emailExists = $this->user->emailExists($request->get('email'));
 
-        if(!$user) {
-            return $this->respondNotFound();
+        if(!$emailExists) {
+            return $this->respondWrongArgs();
         }
 
         $broker = $this->getPasswordBroker();

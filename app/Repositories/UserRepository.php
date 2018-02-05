@@ -23,20 +23,30 @@ class UserRepository implements UserRepositoryInterface
     {
         $this->user = $user;
     }
-
-    public function getAll()
+    
+    public function findWhere($column, $operator = null, $value = null, $boolean = 'and')
     {
-        return $this->user->all();
+        return $this->user->where(...func_get_args())->first();
+    }
+    
+    public function findByEmail($email)
+    {
+        return $this->findWhere('email', $email);
     }
 
-    public function getById($userId)
+    public function existsWhere($column, $operator = null, $value = null, $boolean = 'and')
     {
-        return $this->user->find($userId);
+        return $this->user->where(...func_get_args())->exists();
     }
 
-    public function getByEmail($email)
+    public function emailExists($email)
     {
-        return $this->user->where('email', $email)->firstOrFail();
+        return $this->existsWhere('email', $email);
+    }
+
+    public function usernameExists($username)
+    {
+        return $this->existsWhere('username', $username);
     }
 
     public function store($data)
