@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -64,6 +65,15 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token', 'active', 'type_id', 'created_at', 'updated_at'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('counts', function (Builder $builder) {
+            $builder->withCount(['posts', 'followers', 'following']);
+        });
+    }
 
     /**
      * Users that follow me

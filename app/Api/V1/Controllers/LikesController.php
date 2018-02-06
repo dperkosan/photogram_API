@@ -31,13 +31,11 @@ class LikesController extends ApiController
         return $this->respondWithData($like);
     }
 
-    public function destroy(Like $like)
+    public function destroy($like)
     {
+        $like = Like::find($like);
+
         if (!$this->belongsToAuthUser($like)) {
-            $this->dLog('$like->user_id is string? ' . (is_string($like->user_id) ? 'true' : 'false'));
-            $this->dLog('$this->authUser()->id is string? ' . (is_string($this->authUser()->id) ? 'true' : 'false'));
-            $this->dLog('like user id ' . $like->user_id);
-            $this->dLog('auth user id ' . $this->authUser()->id);
             return $this->respondForbidden('This like is not yours!');
         }
 

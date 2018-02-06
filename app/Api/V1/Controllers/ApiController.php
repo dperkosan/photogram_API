@@ -37,13 +37,6 @@ class ApiController extends Controller
         return \Auth::user();
     }
 
-    protected function addDataToUser($user)
-    {
-        $user->posts_count = \DB::table('posts')->where('user_id', $user->id)->count();
-        $user->followers_count = \DB::table('followers')->where('followed_id', $user->id)->count();
-        $user->following_count = \DB::table('followers')->where('follower_id', $user->id)->count();
-    }
-
     /**
      * @param \Illuminate\Database\Eloquent\Model|mixed $model
      *
@@ -51,6 +44,9 @@ class ApiController extends Controller
      */
     protected function belongsToAuthUser($model)
     {
+        if (!isset($model->user_id)) {
+            return false;
+        }
         return $model->user_id === $this->authUser()->id;
     }
 

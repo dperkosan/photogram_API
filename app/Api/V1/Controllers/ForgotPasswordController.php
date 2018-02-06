@@ -34,9 +34,7 @@ class ForgotPasswordController extends ApiController
             return $this->respondInternalError();
         }
 
-        return $this->respond([
-            'status_code' => 200
-        ]);
+        return $this->respondSuccess();
     }
 
     /**

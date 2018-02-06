@@ -6,7 +6,6 @@ use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class LoginController extends ApiController
 {
@@ -38,8 +37,6 @@ class LoginController extends ApiController
         } catch (JWTException $e) {
             throw new HttpException(500);
         }
-
-        $this->addDataToUser($currentUser);
 
         return $this->respond([
             'status_code' => 200,

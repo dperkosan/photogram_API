@@ -30,6 +30,7 @@ class Generator
     protected function __construct()
     {
         $this->parameters = $this->allParams();
+        $this->setupEndpoints();
     }
 
     public function getData()
@@ -40,105 +41,237 @@ class Generator
     protected function setupEndpoints()
     {
         // AUTH
-        $this->generateEndpoint('/api/auth/signup', static::POST, [
+        $this->generateEndpoint('/auth/signup', 'Sign up and you will receive a confirmation email.', static::POST, [
           'username', 'email', 'name', 'password', 'password_confirmation',
         ]);
-        $this->generateEndpoint('/api/auth/login', static::POST, [
+        $this->generateEndpoint('/auth/login', 'Log in and you will receive a token. Put in as a header {"Authorization" : "Bearer " + token}', static::POST, [
           'email', 'password',
         ]);
+        $this->generateEndpoint('/auth/recovery', 'Sends an email with a link to reset password', static::POST, [
+          'email'
+        ]);
+        $this->generateEndpoint('/auth/reset', 'Inserts a new password by the recovery link. Not tested', static::POST, [
+          'email', 'password', 'password_confirmation', 'token'
+        ]);
+
+        $this->generateEndpoint('/signup/confirmation', 'This is used automatically by the confirm email button.');
+
+        $this->generateEndpoint('/config', 'Lots of stuff about the app.');
+
+
+        $this->generateEndpoint('/users/exists', 'Check if a user exists. Send any of the parameters.', static::GET, [
+          'username', 'email', 'name', 'gender_id'
+        ]);
+
+        $this->generateEndpoint('/users/find', 'Find a user. Send any of the parameters.', static::GET, [
+          'username', 'email', 'name', 'gender_id'
+        ]);
+
+        $this->generateEndpoint('/users/auth', 'Get data for authenticated user.');
+
+        $this->generateEndpoint('/users/auth/image', 'Update auth user\'s image.', static::POST, [
+          'image',
+        ]);
+
+        $this->generateEndpoint('/users/auth/update', 'Update auth user\'s information.', static::PATCH, [
+          'name', 'gender_id', 'phone', 'about', 'username',
+        ]);
+
+        $this->generateEndpoint('/followers', 'Get users who follow you.');
+
+        $this->generateEndpoint('/followings', 'Get users who you follow.');
+
+        $this->generateEndpoint('/followers', 'Follow a user.', static::POST, [
+          'user_id',
+        ]);
+
+        $this->generateEndpoint('/posts/test', 'Same as /posts but this one doesn\'t require auth.', static::GET);
 
         // POST
-        $this->generateEndpoint('/api/posts', static::GET, [
+        $this->generateEndpoint('/posts', 'Get posts with pagination. user_id or username is optional.', static::GET, [
           'amount', 'page', 'user_id', 'username',
         ]);
-        $this->generateEndpoint('/api/posts/{id}');
-        $this->generateEndpoint('/api/posts', static::POST, [
-          'media', 'thumbnail', 'description',
+        $this->generateEndpoint('/posts/{id}', 'Get a full post by it\'s id');
+        $this->generateEndpoint('/posts', 'Create a new post. Send either image or video and thumbnail (optional).', static::POST, [
+          'image', 'video', 'thumbnail', 'description',
         ]);
-        $this->generateEndpoint('/api/posts', static::PATCH, [
+        $this->generateEndpoint('/posts', 'Edit a post. Only description and thumbnail can be changed.', static::PATCH, [
           'thumbnail', 'description',
         ]);
-        $this->generateEndpoint('/api/posts/{id}', static::DELETE);
+        $this->generateEndpoint('/posts/{id}', 'Delete a post.', static::DELETE);
+
+        $this->generateEndpoint('/home', 'Same as /posts but this one doesn\'t require auth.', static::GET);
+
+        $this->generateEndpoint('/comments', 'Get comments.', static::GET, [
+          'post_id', 'comment_id', 'amount', 'page',
+        ]);
+
+        $this->generateEndpoint('/comments', 'Create a comment.', static::POST, [
+          'post_id', 'comment_id', 'body',
+        ]);
+
+        $this->generateEndpoint('/comments', 'Change the body of a comment.', static::PATCH, [
+          'body',
+        ]);
+
+        $this->generateEndpoint('/comments/{id}', 'Delete a comment.', static::DELETE);
+
+        $this->generateEndpoint('/likes', 'Get likes.', static::GET, [
+          'likable_id', 'likable_type', 'amount', 'page',
+        ]);
+
+        $this->generateEndpoint('/likes', 'Create a like.', static::POST, [
+          'likable_id', 'likable_type',
+        ]);
+
+        $this->generateEndpoint('/likes/{id}', 'Delete a like.', static::DELETE);
 
         return $this;
     }
 
-    protected function generateEndpoint($url, $method = self::GET, array $params = [])
+    protected function generateEndpoint($url, $description = null, $method = self::GET, array $params = [])
     {
         $this->endpoints[] = [
-          'method'     => $method,
-          'url'        => $url,
-          'parameters' => $this->pluckParams($params),
+          'method'      => $method,
+          'description' => $description,
+          'url'         => $url,
+          'parameters'  => $this->takeParams($params),
         ];
     }
 
-    protected function pluckParams(array $keys)
+    protected function takeParams(array $names)
     {
-        if (!$keys) {
+        if (!$names) {
             return [];
         }
 
-        return array_pluck($this->parameters, $keys);
+        $params = [];
+
+        foreach ($names as $name) {
+            foreach ($this->parameters as $parameter) {
+                if ($parameter['name'] === $name) {
+                    $params[] = $parameter;
+                    break;
+                }
+            }
+        }
+
+        return $params;
     }
 
     protected function allParams()
     {
         return [
             // PAGINATION
-            'amount'                => [
+            [
+              'name' => 'amount',
               'description'     => 'How many records to fetch',
-              'possible_values' => '1 - infinity',
+              'possible_values' => 'integer',
             ],
-            'page'                  => [
+            [
+              'name' => 'page',
               'description'     => 'start at amount * (page - 1)',
-              'possible_values' => '1 - infinity',
+              'possible_values' => 'integer',
             ],
             // USER
-            'user_id'               => [
-              'description'     => 'filter only records with user_id',
-              'possible_values' => '1 - infinity',
+            [
+              'name' => 'user_id',
+              'description'     => 'id of a user',
+              'possible_values' => 'integer',
             ],
-            'username'              => [
-              'description'     => 'filter only records from user with this username',
+            [
+              'name' => 'username',
+              'description'     => 'username of a user',
               'possible_values' => 'string',
             ],
-            'name'                  => [
+            [
+              'name' => 'name',
               'description'     => 'full name',
               'possible_values' => 'string',
             ],
-            'email'                 => [
+            [
+              'name' => 'email',
               'description'     => 'just email',
               'possible_values' => 'string',
             ],
-            'password'              => [
+            [
+              'name' => 'password',
               'description'     => 'must have lowercase letter, uppercase letter, number, special symbol, just kidding it can be only one character if you want',
               'possible_values' => 'string',
             ],
-            'password_confirmation' => [
+            [
+              'name' => 'password_confirmation',
               'description'     => 'same as password',
               'possible_values' => 'string',
             ],
-            // LIKE
-            'likable_id'            => [
-              'description'     => 'id of the likable',
+            [
+              'name' => 'gender_id',
+              'description'     => 'id of user gender',
+              'possible_values' => '1 - male, 2 - female, 3 - other',
+            ],
+            [
+              'name' => 'phone',
+              'description'     => 'Phone numbah',
               'possible_values' => 'string',
             ],
-            'likable_type'          => [
-              'description'     => 'filter only records from user with this username',
+            [
+              'name' => 'about',
+              'description'     => 'Something about you',
               'possible_values' => 'string',
+            ],
+            // LIKE
+            [
+              'name' => 'likable_id',
+              'description'     => 'id of the likable',
+              'possible_values' => 'integer',
+            ],
+            [
+              'name' => 'likable_type',
+              'description'     => 'filter only records from user with this username',
+              'possible_values' => 'integer',
             ],
             // POST
-            'media'                 => [
-              'description'     => 'file that can bean image or a video',
-              'possible_values' => 'image or video',
-            ],
-            'thumbnail'             => [
-              'description'     => 'file that is used when media is video',
+            [
+              'name' => 'image',
+              'description'     => 'uploaded image file',
               'possible_values' => 'image',
             ],
-            'description'           => [
+            [
+              'name' => 'video',
+              'description'     => 'uploaded video file',
+              'possible_values' => 'video',
+            ],
+            [
+              'name' => 'thumbnail',
+              'description'     => 'image file that is used when video is uploaded',
+              'possible_values' => 'image',
+            ],
+            [
+              'name' => 'description',
               'description'     => 'description of the post',
               'possible_values' => 'string up to 2200 characters',
+            ],
+            // RECOVER PASSWORD
+            [
+              'name' => 'token',
+              'description'     => 'this is a special case when resetting password, not tested, old code',
+              'possible_values' => 'string',
+            ],
+            // COMMENT
+            [
+              'name' => 'post_id',
+              'description'     => 'id of the post',
+              'possible_values' => 'integer',
+            ],
+            [
+              'name' => 'comment_id',
+              'description'     => 'id of the comment',
+              'possible_values' => 'integer',
+            ],
+            [
+              'name' => 'body',
+              'description'     => 'comment body',
+              'possible_values' => 'string',
             ],
         ];
     }

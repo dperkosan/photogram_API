@@ -19,7 +19,8 @@ class HomeController extends BaseController
     
     public function documentation()
     {
-        $data = Generator::getInstance()->getData();
-        return view('documentation', compact('data'));
+        $endpoints = Generator::getInstance()->getData();
+
+        return view('documentation', compact('endpoints'));
     }
 }

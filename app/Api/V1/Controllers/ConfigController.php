@@ -2,11 +2,22 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Api\V1\Documentation\Generator;
+
 class ConfigController extends ApiController
 {
     public function index()
     {
-        return $this->respondWithData([
+        $data = $this->baseData();
+
+        $data['documentation'] = Generator::getInstance()->getData();
+
+        return $this->respondWithData($data);
+    }
+
+    protected function baseData()
+    {
+        return [
           'user' => [
             'genders' => [
               1 => 'male',
@@ -35,6 +46,6 @@ class ConfigController extends ApiController
               2 => 'comment',
             ],
           ],
-        ]);
+        ];
     }
 }

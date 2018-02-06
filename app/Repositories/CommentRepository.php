@@ -17,16 +17,22 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
 
     /**
      * @param int $postId
+     * @param int $commentId
      * @param int $amount
      * @param int $page
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getComments($postId, $amount, $page)
+    public function getComments($postId, $commentId = null, $amount, $page)
     {
-        return $this->fullQuery($amount, $page)
-          ->where('post_id', $postId)
-          ->get();
+        $query = $this->fullQuery($amount, $page)
+          ->where('post_id', $postId);
+
+        if ($commentId) {
+            $query->where('comment_id', $commentId);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -47,8 +53,8 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
           ->limit($amount);
     }
 
-    public function addAuthLike($posts, $userId)
+    public function addAuthLike($comments, $userId)
     {
-        return app(LikeRepositoryInterface::class)->addAuthLikeToComments($posts, $userId);
+        return app(LikeRepositoryInterface::class)->addAuthLikeToComments($comments, $userId);
     }
 }

@@ -5,10 +5,10 @@ use Illuminate\Routing\Router;
 /** @var Router $router */
 $router = app(Router::class);
 
-$router->group(['namespace' => 'App\Http\Controllers'], function (Router $router) {
+//$router->group(['namespace' => '\App\Http\Controllers'], function (Router $router) {
 
-    $router->get('/', 'Controller@index');
+    $router->get('/', '\App\Http\Controllers\HomeController@index');
 
-    $router->get('/documentation', 'Controller@documentation');
+    $router->get('/documentation', '\App\Http\Controllers\HomeController@documentation');
 
-});
+//});

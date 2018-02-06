@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\User;
+use Tymon\JWTAuth\JWTAuth;
 use App\Interfaces\UserRepositoryInterface;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
@@ -13,20 +14,38 @@ class UserRepository implements UserRepositoryInterface
     /**
      * @var \App\User
      */
-    private $user;
+    protected $user;
+    protected $JWTAuth;
 
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
 
-    public function __construct(User $user)
+    public function __construct(User $user, JWTAuth $JWTAuth)
     {
         $this->user = $user;
+        $this->JWTAuth = $JWTAuth;
+    }
+
+    public function getAuthUser()
+    {
+        $authUserId = $this->JWTAuth->getPayload()->get('sub');
+        return;
+    }
+
+    protected function fullQuery()
+    {
+        return $this->user;
     }
     
     public function findWhere($column, $operator = null, $value = null, $boolean = 'and')
     {
-        return $this->user->where(...func_get_args())->first();
+        return $this->fullQuery()->where(...func_get_args())->first();
+    }
+
+    public function findById($id)
+    {
+        return $this->findWhere('id', $id);
     }
     
     public function findByEmail($email)
@@ -36,7 +55,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function existsWhere($column, $operator = null, $value = null, $boolean = 'and')
     {
-        return $this->user->where(...func_get_args())->exists();
+        return $this->fullQuery()->where(...func_get_args())->exists();
     }
 
     public function emailExists($email)
@@ -71,17 +90,14 @@ class UserRepository implements UserRepositoryInterface
         // In order not to write the same if condition 7 times
         $attributesToFill = ['email', 'password', 'username', 'name', 'gender_id', 'phone', 'about'];
 
-        foreach ($attributesToFill as $attribute)
-        {
-            if (isset($data[$attribute]))
-            {
+        foreach ($attributesToFill as $attribute) {
+            if (isset($data[$attribute])) {
                 $object->$attribute = $data[$attribute];
             }
         }
 
         // Only setting the password is unique because of the bcrypt
-        if(isset($data['password']))
-        {
+        if(isset($data['password'])) {
             $object->password = bcrypt($data['password']);
         }
 

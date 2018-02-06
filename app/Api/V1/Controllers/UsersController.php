@@ -8,6 +8,20 @@ use Illuminate\Http\Request;
 
 class UsersController extends ApiController
 {
+    protected $users;
+
+    public function __construct(UserRepositoryInterface $users)
+    {
+        $this->users = $users;
+    }
+
+    public function show($user)
+    {
+        $user = $this->users->findById($user);
+
+        return $this->respondWithData($user);
+    }
+
     public function updateAuthUser(UserRequest $request)
     {
         $updateData = [];
@@ -30,11 +44,11 @@ class UsersController extends ApiController
 
         $updateData = array_merge($updateData, $requestData);
 
-        if ($user->update($updateData)) {
-            return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
+        if (!$user->update($updateData)) {
+            return $this->respondInternalError('Could not update user.');
         }
 
-        return $this->respondInternalError();
+        return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
     }
 
     public function getAuthUser()
@@ -45,14 +59,12 @@ class UsersController extends ApiController
             return $this->respondForbidden();
         }
 
-        $this->addDataToUser($user);
-
         return $this->respondWithData($user);
     }
 
-    public function exists(Request $request, UserRepositoryInterface $userRepository)
+    public function exists(Request $request)
     {
-        $exists = $userRepository->existsWhere($request->only([
+        $exists = $this->users->existsWhere($request->only([
           'username', 'email', 'name', 'gender_id'
         ]));
         return $this->respondWithData(['exists' => $exists]);
@@ -60,11 +72,9 @@ class UsersController extends ApiController
 
     public function find(Request $request)
     {
-        $user = User::where($request->only([
+        $user = $this->users->findWhere($request->only([
           'username', 'email', 'name', 'gender_id'
         ]));
-
-        $this->addDataToUser($user);
 
         return $this->respondWithData($user);
     }

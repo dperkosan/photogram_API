@@ -86,8 +86,7 @@ class FollowerRepository implements FollowerRepositoryInterface
      */
     public function userExists($user_id)
     {
-        $user = $this->user->find($user_id);
-        return $user ? true : false;
+        return $this->user->find($user_id)->exists();
     }
 
     /**

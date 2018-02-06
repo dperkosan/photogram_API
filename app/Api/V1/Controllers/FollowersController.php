@@ -47,7 +47,7 @@ class FollowersController extends ApiController
      */
     public function follow(FollowRequest $request)
     {
-        $followedId = $request->get('followed_id');
+        $followedId = $request->get('user_id');
 
         //check if user exists
         if(!$this->followers->userExists($followedId)) {
@@ -97,7 +97,7 @@ class FollowersController extends ApiController
     public function unfollow(FollowRequest $request)
     {
         $userId = Auth::user()->id;
-        $followedId = $request->get('followed_id');
+        $followedId = $request->get('user_id');
 
         if (!$this->followers->followExists($userId, $followedId)) {
             return $this->respondWrongArgs('You are not following this user.');

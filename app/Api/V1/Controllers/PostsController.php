@@ -116,8 +116,9 @@ class PostsController extends ApiController
         return $this->respondCreated();
     }
 
-    public function update(Request $request, Post $post, HashtagRepositoryInterface $hashtags)
+    public function update(Request $request, $post, HashtagRepositoryInterface $hashtags)
     {
+        $post = Post::find($post);
         if (!$this->belongsToAuthUser($post)) {
             return $this->respondForbidden('This post is not yours!');
         }
@@ -140,8 +141,9 @@ class PostsController extends ApiController
         return $this->respondSuccess();
     }
 
-    public function destroy(Post $post)
+    public function destroy($post)
     {
+        $post = Post::find($post);
         if (!$this->belongsToAuthUser($post)) {
             return $this->respondForbidden('This post is not yours!');
         }

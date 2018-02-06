@@ -33,11 +33,12 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
         $api->get('/followers', 'FollowersController@getFollowers');
         $api->get('/followings', 'FollowersController@getFollowings');
         $api->post('/followers', 'FollowersController@follow');
-        $api->delete('/followers/{followed_id}', 'FollowersController@unfollow');
+        $api->delete('/followers/{user_id}', 'FollowersController@unfollow');
 
         $api->group(['prefix' => 'users'], function (Router $api) {
             $api->get('/exists', 'UsersController@exists');
             $api->get('/find', 'UsersController@find');
+//            $api->get('/{user}', 'UsersController@show');
 
             $api->group(['prefix' => 'auth'], function (Router $api) {
                 $api->get('/', 'UsersController@getAuthUser');
@@ -52,21 +53,21 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->get('/', 'PostsController@index');
             $api->get('{post}', 'PostsController@show');
             $api->post('/', 'PostsController@store');
-            $api->patch('/{post}', 'PostsController@update');
-            $api->delete('/{post}', 'PostsController@destroy');
+            $api->patch('{post}', 'PostsController@update');
+            $api->delete('{post}', 'PostsController@destroy');
         });
 
         $api->group(['prefix' => 'comments'], function(Router $api) {
             $api->get('/', 'CommentsController@index');
             $api->post('/', 'CommentsController@store');
-            $api->patch('/{comment}', 'PostsController@update');
-            $api->delete('/{comment}', 'CommentsController@destroy');
+            $api->patch('{comment}', 'CommentsController@update');
+            $api->delete('{comment}', 'CommentsController@destroy');
         });
 
         $api->group(['prefix' => 'likes'], function(Router $api) {
             $api->get('/', 'LikesController@index');
             $api->post('/', 'LikesController@store');
-            $api->delete('/{like}', 'LikesController@destroy');
+            $api->delete('{like}', 'LikesController@destroy');
         });
 
         $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
