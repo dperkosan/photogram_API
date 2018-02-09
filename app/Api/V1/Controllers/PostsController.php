@@ -9,6 +9,7 @@ use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\PostRepositoryInterface;
 use App\Post;
 use Illuminate\Http\Request;
+use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\JWTAuth;
 
 class PostsController extends ApiController
@@ -74,6 +75,7 @@ class PostsController extends ApiController
         if ($authUser) {
             $this->posts->addAuthLike($posts, $authUser->id);
         }
+        $this->posts->addThumbsToPosts($posts);
 
         return $this->respondWithData($posts);
     }
@@ -95,12 +97,29 @@ class PostsController extends ApiController
         $userId = $user->id;
         $currentYear = date('Y');
 
-        $mediaName = date('Ymdhis') . "-{$user->username}.{$mediaExtension}";
+        $mediaName = date('Ymdhis') . "-{$user->username}-orig.{$mediaExtension}";
         $folder = $mediaType . 's';
         $path = "{$folder}/post/{$userId}/{$currentYear}";
         $storage = \Storage::disk('public');
 
         $mediaPath = $storage->putFileAs($path, $media, $mediaName);
+        $mediaPath = str_replace('-orig', '-[~FORMAT~]', $mediaPath);
+
+        // make some thumbs
+        if($mediaType == 'image'){
+
+            $absPath = storage_path() . '/app/public/'. $path .'/';
+            $thumbs = config('boilerplate.thumbs.formats');
+
+            foreach ($thumbs as $thumb_name => $thumb_format) {
+                $mediaNameS = date('Ymdhis') . "-{$user->username}-{$thumb_name}.{$mediaExtension}";
+                \Illuminate\Support\Facades\File::copy($absPath . $mediaName, $absPath . $mediaNameS);
+
+                Image::make($absPath . $mediaNameS)->fit($thumb_format[0], $thumb_format[1], function ($constraint) {
+                    $constraint->upsize();
+                })->save()->destroy();
+            }
+        }
 
         $thumbnailPath = null;
         if (!$isImage) {
