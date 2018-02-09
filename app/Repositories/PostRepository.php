@@ -124,6 +124,28 @@ class PostRepository extends Repository implements PostRepositoryInterface
     }
 
     /**
+     * @param Collection|\App\Post $posts
+     */
+    public function addThumbsToPosts($posts)
+    {
+        $thumbs = config('boilerplate.thumbs.formats');
+
+        foreach ($posts as $post) {
+
+            $post->thumbs = [];
+            if (strpos($post->media, '[~FORMAT~]') !== false) {
+
+                $arr_thumbs = [];
+                foreach ($thumbs as $thumb_name => $thumb_format) {
+                    $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $post->media);
+                }
+                $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $post->media);
+                $post->thumbs = $arr_thumbs;
+            }
+        }
+    }
+
+    /**
      * Adds is_liked (by auth user) to every post and nested comment
      *
      * @param Collection $posts
