@@ -44,7 +44,7 @@ class FollowerRepository implements FollowerRepositoryInterface
      */
     public function getFollowings($followerId)
     {
-        return $this->user->find($followerId)->following()->get();
+        return $this->follower->where('follower_id', $followerId)->get();
     }
 
     /**

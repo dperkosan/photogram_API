@@ -2,6 +2,7 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Interfaces\UserRepositoryInterface;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -9,12 +10,17 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class LoginController extends ApiController
 {
-    public function login(LoginRequest $request, JWTAuth $JWTAuth)
+    public function login(LoginRequest $request, JWTAuth $JWTAuth, UserRepositoryInterface $userRepository)
     {
         $credentials = $request->only(['password']);
         $requestEmail = $request->email;
 
         if (filter_var($requestEmail, FILTER_VALIDATE_EMAIL)) {
+
+            if (!$userRepository->emailExists($requestEmail)) {
+
+            }
+
             $credentials['email'] = $requestEmail;
         } else {
             $credentials['username'] = $requestEmail;
@@ -37,6 +43,8 @@ class LoginController extends ApiController
         } catch (JWTException $e) {
             throw new HttpException(500);
         }
+
+        $userRepository->addCounts($currentUser);
 
         return $this->respond([
             'status_code' => 200,

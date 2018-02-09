@@ -41,13 +41,11 @@ class PostRepository extends Repository implements PostRepositoryInterface
      */
     public function getPosts($amount, $page = 1, $userId = null)
     {
-        $query = $this->fullQuery($amount, $page);
-
-        if ($userId) {
-            $query->where('user_id', $userId);
-        }
-
-        return $query->get();
+        return $this->standardFetch($amount, $page, function ($query) use ($userId) {
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
+        });
     }
 
     /**
@@ -63,38 +61,66 @@ class PostRepository extends Repository implements PostRepositoryInterface
     {
         $followedIds = $this->follower->getFollowings($userId)->pluck('followed_id');
 
-        return $this->fullQuery($amount, $page)
-          ->whereIn('user_id', $followedIds)
-          ->get();
+        return $this->standardFetch($amount, $page, function ($query) use ($followedIds) {
+            $query->whereIn('user_id', $followedIds);
+        });
     }
 
     /**
-     * Post with user, comments*, comments_count, likes_count, order, offset, limit
+     * @param  int  $amount
+     * @param  int  $page
+     * @param \Closure $callable add more query functions here if you want
      *
-     * comments* with user, likes_count, limit 5
-     *
-     * @param int $amount
-     * @param int $page
-     *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Collection
      */
-    private function fullQuery($amount = 1, $page = 1)
+    protected function standardFetch($amount, $page, $callable = null)
     {
-        $offset = $this->calcOffset($amount, $page);
+        $query = $this->fullQuery($amount, $page);
 
-        return $this->post
-          ->with('user:id,username,image')
-          ->with(['comments' => function($query){
-              return $query
-                ->with('user:id,username,image')
-                ->withCount('likes')
-                ->take(5);
-          }])
-          ->withCount('comments')
-          ->withCount('likes')
-          ->orderBy('created_at', 'DESC')
-          ->offset($offset)
-          ->limit($amount);
+        if ($callable) call_user_func($callable, $query);
+
+        $posts = $query->get();
+
+        $this->addComments($posts);
+
+        return $posts;
+    }
+
+    /**
+     * @param Collection|\App\Post $posts
+     * @param int                  $limit
+     *
+     * @return Post|Collection
+     */
+    public function addComments($posts, $limit = 5)
+    {
+        if ($posts instanceof Post) {
+            $this->addCommentsToSingePost($posts, $limit);
+        } else {
+            foreach ($posts as $post) {
+                $this->addCommentsToSingePost($post, $limit);
+            }
+        }
+
+        return $posts;
+    }
+
+    /**
+     * @param \App\Post $post
+     * @param int       $limit
+     */
+    public function addCommentsToSingePost($post, $limit = 5)
+    {
+        if (!isset($post->comments_count) || $post->comments_count > 0) {
+            $post->load(['comments' => function ($query) use ($limit) {
+                $query
+                  ->select(['comments.*', 'users.username', 'users.image as user_image'])
+                  ->join('users', 'users.id', '=' , 'comments.user_id')
+                  ->withCount('likes')
+                  ->orderBy('created_at', 'DESC')
+                  ->limit($limit);
+            }]);
+        }
     }
 
     /**
@@ -108,5 +134,29 @@ class PostRepository extends Repository implements PostRepositoryInterface
     public function addAuthLike($posts, $userId)
     {
         return app(LikeRepositoryInterface::class)->addAuthLikeToPosts($posts, $userId);
+    }
+
+    /**
+     * Post with user, comments*, comments_count, likes_count, order, offset, limit
+     *
+     * comments* with user, likes_count, limit 5
+     *
+     * @param int $amount
+     * @param int $page
+     *
+     * @return \Illuminate\Database\Eloquent\Builder|mixed
+     */
+    private function fullQuery($amount = 1, $page = 1)
+    {
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->post
+          ->select(['posts.*', 'users.username', 'users.image as user_image'])
+          ->join('users', 'users.id', '=' , 'posts.user_id')
+          ->withCount('comments')
+          ->withCount('likes')
+          ->orderBy('created_at', 'DESC')
+          ->offset($offset)
+          ->limit($amount);
     }
 }

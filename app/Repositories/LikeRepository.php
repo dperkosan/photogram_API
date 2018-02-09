@@ -16,23 +16,7 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
     {
         $this->like = $like;
         $this->likablePost = $like::LIKABLE_POST;
-        $this->likableComment = $like::LIKABLE_POST;
-    }
-
-    public function usersFromLikes($likableId, $likableType, $amount, $page)
-    {
-        $offset = $this->calcOffset($amount, $page);
-
-        return $this->like
-          ->select(['users.id', 'users.username', 'users.image'])
-          ->join('users', 'users.id', '=', 'likes.user_id')
-          ->where([
-            'likable_id' => $likableId,
-            'likable_type' => $likableType,
-          ])
-          ->offset($offset)
-          ->limit($amount)
-          ->get();
+        $this->likableComment = $like::LIKABLE_COMMENT;
     }
 
     /**

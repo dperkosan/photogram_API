@@ -55,11 +55,11 @@ class Post extends Model
       'description',
     ];
 
-    protected $hidden = ['deleted', 'updated_at'];
+    protected $hidden = ['deleted_at'];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withoutGlobalScopes();
     }
 
     public function comments()
@@ -75,25 +75,5 @@ class Post extends Model
     public function hashtags()
     {
         return $this->morphMany('App\HashtagsLink', 'taggable');
-    }
-
-
-    /**
-     * @param Builder $query
-     * @param $offset
-     * @param $amount
-     */
-    public function scopeFull($query, $offset = 0, $amount = 3)
-    {
-        $query->with('user:id,username,image')
-          ->with(['comments' => function($query){
-              return $query->withCount('likes')->take(5);
-          }])
-          ->with('user:id,username,image')
-          ->withCount('comments')
-          ->withCount('likes')
-          ->orderBy('created_at', 'DESC')
-          ->offset($offset)
-          ->limit($amount);
     }
 }

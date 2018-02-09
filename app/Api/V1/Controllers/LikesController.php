@@ -4,19 +4,23 @@ namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\LikePaginationRequest;
 use App\Api\V1\Requests\LikeRequest;
-use App\Interfaces\LikeRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Like;
 
 class LikesController extends ApiController
 {
-    public function index(LikePaginationRequest $request, LikeRepositoryInterface $likeRepository)
+    public function index(LikePaginationRequest $request, UserRepositoryInterface $userRepository)
     {
-        $users = $likeRepository->usersFromLikes(
+        $users = $userRepository->usersFromLikes(
           $request->likable_id,
           $request->likable_type,
           $request->amount,
           $request->page
         );
+
+        if ($users) {
+            $userRepository->addIsFollowed($users, $this->authUser()->id);
+        }
 
         return $this->respondWithData($users);
     }

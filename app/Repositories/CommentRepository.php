@@ -39,14 +39,15 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
      * @param int $amount
      * @param int $page
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder|mixed
      */
     protected function fullQuery($amount, $page)
     {
         $offset = $this->calcOffset($amount, $page);
 
         return $this->comment
-          ->with('user:id,username,image')
+          ->select(['comments.*', 'users.username', 'users.image as user_image'])
+          ->join('users', 'users.id', '=' , 'comments.user_id')
           ->withCount('likes')
           ->orderBy('created_at', 'DESC')
           ->offset($offset)

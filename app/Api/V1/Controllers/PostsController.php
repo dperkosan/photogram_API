@@ -41,6 +41,11 @@ class PostsController extends ApiController
 
     public function newsFeed(PostPaginationRequest $request)
     {
+        return $this->baseNewsFeed($request);
+    }
+
+    private function baseNewsFeed($request)
+    {
         $userId = $this->authUser()->id;
 
         $posts = $this->posts->newsFeed($userId, $request->amount, $request->page);
@@ -52,6 +57,10 @@ class PostsController extends ApiController
 
     public function index(PostPaginationRequest $request)
     {
+        if (1 === (int) $request->news_feed) {
+            return $this->baseNewsFeed($request);
+        }
+
         $userId = null;
         if ($request->username) {
             $userId = \App\User::where('username', $request->username)->first()->id;

@@ -29,20 +29,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Comment extends Model
 {
-//    protected static function boot()
-//    {
-//        parent::boot();
-//
-//        static::addGlobalScope('withStuff', function (Builder $builder) {
-//            $builder
-//              ->with('user:id,username,image')
-//              ->withCount('likes');
-//        });
-//    }
-
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withoutGlobalScopes();
     }
 
     public function likes()

@@ -14,6 +14,8 @@ Database was redone and the schema name is photogram.
 
 Validation was moved from App\Validators to App\Api\V1\Requests.
 
+/api/config has a lot of info about the api like:
+
 likable_type and taggable_type : 1 - post, 2 - comment
 
 gender_id : 1 - male, 2 - female, 3 - other

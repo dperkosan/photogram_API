@@ -27,6 +27,4 @@ interface LikeRepositoryInterface
      * @return Collection $posts
      */
     public function addAuthLikeToComments($comments, $userId);
-
-    public function usersFromLikes($likableId, $likableType, $amount, $page);
 }

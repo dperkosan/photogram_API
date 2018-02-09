@@ -89,15 +89,14 @@ class FollowersController extends ApiController
     /**
      * Unfollow another user
      *
-     * @param FollowRequest $request
+     * @param $user_id
      *
      * @return bool|mixed
-     * @internal param $followed_id
      */
-    public function unfollow(FollowRequest $request)
+    public function unfollow($user_id)
     {
-        $userId = Auth::user()->id;
-        $followedId = $request->get('user_id');
+        $userId = $this->authUser()->id;
+        $followedId = $user_id;
 
         if (!$this->followers->followExists($userId, $followedId)) {
             return $this->respondWrongArgs('You are not following this user.');

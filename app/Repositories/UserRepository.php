@@ -3,13 +3,14 @@
 namespace App\Repositories;
 
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
 use Tymon\JWTAuth\JWTAuth;
 use App\Interfaces\UserRepositoryInterface;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
 use App\Notifications\Followed as FollowedNotification;
 
-class UserRepository implements UserRepositoryInterface
+class UserRepository extends Repository implements UserRepositoryInterface
 {
     /**
      * @var \App\User
@@ -27,27 +28,77 @@ class UserRepository implements UserRepositoryInterface
         $this->JWTAuth = $JWTAuth;
     }
 
-    public function getAuthUser()
+    public function addCounts($user)
     {
-        $authUserId = $this->JWTAuth->getPayload()->get('sub');
-        return;
+        $user->posts_count = \DB::table('posts')->where('user_id', $user->id)->count();
+        $user->followers_count = \DB::table('followers')->where('followed_id', $user->id)->count();
+        $user->following_count = \DB::table('followers')->where('follower_id', $user->id)->count();
+
+        return $user;
+    }
+
+    public function addIsFollowed($users, $authUserId)
+    {
+        if ($users instanceof Collection) {
+            foreach ($users as $user) {
+                $this->addIsFollowedToOneUser($user, $authUserId);
+            }
+        } else {
+            $this->addIsFollowedToOneUser($users, $authUserId);
+        }
+    }
+
+    private function addIsFollowedToOneUser($user, $authUserId)
+    {
+        if (!isset($user->id)) {
+            return;
+        }
+        $user->auth_follow = \DB::table('followers')->where([
+          'follower_id' => $authUserId,
+          'followed_id' => $user->id,
+        ])->exists();
+    }
+
+    public function usersFromLikes($likableId, $likableType, $amount, $page)
+    {
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->user
+          ->select(['users.id', 'users.username', 'users.image'])
+          ->join('likes', 'users.id', '=', 'likes.user_id')
+          ->where([
+            'likable_id' => $likableId,
+            'likable_type' => $likableType,
+          ])
+          ->offset($offset)
+          ->limit($amount)
+          ->get();
     }
 
     protected function fullQuery()
     {
-        return $this->user;
+        return $this->user->withCount(['posts', 'followers', 'following']);
     }
-    
+
+    /**
+     * @return \App\User
+     */
     public function findWhere($column, $operator = null, $value = null, $boolean = 'and')
     {
         return $this->fullQuery()->where(...func_get_args())->first();
     }
 
+    /**
+     * @return \App\User
+     */
     public function findById($id)
     {
         return $this->findWhere('id', $id);
     }
-    
+
+    /**
+     * @return \App\User
+     */
     public function findByEmail($email)
     {
         return $this->findWhere('email', $email);

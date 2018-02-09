@@ -66,15 +66,6 @@ class User extends Authenticatable
         'password', 'remember_token', 'active', 'type_id', 'created_at', 'updated_at'
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('counts', function (Builder $builder) {
-            $builder->withCount(['posts', 'followers', 'following']);
-        });
-    }
-
     /**
      * Users that follow me
      *

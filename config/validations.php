@@ -26,7 +26,7 @@ return [
   ],
 
   'follow' => [
-    'followed_id' => 'required|integer',
+    'user_id' => 'required|integer',
   ],
 
   'user' => [
