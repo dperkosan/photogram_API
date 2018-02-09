@@ -18,8 +18,8 @@ class LikesController extends ApiController
           $request->page
         );
 
-        if ($users) {
-            $userRepository->addIsFollowed($users, $this->authUser()->id);
+        if ($users && $authUser = $this->authUser()) {
+            $userRepository->addIsFollowed($users, $authUser->id);
         }
 
         return $this->respondWithData($users);

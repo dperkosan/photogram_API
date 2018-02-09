@@ -19,7 +19,9 @@ class UsersController extends ApiController
     {
         $user = $this->users->findById($user);
 
-        $this->users->addIsFollowed($user, $this->authUser()->id);
+        if ($authUser = $this->authUser()) {
+            $this->users->addIsFollowed($user, $authUser->id);
+        }
         $this->users->addCounts($user);
 
         return $this->respondWithData($user);
@@ -82,8 +84,10 @@ class UsersController extends ApiController
         ]));
 
         if ($user) {
-            $this->users->addIsFollowed($user, $this->authUser()->id);
             $this->users->addCounts($user);
+            if ($authUser = $this->authUser()) {
+                $this->users->addIsFollowed($user, $authUser->id);
+            }
         }
 
         return $this->respondWithData($user);
