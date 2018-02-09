@@ -6,7 +6,7 @@ use Dingo\Api\Routing\Router;
 $api = app(Router::class);
 
 $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], function (Router $api) {
-    //authentication
+
     $api->group(['prefix' => 'auth'], function(Router $api) {
         $api->post('signup', 'SignUpController@signUp');
         $api->post('login', 'LoginController@login');
@@ -20,33 +20,55 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
     });
 
     $api->get('/test', 'TestController@index');
+
+    $api->get('/config', 'ConfigController@index');
     
-    //unprotected posts
+    // unprotected posts JUST FOR TESTING
     $api->group(['prefix' => 'posts'], function(Router $api) {
-        $api->get('list/{numPosts}', 'PostsController@getPosts');
+        $api->get('/test', 'PostsController@index');
     });
-
-    $api->get('likes', 'LikesController@index');
-
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
-        //followers
         $api->get('/followers', 'FollowersController@getFollowers');
         $api->get('/followings', 'FollowersController@getFollowings');
         $api->post('/followers', 'FollowersController@follow');
-        $api->delete('/followers/{followed_id}', 'FollowersController@unfollow');
+        $api->delete('/followers/{user_id}', 'FollowersController@unfollow');
 
         $api->group(['prefix' => 'users'], function (Router $api) {
-            $api->get('/check/{username}', 'UsersController@checkUsername');
+            $api->get('/exists', 'UsersController@exists');
+            $api->get('/find', 'UsersController@find');
+//            $api->get('/{user}', 'UsersController@show');
+
             $api->group(['prefix' => 'auth'], function (Router $api) {
                 $api->get('/', 'UsersController@getAuthUser');
-                $api->get('/image', 'UsersController@getAuthProfileImage');
                 $api->post('/image', 'UsersController@updateAuthProfileImage');
                 $api->patch('/update', 'UsersController@updateAuthUser');
             });
         });
 
+        $api->get('/home', 'PostsController@newsFeed');
+
+        $api->group(['prefix' => 'posts'], function(Router $api) {
+            $api->get('/', 'PostsController@index');
+            $api->get('{post}', 'PostsController@show');
+            $api->post('/', 'PostsController@store');
+            $api->patch('{post}', 'PostsController@update');
+            $api->delete('{post}', 'PostsController@destroy');
+        });
+
+        $api->group(['prefix' => 'comments'], function(Router $api) {
+            $api->get('/', 'CommentsController@index');
+            $api->post('/', 'CommentsController@store');
+            $api->patch('{comment}', 'CommentsController@update');
+            $api->delete('{comment}', 'CommentsController@destroy');
+        });
+
+        $api->group(['prefix' => 'likes'], function(Router $api) {
+            $api->get('/', 'LikesController@index');
+            $api->post('/', 'LikesController@store');
+            $api->delete('{like}', 'LikesController@destroy');
+        });
 
         $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
                 return response()->json([

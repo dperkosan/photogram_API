@@ -33,8 +33,7 @@ class FollowerRepository implements FollowerRepositoryInterface
      */
     public function getFollowers($followedId)
     {
-        $user = $this->user->find($followedId);
-        return $user->followers()->get();
+        return $this->user->find($followedId)->followers()->get();
     }
 
     /**
@@ -45,8 +44,7 @@ class FollowerRepository implements FollowerRepositoryInterface
      */
     public function getFollowings($followerId)
     {
-        $user = $this->user->find($followerId);
-        return $user->followings()->get();
+        return $this->follower->where('follower_id', $followerId)->get();
     }
 
     /**
@@ -88,8 +86,7 @@ class FollowerRepository implements FollowerRepositoryInterface
      */
     public function userExists($user_id)
     {
-        $user = $this->user->find($user_id);
-        return $user ? true : false;
+        return $this->user->find($user_id)->exists();
     }
 
     /**

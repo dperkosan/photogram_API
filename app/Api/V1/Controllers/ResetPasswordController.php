@@ -40,7 +40,7 @@ class ResetPasswordController extends ApiController
         }
 
         //get user by email
-        $user = $this->user->getByEmail($request->get('email'));
+        $user = $this->user->findByEmail($request->get('email'));
 
         return $this->respond([
             'status_code' => 200,

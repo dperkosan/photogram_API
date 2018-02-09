@@ -20,10 +20,10 @@ class CreatePostsTable extends Migration
             $table->integer('type_id')->unsigned();
             $table->string('media');
             $table->string('thumbnail')->nullable();
-            $table->string('description', 2200);
-            $table->boolean('deleted')->default(false);
+            $table->string('description', 2200)->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
+            $table->softDeletes();
         });
     }
 

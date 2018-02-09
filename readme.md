@@ -10,9 +10,15 @@ This is now upgraderd to Laravel 5.5.
 Because of this, PHP 7 is required now.
 All packages were upgraded also to their most recent versions.
 
-Database was redone and the schema name is photogram_s_u.
+Database was redone and the schema name is photogram.
 
 Validation was moved from App\Validators to App\Api\V1\Requests.
+
+/api/config has a lot of info about the api like:
+
+likable_type and taggable_type : 1 - post, 2 - comment
+
+gender_id : 1 - male, 2 - female, 3 - other
 
 # Original doc
 #### original doc is from around november 2017 or before

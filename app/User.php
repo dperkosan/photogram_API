@@ -1,18 +1,51 @@
 <?php
 namespace App;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
- * Class User
+ * App\User
  *
- * @attribute integer gender_id 1-male, 2-female, 3-other
- *
- * @package App
+ * @property int $id
+ * @property string $username
+ * @property string|null $name
+ * @property string $email
+ * @property string $password
+ * @property int|null $gender_id
+ * @property string|null $phone
+ * @property string|null $about
+ * @property string|null $image
+ * @property int $type_id
+ * @property int $active
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Follower[] $followers
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Follower[] $following
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Post[] $posts
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereAbout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereGenderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereImage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\User whereUsername($value)
+ * @mixin \Eloquent
  */
 class User extends Authenticatable
 {
+    const GENDER_MALE = 1;
+    const GENDER_FEMALE = 2;
+    const GENDER_OTHER = 3;
+
     use Notifiable;
 
     /**
@@ -40,7 +73,7 @@ class User extends Authenticatable
      */
     public function followers()
     {
-        return $this->hasMany('App\Follower', 'followed_id');
+        return $this->hasMany(Follower::class, 'followed_id');
     }
 
     /**
@@ -50,7 +83,7 @@ class User extends Authenticatable
      */
     public function following()
     {
-        return $this->hasMany('App\Follower', 'follower_id');
+        return $this->hasMany(Follower::class, 'follower_id');
     }
     
     /**
@@ -60,6 +93,6 @@ class User extends Authenticatable
      */
     public function posts()
     {
-        return $this->hasMany('App\Post', 'user_id');
+        return $this->hasMany(Post::class, 'user_id');
     }
 }

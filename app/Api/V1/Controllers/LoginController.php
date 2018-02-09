@@ -2,38 +2,54 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Interfaces\UserRepositoryInterface;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\LoginRequest;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class LoginController extends ApiController
 {
-    public function login(LoginRequest $request, JWTAuth $JWTAuth)
+    public function login(LoginRequest $request, JWTAuth $JWTAuth, UserRepositoryInterface $userRepository)
     {
-        $credentials = $request->only(['email', 'password']);
+        $credentials = $request->only(['password']);
+        $requestEmail = $request->email;
+
+        if (filter_var($requestEmail, FILTER_VALIDATE_EMAIL)) {
+
+            if (!$userRepository->emailExists($requestEmail)) {
+
+            }
+
+            $credentials['email'] = $requestEmail;
+        } else {
+            $credentials['username'] = $requestEmail;
+        }
 
         try {
             $token = $JWTAuth->attempt($credentials);
 
             if(!$token) {
-                throw new AccessDeniedHttpException();
+//                throw new AccessDeniedHttpException();
+                return $this->respondForbidden('Invalid credentials');
             }
-            
+
             //check if user is active (clicked on confirmation mail)
             $currentUser = $JWTAuth->authenticate($token);
             if(!$currentUser->active) {
-                throw new AccessDeniedHttpException();
+                return $this->respondForbidden('You need to activate your account first.');
             }
 
         } catch (JWTException $e) {
             throw new HttpException(500);
         }
 
+        $userRepository->addCounts($currentUser);
+
         return $this->respond([
             'status_code' => 200,
-            'token' => $token
+            'token' => $token,
+            'data' => $currentUser
         ]);
 
     }

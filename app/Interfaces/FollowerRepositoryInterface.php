@@ -14,6 +14,14 @@ interface FollowerRepositoryInterface
     public function getFollowers($id);
 
     /**
+     * Get all followings by logged in user id
+     *
+     * @param $id
+     * @return mixed
+     */
+    public function getFollowings($id);
+
+    /**
      * Follow user
      *
      * @param $followerId

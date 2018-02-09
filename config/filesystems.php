@@ -60,6 +60,12 @@ return [
           'visibility' => 'public',
         ],
 
+        'public_videos' => [
+          'driver' => 'local',
+          'root' => storage_path('app/public/videos'),
+          'visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => 'your-key',

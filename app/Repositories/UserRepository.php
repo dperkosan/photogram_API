@@ -3,39 +3,120 @@
 namespace App\Repositories;
 
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
+use Tymon\JWTAuth\JWTAuth;
 use App\Interfaces\UserRepositoryInterface;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 use App\Notifications\ConfirmEmail as ConfirmEmailNotification;
+use App\Notifications\Followed as FollowedNotification;
 
-class UserRepository implements UserRepositoryInterface
+class UserRepository extends Repository implements UserRepositoryInterface
 {
     /**
      * @var \App\User
      */
-    private $user;
+    protected $user;
+    protected $JWTAuth;
 
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
 
-    public function __construct(User $user)
+    public function __construct(User $user, JWTAuth $JWTAuth)
     {
         $this->user = $user;
+        $this->JWTAuth = $JWTAuth;
     }
 
-    public function getAll()
+    public function addCounts($user)
     {
-        return $this->user->all();
+        $user->posts_count = \DB::table('posts')->where('user_id', $user->id)->count();
+        $user->followers_count = \DB::table('followers')->where('followed_id', $user->id)->count();
+        $user->following_count = \DB::table('followers')->where('follower_id', $user->id)->count();
+
+        return $user;
     }
 
-    public function getById($userId)
+    public function addIsFollowed($users, $authUserId)
     {
-        return $this->user->find($userId);
+        if ($users instanceof Collection) {
+            foreach ($users as $user) {
+                $this->addIsFollowedToOneUser($user, $authUserId);
+            }
+        } else {
+            $this->addIsFollowedToOneUser($users, $authUserId);
+        }
     }
 
-    public function getByEmail($email)
+    private function addIsFollowedToOneUser($user, $authUserId)
     {
-        return $this->user->where('email', $email)->firstOrFail();
+        if (!isset($user->id)) {
+            return;
+        }
+        $user->auth_follow = \DB::table('followers')->where([
+          'follower_id' => $authUserId,
+          'followed_id' => $user->id,
+        ])->exists();
+    }
+
+    public function usersFromLikes($likableId, $likableType, $amount, $page)
+    {
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->user
+          ->select(['users.id', 'users.username', 'users.image'])
+          ->join('likes', 'users.id', '=', 'likes.user_id')
+          ->where([
+            'likable_id' => $likableId,
+            'likable_type' => $likableType,
+          ])
+          ->offset($offset)
+          ->limit($amount)
+          ->get();
+    }
+
+    protected function fullQuery()
+    {
+        return $this->user->withCount(['posts', 'followers', 'following']);
+    }
+
+    /**
+     * @return \App\User
+     */
+    public function findWhere($column, $operator = null, $value = null, $boolean = 'and')
+    {
+        return $this->fullQuery()->where(...func_get_args())->first();
+    }
+
+    /**
+     * @return \App\User
+     */
+    public function findById($id)
+    {
+        return $this->findWhere('id', $id);
+    }
+
+    /**
+     * @return \App\User
+     */
+    public function findByEmail($email)
+    {
+        return $this->findWhere('email', $email);
+    }
+
+    public function existsWhere($column, $operator = null, $value = null, $boolean = 'and')
+    {
+        return $this->fullQuery()->where(...func_get_args())->exists();
+    }
+
+    public function emailExists($email)
+    {
+        return $this->existsWhere('email', $email);
+    }
+
+    public function usernameExists($username)
+    {
+        return $this->existsWhere('username', $username);
     }
 
     public function store($data)
@@ -58,19 +139,16 @@ class UserRepository implements UserRepositoryInterface
         $object = ($object) ? $object : $this->user;
 
         // In order not to write the same if condition 7 times
-        $attributesToFill = ['email', 'password', 'username', 'name', 'gender', 'phone', 'about'];
+        $attributesToFill = ['email', 'password', 'username', 'name', 'gender_id', 'phone', 'about'];
 
-        foreach ($attributesToFill as $attribute)
-        {
-            if (isset($data[$attribute]))
-            {
+        foreach ($attributesToFill as $attribute) {
+            if (isset($data[$attribute])) {
                 $object->$attribute = $data[$attribute];
             }
         }
 
         // Only setting the password is unique because of the bcrypt
-        if(isset($data['password']))
-        {
+        if(isset($data['password'])) {
             $object->password = bcrypt($data['password']);
         }
 
@@ -99,5 +177,16 @@ class UserRepository implements UserRepositoryInterface
     public function sendConfirmEmailNotification($token)
     {
         $this->user->notify(new ConfirmEmailNotification($token));
+    }
+
+    /**
+     * Send notification about new follower to followed user.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendNotificationToFollowed($token)
+    {
+        $this->user->notify(new FollowedNotification($token));
     }
 }

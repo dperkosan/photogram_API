@@ -1,18 +1,31 @@
 <?php
 namespace App\Api\V1\Controllers;
 
+use App\Api\V1\Requests\UserRequest;
+use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class UsersController extends ApiController
 {
-    private function authUser()
+    protected $users;
+
+    public function __construct(UserRepositoryInterface $users)
     {
-        return Auth::user();
+        $this->users = $users;
     }
 
-    public function updateAuthUser(Request $request)
+    public function show($user)
+    {
+        $user = $this->users->findById($user);
+
+        $this->users->addIsFollowed($user, $this->authUser()->id);
+        $this->users->addCounts($user);
+
+        return $this->respondWithData($user);
+    }
+
+    public function updateAuthUser(UserRequest $request)
     {
         $updateData = [];
 
@@ -34,53 +47,68 @@ class UsersController extends ApiController
 
         $updateData = array_merge($updateData, $requestData);
 
-        if ($user->update($updateData)) {
-            return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
+        if (!$user->update($updateData)) {
+            return $this->respondInternalError('Could not update user.');
         }
 
-        return $this->respondInternalError();
+        return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
     }
 
     public function getAuthUser()
     {
-        return $this->authUser();
+        $user = $this->authUser();
+
+        if (!$user) {
+            return $this->respondForbidden();
+        }
+
+        $this->users->addCounts($user);
+
+        return $this->respondWithData($user);
     }
 
-    public function checkUsername($username)
+    public function exists(Request $request)
     {
-        $exists = false;
-        if (User::where('username', '=', $username)->exists()) {
-            $exists = true;
-        }
+        $exists = $this->users->existsWhere($request->only([
+          'username', 'email', 'name', 'gender_id'
+        ]));
         return $this->respondWithData(['exists' => $exists]);
+    }
+
+    public function find(Request $request)
+    {
+        $user = $this->users->findWhere($request->only([
+          'username', 'email', 'name', 'gender_id'
+        ]));
+
+        if ($user) {
+            $this->users->addIsFollowed($user, $this->authUser()->id);
+            $this->users->addCounts($user);
+        }
+
+        return $this->respondWithData($user);
     }
 
     public function updateAuthProfileImage(Request $request)
     {
-        if (!$request->hasFile('image')) {
-            return $this->respondWrongArgs('Image param name needs to be \'image\'');
-        }
+        $this->validate($request, [
+          'image' => 'required|image'
+        ]);
 
         $image = $request->file('image');
-
-        if (!in_array($image->getClientOriginalExtension(), ['jpg', 'png'])) {
-            return $this->respondWithMessage('Only jpg or png format images allowed', false);
-        }
-
         $user = $this->authUser();
 
-        $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
+        $imageName = $image->getClientOriginalName();
+//        $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
 
-        $imagesStorage = \Storage::disk('public_images');
-        if ($imagesStorage->exists($user->slika)) {
-            $imagesStorage->delete($user->slika);
-            $this->dLog('deleted old img');
+        $storage = \Storage::disk('public');
+        if ($storage->exists($user->image)) {
+            $storage->delete($user->image);
         }
 
-        $path = $imagesStorage->putFileAs("/user/{$user->id}", $image, $imageName);
+        $path = $storage->putFileAs("/images/user/{$user->id}", $image, $imageName);
 
         if ($user->image !== $path) {
-            $this->dLog('new path is different');
             $user->image = $path;
             $user->save();
         }

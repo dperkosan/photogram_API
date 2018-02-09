@@ -19,6 +19,7 @@ class CreateLikesTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->integer('likable_id')->unsigned();
             $table->tinyInteger('likable_type')->unsigned();
+            $table->unique(['user_id', 'likable_id', 'likable_type']);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

@@ -1,38 +1,38 @@
 <?php
 
+use App\User;
 use Illuminate\Database\Seeder;
 
 class FollowersTableSeeder extends Seeder
 {
     public function run()
     {
-        $followers = [
-          [
-            'follower_id' => 2,
-            'followed_id' => 1,
-          ],
-          [
-            'follower_id' => 3,
-            'followed_id' => 1,
-          ],
-          [
-            'follower_id' => 4,
-            'followed_id' => 1,
-          ],
-          [
-            'follower_id' => 1,
-            'followed_id' => 2,
-          ],
-          [
-            'follower_id' => 3,
-            'followed_id' => 2,
-          ],
-          [
-            'follower_id' => 4,
-            'followed_id' => 2,
-          ],
-        ];
+        $allUserIds = collect(User::pluck('id')->toArray());
 
-        DB::table('followers')->insert($followers);
+        $allFollows = [];
+
+        // Tried 5000 didn't work
+        $numberOfFollowsToInsert = 2000;
+
+        $i = 0;
+        while ($i < $numberOfFollowsToInsert) {
+
+            $followerId = $allUserIds->random();
+            $followedId = $allUserIds->random();
+
+            $newFollow = [
+              'follower_id' => $followerId,
+              'followed_id' => $followedId,
+            ];
+
+            if (in_array($newFollow, $allFollows) || $followerId === $followedId) {
+                continue;
+            }
+
+            $allFollows[] = $newFollow;
+            $i++;
+        }
+
+        DB::table('followers')->insert($allFollows);
     }
 }

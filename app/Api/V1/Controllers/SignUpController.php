@@ -14,19 +14,18 @@ class SignUpController extends ApiController
      */
     private $user;
 
-    /**
-     * @var CreateUserValidator
-     */
-    private $createUserValidator;
 
-    public function __construct(UserRepositoryInterface $user, CreateUserValidator $createUserValidator)
+    public function __construct(UserRepositoryInterface $user)
     {
         $this->user = $user;
-        $this->createUserValidator = $createUserValidator;
     }
 
     public function signUp(SignUpRequest $request, JWTAuth $JWTAuth)
     {
+        if ($this->user->emailExists($request->email)) {
+            return $this->respondWrongArgs('This email is already registered');
+        }
+
         //create and save user
         $user = $this->user->store($request->all());
 
