@@ -25,9 +25,9 @@ class CommentsController extends ApiController
         // TODO: save hashtags ffs
         $commentData['user_id'] = $this->authUser()->id;
 
-        Comment::create($commentData);
+        $comment = Comment::create($commentData);
 
-        return $this->respondSuccess();
+        return $this->respondWithData($comment);
     }
 
     public function update(Request $request, $comment)

@@ -28,6 +28,9 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
         $api->get('/test', 'PostsController@index');
     });
 
+    $api->get('/users/exists', 'UsersController@exists');
+    $api->get('/users/find', 'UsersController@find');
+
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
         $api->get('/followers', 'FollowersController@getFollowers');
@@ -36,8 +39,8 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
         $api->delete('/followers/{user_id}', 'FollowersController@unfollow');
 
         $api->group(['prefix' => 'users'], function (Router $api) {
-            $api->get('/exists', 'UsersController@exists');
-            $api->get('/find', 'UsersController@find');
+//            $api->get('/exists', 'UsersController@exists');
+//            $api->get('/find', 'UsersController@find');
 //            $api->get('/{user}', 'UsersController@show');
 
             $api->group(['prefix' => 'auth'], function (Router $api) {

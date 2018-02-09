@@ -47,13 +47,7 @@ class Post extends Model
 
     protected $dates = ['deleted_at'];
 
-    protected $fillable = [
-      'user_id',
-      'type_id',
-      'media',
-      'thumbnail',
-      'description',
-    ];
+    protected $fillable = ['user_id', 'type_id', 'media', 'thumbnail', 'description'];
 
     protected $hidden = ['deleted_at'];
 

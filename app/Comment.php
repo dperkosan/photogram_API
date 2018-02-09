@@ -29,6 +29,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Comment extends Model
 {
+    protected $fillable = ['body', 'post_id', 'comment_id', 'user_id'];
+
     public function user()
     {
         return $this->belongsTo(User::class)->withoutGlobalScopes();
