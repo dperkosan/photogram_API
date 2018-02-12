@@ -95,7 +95,8 @@ class UsersController extends ApiController
         $user = $this->authUser();
 
 //        $imageName = $image->getClientOriginalName();
-        $imageName = "{$user->username}-orig.{$image->getClientOriginalExtension()}";
+        $imageNameOrig = "{$user->username}-orig.{$image->getClientOriginalExtension()}";
+        $imageName = "{$user->username}-[~FORMAT~].{$image->getClientOriginalExtension()}";
 
         $storage = \Storage::disk('public');
         if ($storage->exists($user->image)) {
@@ -104,11 +105,11 @@ class UsersController extends ApiController
 
         $path = "/images/user/{$user->id}";
 
-        $imagePath = $storage->putFileAs($path, $image, $imageName);
+        $imagePath = $storage->putFileAs($path, $image, $imageNameOrig);
         $imagePath = str_replace('-orig', '-[~FORMAT~]', $imagePath);
 
         // make some thumbs
-        $this->makeThumbs($path, $imageName);
+        $this->makeThumbs($path, $imageName, 'user');
 
 
 

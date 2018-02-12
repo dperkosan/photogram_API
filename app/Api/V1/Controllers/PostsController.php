@@ -102,18 +102,21 @@ class PostsController extends ApiController
         $userId = $user->id;
         $currentYear = date('Y');
 
-        $mediaName = date('Ymdhis') . "-{$user->username}-[~FORMAT~].{$mediaExtension}";
+        $now = date('Ymdhis');
+        $mediaNameOrig = $now . "-{$user->username}-orig.{$mediaExtension}";
+        $mediaName = $now . "-{$user->username}-[~FORMAT~].{$mediaExtension}";
         $folder = $mediaType . 's';
         $path = "{$folder}/post/{$userId}/{$currentYear}";
         $storage = \Storage::disk('public');
 
-        $mediaPath = $storage->putFileAs($path, $media, str_replace('[~FORMAT~]', 'orig', $mediaName));
-//        $mediaPath = str_replace('-orig', '-[~FORMAT~]', $mediaPath);
+        $mediaPath = $storage->putFileAs($path, $media, $mediaNameOrig);
 
         // make some thumbs
         if ($mediaType === 'image') {
             $this->makeThumbs($path, $mediaName);
         }
+
+        $mediaPath = str_replace("-{$user->username}-orig", "-{$user->username}-[~FORMAT~]", $mediaPath);
 
         $thumbnailPath = null;
         if (!$isImage) {
