@@ -2,7 +2,6 @@
 
 namespace App\Api\V1\Requests;
 
-use Config;
 use Dingo\Api\Http\FormRequest as DingoRequest;
 
 class BaseRequest extends DingoRequest
@@ -11,7 +10,7 @@ class BaseRequest extends DingoRequest
 
     public function rules()
     {
-        return Config::get('validations.' . $this->getConfigName());
+        return config('validations.' . $this->getConfigName());
     }
 
     public function authorize()

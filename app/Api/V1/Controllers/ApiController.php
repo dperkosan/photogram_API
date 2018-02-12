@@ -93,7 +93,7 @@ class ApiController extends Controller
         ]);
     }
 
-    public function respondError($message)
+    public function respondWithError($message)
     {
         return $this->respond([
           'success' => false,
@@ -124,32 +124,32 @@ class ApiController extends Controller
 
     public function respondWrongArgs($message = 'Wrong args')
     {
-        return $this->setStatusCode(400)->respondError($message);
+        return $this->setStatusCode(400)->respondWithError($message);
     }
 
     public function respondUnauthorized($message = 'Unauthorized')
     {
-        return $this->setStatusCode(401)->respondError($message);
+        return $this->setStatusCode(401)->respondWithError($message);
     }
 
     public function respondForbidden($message = 'Forbidden')
     {
-        return $this->setStatusCode(403)->respondError($message);
+        return $this->setStatusCode(403)->respondWithError($message);
     }
 
     public function respondNotFound($message = 'Not Found')
     {
-        return $this->setStatusCode(404)->respondError($message);
+        return $this->setStatusCode(404)->respondWithError($message);
     }
 
-    public function respondNotAllowed($message = 'Method Not Allowed')
-    {
-        return $this->setStatusCode(405)->respondError($message);
-    }
+//    public function respondNotAllowed($message = 'Method Not Allowed')
+//    {
+//        return $this->setStatusCode(405)->respondWithError($message);
+//    }
 
     public function respondInternalError($message = 'Internal Error')
     {
-        return $this->setStatusCode(500)->respondError($message);
+        return $this->setStatusCode(500)->respondWithError($message);
     }
 
 }

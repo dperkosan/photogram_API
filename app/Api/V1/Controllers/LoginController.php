@@ -13,17 +13,20 @@ class LoginController extends ApiController
     public function login(LoginRequest $request, JWTAuth $JWTAuth, UserRepositoryInterface $userRepository)
     {
         $credentials = $request->only(['password']);
-        $requestEmail = $request->email;
+        $emailOrUsername = $request->email;
 
-        if (filter_var($requestEmail, FILTER_VALIDATE_EMAIL)) {
-
-            if (!$userRepository->emailExists($requestEmail)) {
-
+        if (filter_var($emailOrUsername, FILTER_VALIDATE_EMAIL)) {
+            if (!$userRepository->emailExists($emailOrUsername)) {
+                return $this->respondForbidden('This email is not registered.');
             }
 
-            $credentials['email'] = $requestEmail;
+            $credentials['email'] = $emailOrUsername;
         } else {
-            $credentials['username'] = $requestEmail;
+            if (!$userRepository->usernameExists($emailOrUsername)) {
+                return $this->respondForbidden('This username is not registered.');
+            }
+
+            $credentials['username'] = $emailOrUsername;
         }
 
         try {
@@ -31,7 +34,7 @@ class LoginController extends ApiController
 
             if(!$token) {
 //                throw new AccessDeniedHttpException();
-                return $this->respondForbidden('Invalid credentials');
+                return $this->respondForbidden('Wrong password.');
             }
 
             //check if user is active (clicked on confirmation mail)

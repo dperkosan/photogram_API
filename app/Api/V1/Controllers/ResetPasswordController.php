@@ -33,7 +33,7 @@ class ResetPasswordController extends ApiController
             throw new HttpException(500);
         }
 
-        if(!Config::get('boilerplate.reset_password.release_token')) {
+        if(!config('boilerplate.reset_password.release_token')) {
             return $this->respond([
                 'status_code' => 200
             ]);

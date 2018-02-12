@@ -5,6 +5,7 @@ use App\Api\V1\Requests\UserRequest;
 use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\JWTAuth;
 
 class UsersController extends ApiController
 {
@@ -13,18 +14,6 @@ class UsersController extends ApiController
     public function __construct(UserRepositoryInterface $users)
     {
         $this->users = $users;
-    }
-
-    public function show($user)
-    {
-        $user = $this->users->findById($user);
-
-        if ($authUser = $this->authUser()) {
-            $this->users->addIsFollowed($user, $authUser->id);
-        }
-        $this->users->addCounts($user);
-
-        return $this->respondWithData($user);
     }
 
     public function updateAuthUser(UserRequest $request)
@@ -77,7 +66,7 @@ class UsersController extends ApiController
         return $this->respondWithData(['exists' => $exists]);
     }
 
-    public function find(Request $request)
+    public function find(Request $request, JWTAuth $JWTAuth)
     {
         $user = $this->users->findWhere($request->only([
           'username', 'email', 'name', 'gender_id'
@@ -85,7 +74,7 @@ class UsersController extends ApiController
 
         if ($user) {
             $this->users->addCounts($user);
-            if ($authUser = $this->authUser()) {
+            if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->users->addIsFollowed($user, $authUser->id);
             }
         }

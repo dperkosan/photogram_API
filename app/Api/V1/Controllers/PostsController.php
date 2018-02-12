@@ -106,7 +106,7 @@ class PostsController extends ApiController
         $mediaPath = str_replace('-orig', '-[~FORMAT~]', $mediaPath);
 
         // make some thumbs
-        if($mediaType == 'image'){
+        if ($mediaType == 'image') {
 
             $absPath = storage_path() . '/app/public/'. $path .'/';
             $thumbs = config('boilerplate.thumbs.formats');

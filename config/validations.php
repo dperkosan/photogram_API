@@ -4,7 +4,7 @@ return [
 
   'sign_up' => [
     'email'                 => 'required|email|max:100|unique:users',
-    'name'                  => 'required|max:100',
+    'name'                  => 'nullable|max:100',
     'username'              => 'required|max:25|unique:users',
     'password'              => 'required|min:1|confirmed',
     'password_confirmation' => 'required',

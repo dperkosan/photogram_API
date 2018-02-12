@@ -1,10 +1,8 @@
 <?php
 namespace App\Api\V1\Controllers;
 
-use Illuminate\Support\Facades\Config;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\SignUpRequest;
-use App\Validators\User\CreateUserValidator;
 use App\Interfaces\UserRepositoryInterface;
 
 class SignUpController extends ApiController
@@ -39,7 +37,7 @@ class SignUpController extends ApiController
         $this->user->sendConfirmEmailNotification($token);
 
         //send response with or without token
-        if (!Config::get('boilerplate.sign_up.release_token')) {
+        if (!config('boilerplate.sign_up.release_token')) {
             return $this->setStatusCode(201)->respond(['message' => 'success']);
         }
 
