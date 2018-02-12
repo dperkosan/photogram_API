@@ -11,9 +11,12 @@ use App\Post;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\JWTAuth;
+use App\Api\V1\Traits\ThumbsTrait;
 
 class PostsController extends ApiController
 {
+    use ThumbsTrait;
+
     /**
      * @var \App\Repositories\PostRepository
      */
@@ -106,19 +109,8 @@ class PostsController extends ApiController
         $mediaPath = str_replace('-orig', '-[~FORMAT~]', $mediaPath);
 
         // make some thumbs
-        if ($mediaType == 'image') {
-
-            $absPath = storage_path() . '/app/public/'. $path .'/';
-            $thumbs = config('boilerplate.thumbs.formats');
-
-            foreach ($thumbs as $thumb_name => $thumb_format) {
-                $mediaNameS = date('Ymdhis') . "-{$user->username}-{$thumb_name}.{$mediaExtension}";
-                \Illuminate\Support\Facades\File::copy($absPath . $mediaName, $absPath . $mediaNameS);
-
-                Image::make($absPath . $mediaNameS)->fit($thumb_format[0], $thumb_format[1], function ($constraint) {
-                    $constraint->upsize();
-                })->save()->destroy();
-            }
+        if ($mediaType === 'image') {
+            $this->makeThumbs($path, $media, $mediaName);
         }
 
         $thumbnailPath = null;

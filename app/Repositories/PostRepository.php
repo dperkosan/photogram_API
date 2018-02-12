@@ -128,7 +128,7 @@ class PostRepository extends Repository implements PostRepositoryInterface
      */
     public function addThumbsToPosts($posts)
     {
-        $thumbs = config('boilerplate.thumbs.formats');
+        $thumbs = config('boilerplate.thumbs.post');
 
         foreach ($posts as $post) {
 
