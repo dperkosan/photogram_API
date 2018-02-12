@@ -94,18 +94,18 @@ class UsersTableSeeder extends Seeder
             'active'    => 1,
             'type_id'   => 1,
           ],
-//          [
-//            'username'  => 'igor',
-//            'name'      => 'Igor Bogdanović',
-//            'email'     => 'igor.bogdanovic@diwanee.com',
-//            'password'  => bcrypt('1'),
-//            'gender_id' => User::GENDER_MALE,
-//            'phone'     => '123456',
-//            'about'     => 'about me something',
-//            'image'     => '',
-//            'active'    => 1,
-//            'type_id'   => 1,
-//          ],
+          [
+            'username'  => 'igor',
+            'name'      => 'Igor Bogdanović',
+            'email'     => 'igor.bogdanovic@diwanee.com',
+            'password'  => bcrypt('1'),
+            'gender_id' => User::GENDER_MALE,
+            'phone'     => '123456',
+            'about'     => 'about me something',
+            'image'     => '',
+            'active'    => 1,
+            'type_id'   => 1,
+          ],
         ];
 
 

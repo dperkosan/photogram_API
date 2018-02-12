@@ -89,7 +89,7 @@ class Generator
 
         // POST
         $this->generateEndpoint('/posts', 'Get posts with pagination. user_id or username is optional.', static::GET, [
-          'amount', 'page', 'user_id', 'username',
+          'amount', 'page', 'user_id', 'username', 'news_feed'
         ]);
         $this->generateEndpoint('/posts/{id}', 'Get a full post by it\'s id');
         $this->generateEndpoint('/posts', 'Create a new post. Send either image or video and thumbnail (optional).', static::POST, [
@@ -250,6 +250,11 @@ class Generator
               'name' => 'description',
               'description'     => 'description of the post',
               'possible_values' => 'string up to 2200 characters',
+            ],
+            [
+              'name' => 'news_feed',
+              'description'     => 'to get posts from followed users',
+              'possible_values' => '1',
             ],
             // RECOVER PASSWORD
             [

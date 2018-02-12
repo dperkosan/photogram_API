@@ -132,15 +132,17 @@ class PostRepository extends Repository implements PostRepositoryInterface
 
         foreach ($posts as $post) {
 
-            $post->thumbs = [];
-            if (strpos($post->media, '[~FORMAT~]') !== false) {
+            if ($post->type_id === Post::TYPE_IMAGE) {
+                $post->thumbs = [];
+                if (strpos($post->media, '[~FORMAT~]') !== false) {
 
-                $arr_thumbs = [];
-                foreach ($thumbs as $thumb_name => $thumb_format) {
-                    $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $post->media);
+                    $arr_thumbs = [];
+                    foreach ($thumbs as $thumb_name => $thumb_format) {
+                        $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $post->media);
+                    }
+                    $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $post->media);
+                    $post->thumbs = $arr_thumbs;
                 }
-                $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $post->media);
-                $post->thumbs = $arr_thumbs;
             }
         }
     }

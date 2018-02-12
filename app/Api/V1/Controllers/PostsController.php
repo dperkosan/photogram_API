@@ -56,6 +56,8 @@ class PostsController extends ApiController
 
         $this->posts->addAuthLike($posts, $userId);
 
+        $this->posts->addThumbsToPosts($posts);
+
         return $this->respondWithData($posts);
     }
 
@@ -100,17 +102,17 @@ class PostsController extends ApiController
         $userId = $user->id;
         $currentYear = date('Y');
 
-        $mediaName = date('Ymdhis') . "-{$user->username}-orig.{$mediaExtension}";
+        $mediaName = date('Ymdhis') . "-{$user->username}-[~FORMAT~].{$mediaExtension}";
         $folder = $mediaType . 's';
         $path = "{$folder}/post/{$userId}/{$currentYear}";
         $storage = \Storage::disk('public');
 
-        $mediaPath = $storage->putFileAs($path, $media, $mediaName);
-        $mediaPath = str_replace('-orig', '-[~FORMAT~]', $mediaPath);
+        $mediaPath = $storage->putFileAs($path, $media, str_replace('[~FORMAT~]', 'orig', $mediaName));
+//        $mediaPath = str_replace('-orig', '-[~FORMAT~]', $mediaPath);
 
         // make some thumbs
         if ($mediaType === 'image') {
-            $this->makeThumbs($path, $media, $mediaName);
+            $this->makeThumbs($path, $mediaName);
         }
 
         $thumbnailPath = null;

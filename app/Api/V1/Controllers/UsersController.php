@@ -2,6 +2,7 @@
 namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\UserRequest;
+use App\Api\V1\Traits\ThumbsTrait;
 use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Illuminate\Http\Request;
@@ -9,6 +10,8 @@ use Tymon\JWTAuth\JWTAuth;
 
 class UsersController extends ApiController
 {
+    use ThumbsTrait;
+
     protected $users;
 
     public function __construct(UserRepositoryInterface $users)
@@ -91,21 +94,29 @@ class UsersController extends ApiController
         $image = $request->file('image');
         $user = $this->authUser();
 
-        $imageName = $image->getClientOriginalName();
-//        $imageName = "{$user->username}.{$image->getClientOriginalExtension()}";
+//        $imageName = $image->getClientOriginalName();
+        $imageName = "{$user->username}-orig.{$image->getClientOriginalExtension()}";
 
         $storage = \Storage::disk('public');
         if ($storage->exists($user->image)) {
             $storage->delete($user->image);
         }
 
-        $path = $storage->putFileAs("/images/user/{$user->id}", $image, $imageName);
+        $path = "/images/user/{$user->id}";
 
-        if ($user->image !== $path) {
-            $user->image = $path;
+        $imagePath = $storage->putFileAs($path, $image, $imageName);
+        $imagePath = str_replace('-orig', '-[~FORMAT~]', $imagePath);
+
+        // make some thumbs
+        $this->makeThumbs($path, $imageName);
+
+
+
+        if ($user->image !== $imagePath) {
+            $user->image = $imagePath;
             $user->save();
         }
 
-        return $this->respondWithData(['image' => $path]);
+        return $this->respondWithData(['image' => $imagePath]);
     }
 }
