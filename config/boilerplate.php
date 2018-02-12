@@ -18,10 +18,16 @@ return [
   ],
 
   'thumbs' => [
-      'formats' => [
-          'small'     => [100, 100],
-          'medium'    => [300, 200],
-          'large'     => [800, 600],
+      'post' => [
+          'small'     => [107, 107],
+          'medium'    => [320, 320],
+          'large'     => [500, 500],
+          ],
+      'user' => [
+          'avatar'          => [44, 44],
+          'comment'         => [18, 18],
+          'profile'         => [125, 125],
+          'profile_large'   => [220, 220],
           ],
       ],
 
