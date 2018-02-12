@@ -9,7 +9,7 @@ class CommentsTableSeeder extends Seeder
 {
     public function run()
     {
-        $this->customSeeder();
+//        $this->customSeeder();
 
         $faker = Faker\Factory::create();
 

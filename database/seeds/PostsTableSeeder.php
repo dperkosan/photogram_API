@@ -12,7 +12,7 @@ class PostsTableSeeder extends Seeder
      */
     public function run()
     {
-        $this->customSeeder();
+//        $this->customSeeder();
 
         $faker = Faker\Factory::create();
 
@@ -28,7 +28,7 @@ class PostsTableSeeder extends Seeder
                 $post['type_id'] = Post::TYPE_VIDEO;
                 $post['thumbnail'] = 'images/thumbnail.png';
             } else {
-                $post['media'] = 'images/post/placeholder.jpg';
+                $post['media'] = 'images/post/placeholder-[~FORMAT~].jpg';
                 $post['type_id'] = POST::TYPE_IMAGE;
                 $post['thumbnail'] = null;
             }
