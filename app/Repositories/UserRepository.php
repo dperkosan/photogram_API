@@ -28,6 +28,37 @@ class UserRepository extends Repository implements UserRepositoryInterface
         $this->JWTAuth = $JWTAuth;
     }
 
+    public function addThumbs($users)
+    {
+        $thumbs = config('boilerplate.thumbs.user');
+
+        if ($users instanceof Collection) {
+            foreach ($users as $user) {
+                $this->addThumbsToOneUser($user, $thumbs);
+            }
+        } else {
+            $this->addThumbsToOneUser($users, $thumbs);
+        }
+    }
+
+    protected function addThumbsToOneUser($user, $thumbs)
+    {
+        if (!isset($user->image)) {
+            return;
+        }
+
+        $user->thumbs = [];
+        if (strpos($user->image, '[~FORMAT~]') !== false) {
+
+            $arr_thumbs = [];
+            foreach ($thumbs as $thumb_name => $thumb_format) {
+                $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $user->image);
+            }
+            $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $user->image);
+            $user->thumbs = $arr_thumbs;
+        }
+    }
+
     public function addCounts($user)
     {
         $user->posts_count = \DB::table('posts')->where('user_id', $user->id)->count();
@@ -70,6 +101,21 @@ class UserRepository extends Repository implements UserRepositoryInterface
             'likable_id' => $likableId,
             'likable_type' => $likableType,
           ])
+          ->offset($offset)
+          ->limit($amount)
+          ->get();
+    }
+
+    public function usersMutualFollowers(array $userIds, $amount, $page)
+    {
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->user
+          ->select(['users.id', 'users.username', 'users.image'])
+          ->join('followers', 'users.id', '=', 'followers.follower_id')
+          ->whereIn('followers.follower_id', $userIds)
+          ->groupBy('followers.follower_id')
+          ->havingRaw('COUNT(`followers`.`follower_id`) >= ' . count($userIds))
           ->offset($offset)
           ->limit($amount)
           ->get();

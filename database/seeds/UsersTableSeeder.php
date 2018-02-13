@@ -54,7 +54,7 @@ class UsersTableSeeder extends Seeder
             'gender_id' => User::GENDER_MALE,
             'phone'     => '123456',
             'about'     => 'about me something',
-            'image'     => '',
+            'image'     => 'images/user/2/stefke.jpg',
             'active'    => 1,
             'type_id'   => 1,
           ],

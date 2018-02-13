@@ -15,10 +15,10 @@ trait ThumbsTrait
         $absPath = storage_path() . '/app/public/' . $path . '/';
         $thumbs = config('boilerplate.thumbs.' . $thumbsFor);
 
+        $origName = str_replace('[~FORMAT~]', 'orig', $mediaName);
+
         foreach ($thumbs as $formatName => $formatArray) {
-//            $mediaNameS = date('Ymdhis') . "-{$user->username}-{$thumb_name}.{$mediaExtension}";
             $thumbName = str_replace('[~FORMAT~]', $formatName, $mediaName);
-            $origName = str_replace('[~FORMAT~]', 'orig', $mediaName);
             \File::copy($absPath . $origName, $absPath . $thumbName);
 
             \Image::make($absPath . $thumbName)->fit($formatArray[0], $formatArray[1], function ($constraint) {

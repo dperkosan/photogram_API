@@ -33,15 +33,16 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
-        $api->get('/followers', 'FollowersController@getFollowers');
+        $api->group(['prefix' => 'followers'], function (Router $api) {
+            $api->get('/', 'FollowersController@getFollowers');
+            $api->get('/mutual', 'FollowersController@mutual');
+            $api->post('/', 'FollowersController@follow');
+            $api->delete('/{user_id}', 'FollowersController@unfollow');
+        });
+
         $api->get('/followings', 'FollowersController@getFollowings');
-        $api->post('/followers', 'FollowersController@follow');
-        $api->delete('/followers/{user_id}', 'FollowersController@unfollow');
 
         $api->group(['prefix' => 'users'], function (Router $api) {
-//            $api->get('/exists', 'UsersController@exists');
-//            $api->get('/find', 'UsersController@find');
-//            $api->get('/{user}', 'UsersController@show');
 
             $api->group(['prefix' => 'auth'], function (Router $api) {
                 $api->get('/', 'UsersController@getAuthUser');

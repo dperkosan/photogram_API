@@ -48,6 +48,7 @@ class LoginController extends ApiController
         }
 
         $userRepository->addCounts($currentUser);
+        $userRepository->addThumbs($currentUser);
 
         return $this->respond([
             'status_code' => 200,

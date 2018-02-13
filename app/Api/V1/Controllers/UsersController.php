@@ -4,7 +4,6 @@ namespace App\Api\V1\Controllers;
 use App\Api\V1\Requests\UserRequest;
 use App\Api\V1\Traits\ThumbsTrait;
 use App\Interfaces\UserRepositoryInterface;
-use App\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
 
@@ -57,6 +56,7 @@ class UsersController extends ApiController
         }
 
         $this->users->addCounts($user);
+        $this->users->addThumbs($user);
 
         return $this->respondWithData($user);
     }
@@ -77,6 +77,7 @@ class UsersController extends ApiController
 
         if ($user) {
             $this->users->addCounts($user);
+            $this->users->addThumbs($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->users->addIsFollowed($user, $authUser->id);
             }
@@ -94,7 +95,6 @@ class UsersController extends ApiController
         $image = $request->file('image');
         $user = $this->authUser();
 
-//        $imageName = $image->getClientOriginalName();
         $imageNameOrig = "{$user->username}-orig.{$image->getClientOriginalExtension()}";
         $imageName = "{$user->username}-[~FORMAT~].{$image->getClientOriginalExtension()}";
 
@@ -110,8 +110,6 @@ class UsersController extends ApiController
 
         // make some thumbs
         $this->makeThumbs($path, $imageName, 'user');
-
-
 
         if ($user->image !== $imagePath) {
             $user->image = $imagePath;

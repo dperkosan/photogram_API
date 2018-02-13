@@ -9,7 +9,6 @@ use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\PostRepositoryInterface;
 use App\Post;
 use Illuminate\Http\Request;
-use Intervention\Image\Facades\Image;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Traits\ThumbsTrait;
 
@@ -56,7 +55,7 @@ class PostsController extends ApiController
 
         $this->posts->addAuthLike($posts, $userId);
 
-        $this->posts->addThumbsToPosts($posts);
+        $this->posts->addThumbs($posts);
 
         return $this->respondWithData($posts);
     }
@@ -80,7 +79,7 @@ class PostsController extends ApiController
         if ($authUser) {
             $this->posts->addAuthLike($posts, $authUser->id);
         }
-        $this->posts->addThumbsToPosts($posts);
+        $this->posts->addThumbs($posts);
 
         return $this->respondWithData($posts);
     }
@@ -102,9 +101,11 @@ class PostsController extends ApiController
         $userId = $user->id;
         $currentYear = date('Y');
 
-        $now = date('Ymdhis');
-        $mediaNameOrig = $now . "-{$user->username}-orig.{$mediaExtension}";
-        $mediaName = $now . "-{$user->username}-[~FORMAT~].{$mediaExtension}";
+        $namePrefix = date('Ymdhis') . '-' . $user->username;
+
+        $mediaName = $namePrefix . "-[~FORMAT~].{$mediaExtension}";
+        $mediaNameOrig = $namePrefix . "-orig.{$mediaExtension}";
+
         $folder = $mediaType . 's';
         $path = "{$folder}/post/{$userId}/{$currentYear}";
         $storage = \Storage::disk('public');
@@ -116,13 +117,13 @@ class PostsController extends ApiController
             $this->makeThumbs($path, $mediaName);
         }
 
-        $mediaPath = str_replace("-{$user->username}-orig", "-{$user->username}-[~FORMAT~]", $mediaPath);
+        $mediaPath = str_replace("{$namePrefix}-orig", "{$namePrefix}-[~FORMAT~]", $mediaPath);
 
         $thumbnailPath = null;
         if (!$isImage) {
             $thumbnail = $request->file('thumbnail');
             $user = $this->authUser();
-            $thumbnailName = date('Ymdhis') . "-{$user->username}.{$thumbnail->getClientOriginalExtension()}";
+            $thumbnailName = $namePrefix . $thumbnail->getClientOriginalExtension();
             $path = "videos/post/{$userId}/{$currentYear}";
 
             $thumbnailPath = $storage->putFileAs($path, $thumbnail, $thumbnailName);

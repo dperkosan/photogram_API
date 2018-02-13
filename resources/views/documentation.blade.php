@@ -11,7 +11,7 @@
 
 <h1>API documentation</h1>
 
-<p>All of the endpoints should be listed here.</p>
+<p>All of the endpoints should be listed here. Prepend every endpoint with /api.</p>
 
 @foreach ($endpoints as $e)
     <hr>

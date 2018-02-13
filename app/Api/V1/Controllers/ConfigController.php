@@ -10,6 +10,15 @@ class ConfigController extends ApiController
     {
         $data = $this->baseData();
 
+        $data['image_formats'] = config('boilerplate.thumbs');
+        $data['default_user_images'] = [
+          'avatar' => 'images/user/default-avatar.jpg',
+          'comment' => 'images/user/default-comment.jpg',
+          'orig' => 'images/user/default-orig.jpg',
+          'profile' => 'images/user/default-profile.jpg',
+          'profile_large' => 'images/user/default-profile_large.jpg',
+        ];
+
         $data['documentation'] = Generator::getInstance()->getData();
 
         return $this->respondWithData($data);

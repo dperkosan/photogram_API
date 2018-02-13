@@ -85,6 +85,10 @@ class Generator
           'user_id',
         ]);
 
+        $this->generateEndpoint('/followers/mutual', 'Get users that are mutual followers for you and the user with user_id.', static::GET, [
+          'user_id', 'amount', 'page'
+        ]);
+
         $this->generateEndpoint('/posts/test', 'Same as /posts but this one doesn\'t require auth.', static::GET);
 
         // POST

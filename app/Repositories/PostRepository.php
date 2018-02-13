@@ -126,7 +126,7 @@ class PostRepository extends Repository implements PostRepositoryInterface
     /**
      * @param Collection|\App\Post $posts
      */
-    public function addThumbsToPosts($posts)
+    public function addThumbs($posts)
     {
         $thumbs = config('boilerplate.thumbs.post');
 

@@ -2,8 +2,10 @@
 
 namespace App\Api\V1\Controllers;
 
+use App\Api\V1\Requests\FollowerPaginationRequest;
 use App\Api\V1\Requests\FollowRequest;
 use App\Events\NewFollower;
+use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Auth;
 use Tymon\JWTAuth\JWTAuth;
@@ -36,6 +38,20 @@ class FollowersController extends ApiController
     public function getFollowers()
     {
         return $this->followers->getFollowers($this->authUser()->id);
+    }
+
+    public function mutual(FollowerPaginationRequest $request, UserRepositoryInterface $userRepository)
+    {
+        $authUserId = $this->authUser()->id;
+        $userIds[] = $authUserId;
+        $userIds[] = $request->user_id;
+
+        $users = $userRepository->usersMutualFollowers($userIds, $request->amount, $request->page);
+
+        $userRepository->addThumbs($users);
+        $userRepository->addIsFollowed($users, $authUserId);
+
+        return $this->respondWithData($users);
     }
 
     /**

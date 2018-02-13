@@ -72,4 +72,10 @@ return [
     'page'         => 'required|max:50',
   ],
 
+  'follower_pagination' => [
+    'user_id' => 'required|integer',
+    'amount'  => 'required|max:100',
+    'page'    => 'required|max:50',
+  ],
+
 ];

@@ -8,10 +8,22 @@ class TestController extends ApiController
 {
     public function index(Request $request)
     {
-        $data = [];
+        $array = [
+          [
+            1 => 'a',
+            2 => 'b',
+          ],
+          [
+            1 => 'c',
+            2 => 'd',
+          ],
+        ];
 
-        $data = ceil(-19/20);
+        $element = [
+          1 => 'a',
+          2 => 'd',
+        ];
 
-        return $this->respondWithData($data);
+        return $this->respondWithData(in_array($element, $array));
     }
 }
