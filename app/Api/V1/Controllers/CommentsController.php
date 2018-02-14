@@ -6,15 +6,17 @@ use App\Api\V1\Requests\CommentPaginationRequest;
 use App\Api\V1\Requests\CommentRequest;
 use App\Comment;
 use App\Interfaces\CommentRepositoryInterface;
+use App\Interfaces\ImageRepositoryInterface;
 use Illuminate\Http\Request;
 
 class CommentsController extends ApiController
 {
-    public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentsRepository)
+    public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentsRepository, ImageRepositoryInterface $imageRepository)
     {
         $comments = $commentsRepository->getComments($request->post_id, $request->comment_id, $request->amount, $request->page);
 
         $commentsRepository->addAuthLike($comments, $this->authUser()->id);
+        $imageRepository->addThumbsToUsers($comments, 'user_image');
 
         return $this->respondWithData($comments);
     }

@@ -2,28 +2,24 @@
 
 namespace App\Api\V1\Controllers;
 
+use Carbon\Carbon;
 use Dingo\Api\Http\Request;
 
 class TestController extends ApiController
 {
     public function index(Request $request)
     {
-        $array = [
-          [
-            1 => 'a',
-            2 => 'b',
-          ],
-          [
-            1 => 'c',
-            2 => 'd',
-          ],
-        ];
+        $period = new \DatePeriod(
+          new \DateTime(),
+          new \DateInterval('PT1S'),
+          10
+        );
 
-        $element = [
-          1 => 'a',
-          2 => 'd',
-        ];
+        $a = [];
+        foreach ($period as $date) {
+            $a[] = $date->format('Y-m-d H:i:s');
+        }
 
-        return $this->respondWithData(in_array($element, $array));
+        return $this->respondWithData($a);
     }
 }

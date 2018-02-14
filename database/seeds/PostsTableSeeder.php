@@ -1,9 +1,8 @@
 <?php
 
 use App\Post;
-use Illuminate\Database\Seeder;
 
-class PostsTableSeeder extends Seeder
+class PostsTableSeeder extends BaseTableSeeder
 {
     /**
      * Run the database seeds.
@@ -12,7 +11,9 @@ class PostsTableSeeder extends Seeder
      */
     public function run()
     {
-//        $this->customSeeder();
+        $numberOfPostsToSeed = 500;
+
+        $period = $this->getDatePeriod($numberOfPostsToSeed);
 
         $faker = Faker\Factory::create();
 
@@ -20,7 +21,7 @@ class PostsTableSeeder extends Seeder
 
         $allPosts = [];
 
-        foreach (range(1, 500) as $index) {
+        foreach ($period as $date) {
             $num = mt_rand(1, 10);
 
             if ($num === 10) {
@@ -39,6 +40,7 @@ class PostsTableSeeder extends Seeder
               'media'       => $post['media'],
               'description' => $faker->text(mt_rand(5, 200)),
               'thumbnail'   => $post['thumbnail'],
+              'created_at'  => $date->format('Y-m-d H:i:s'),
             ];
 
             $allPosts[] = $newPost;

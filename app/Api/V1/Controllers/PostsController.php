@@ -6,6 +6,7 @@ use App\Api\V1\Requests\PostPaginationRequest;
 use App\Api\V1\Requests\PostRequest;
 use App\HashtagsLink;
 use App\Interfaces\HashtagRepositoryInterface;
+use App\Interfaces\ImageRepositoryInterface;
 use App\Interfaces\PostRepositoryInterface;
 use App\Post;
 use Illuminate\Http\Request;
@@ -21,11 +22,13 @@ class PostsController extends ApiController
      */
     private $posts;
     private $jwtAuth;
+    private $imageRepository;
 
-    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts)
+    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts, ImageRepositoryInterface $imageRepository)
     {
         $this->jwtAuth = $jwtAuth;
         $this->posts = $posts;
+        $this->imageRepository = $imageRepository;
     }
 
     /**
@@ -55,7 +58,8 @@ class PostsController extends ApiController
 
         $this->posts->addAuthLike($posts, $userId);
 
-        $this->posts->addThumbs($posts);
+        $this->imageRepository->addThumbsToPosts($posts);
+        $this->imageRepository->addThumbsToUsers($posts, 'user_image');
 
         return $this->respondWithData($posts);
     }
@@ -79,7 +83,8 @@ class PostsController extends ApiController
         if ($authUser) {
             $this->posts->addAuthLike($posts, $authUser->id);
         }
-        $this->posts->addThumbs($posts);
+        $this->imageRepository->addThumbsToPosts($posts);
+        $this->imageRepository->addThumbsToUsers($posts, 'user_image');
 
         return $this->respondWithData($posts);
     }

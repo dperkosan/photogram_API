@@ -28,7 +28,7 @@ class UserRepository extends Repository implements UserRepositoryInterface
         $this->JWTAuth = $JWTAuth;
     }
 
-    public function addThumbs($users)
+    public function addThumbs($users, $imageAttr = 'image')
     {
         $thumbs = config('boilerplate.thumbs.user');
 
@@ -37,24 +37,24 @@ class UserRepository extends Repository implements UserRepositoryInterface
                 $this->addThumbsToOneUser($user, $thumbs);
             }
         } else {
-            $this->addThumbsToOneUser($users, $thumbs);
+            $this->addThumbsToOneUser($users, $thumbs, $imageAttr);
         }
     }
 
-    protected function addThumbsToOneUser($user, $thumbs)
+    protected function addThumbsToOneUser($user, $thumbs, $imageAttr = 'image')
     {
-        if (!isset($user->image)) {
-            return;
-        }
+        $user->thumbs = null;
 
-        $user->thumbs = [];
-        if (strpos($user->image, '[~FORMAT~]') !== false) {
+        if (!isset($user->$imageAttr) || empty($user->$imageAttr)) {
+            $user->thumbs = config('boilerplate.default_user_images');
+
+        } else if (strpos($user->$imageAttr, '[~FORMAT~]') !== false) {
 
             $arr_thumbs = [];
             foreach ($thumbs as $thumb_name => $thumb_format) {
-                $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $user->image);
+                $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $user->$imageAttr);
             }
-            $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $user->image);
+            $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $user->$imageAttr);
             $user->thumbs = $arr_thumbs;
         }
     }

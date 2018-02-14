@@ -2,14 +2,14 @@
 
 use App\User;
 use App\Post;
-use App\Comment;
-use Illuminate\Database\Seeder;
 
-class CommentsTableSeeder extends Seeder
+class CommentsTableSeeder extends BaseTableSeeder
 {
     public function run()
     {
-//        $this->customSeeder();
+        $numberOfCommentsToSeed = 1000;
+
+        $period = $this->getDatePeriod($numberOfCommentsToSeed);
 
         $faker = Faker\Factory::create();
 
@@ -17,11 +17,13 @@ class CommentsTableSeeder extends Seeder
 
         $allPostIds = collect(Post::pluck('id')->toArray());
 
+        $lastPostId = $allPostIds->last();
+
         $allComments = [];
 
         $allPosts = Post::with('comments')->get();
 
-        foreach (range(1, 1000) as $index) {
+        foreach ($period as $date) {
 
             $userId = $allUserIds->random();
             $postId = $allPostIds->random();
@@ -35,53 +37,29 @@ class CommentsTableSeeder extends Seeder
                 $commentId = $commentIds->random();
             }
 
+            $formattedDate = $date->format('Y-m-d H:i:s');
+
             $allComments[] = [
               'body'       => $faker->text(255),
               'user_id'    => $userId,
               'post_id'    => $postId,
               'comment_id' => $commentId,
+              'created_at' => $formattedDate,
+            ];
+
+            // 1000 comments on the last post.
+            // We won't handle comment_id again as it is not important.
+            // The goal is just to have many comments on one post.
+            $allComments[] = [
+              'body'       => $faker->text(255),
+              'user_id'    => $userId,
+              'post_id'    => $lastPostId,
+              'comment_id' => null,
+              'created_at' => $formattedDate,
             ];
         }
 
         DB::table('comments')->insert($allComments);
 
-    }
-
-    private function customSeeder()
-    {
-        $comments = [
-          [
-            'body'       => 'Sexy lady',
-            'user_id'    => 1,
-            'post_id'    => 1,
-            'comment_id' => null,
-          ],
-          [
-            'body'       => 'Indeed',
-            'user_id'    => 2,
-            'post_id'    => 1,
-            'comment_id' => null,
-          ],
-          [
-            'body'       => 'Shame shame shame',
-            'user_id'    => 2,
-            'post_id'    => 1,
-            'comment_id' => 1,
-          ],
-          [
-            'body'       => 'sladjanaaaaaa',
-            'user_id'    => 1,
-            'post_id'    => 1,
-            'comment_id' => 3,
-          ],
-          [
-            'body'       => 'Gangnam style',
-            'user_id'    => 3,
-            'post_id'    => 1,
-            'comment_id' => 3,
-          ],
-        ];
-
-        DB::table('comments')->insert($comments);
     }
 }

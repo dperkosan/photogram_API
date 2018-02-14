@@ -3,6 +3,7 @@ namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\UserRequest;
 use App\Api\V1\Traits\ThumbsTrait;
+use App\Interfaces\ImageRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
@@ -47,7 +48,7 @@ class UsersController extends ApiController
         return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
     }
 
-    public function getAuthUser()
+    public function getAuthUser(ImageRepositoryInterface $imageRepository)
     {
         $user = $this->authUser();
 
@@ -56,7 +57,7 @@ class UsersController extends ApiController
         }
 
         $this->users->addCounts($user);
-        $this->users->addThumbs($user);
+        $imageRepository->addThumbsToUsers($user);
 
         return $this->respondWithData($user);
     }
@@ -69,7 +70,7 @@ class UsersController extends ApiController
         return $this->respondWithData(['exists' => $exists]);
     }
 
-    public function find(Request $request, JWTAuth $JWTAuth)
+    public function find(Request $request, JWTAuth $JWTAuth, ImageRepositoryInterface $imageRepository)
     {
         $user = $this->users->findWhere($request->only([
           'username', 'email', 'name', 'gender_id'
@@ -77,7 +78,7 @@ class UsersController extends ApiController
 
         if ($user) {
             $this->users->addCounts($user);
-            $this->users->addThumbs($user);
+            $imageRepository->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->users->addIsFollowed($user, $authUser->id);
             }
