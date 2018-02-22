@@ -12,7 +12,7 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
         $api->post('login', 'LoginController@login');
 
         $api->post('recovery', 'ForgotPasswordController@sendResetEmail');
-        $api->post('reset', 'ResetPasswordController@resetPassword');
+        $api->post('reset', 'ResetPasswordController@resetPassword')->name('post.reset.password');
 
         $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
             $api->get('signup/confirmation', 'SignUpController@confirmSignUp')->name('confirmation');

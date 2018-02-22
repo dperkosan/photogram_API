@@ -3,29 +3,17 @@
 namespace App\Functional\Api\V1\Controllers;
 
 use DB;
-use Config;
-use App\User;
 use App\TestCase;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class ResetPasswordControllerTest extends TestCase
 {
-//    use DatabaseMigrations;
-
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
 
-        $user = new User([
-            'name' => 'Test User',
-            'email' => 'test@email.com',
-            'password' => '123456'
-        ]);
-        $user->save();
-
         DB::table('password_resets')->insert([
-            'email' => 'test@email.com',
+            'email' => $this->getTestUserEmail(),
             'token' => 'my_super_secret_code',
             'created_at' => Carbon::now()
         ]);
@@ -33,53 +21,39 @@ class ResetPasswordControllerTest extends TestCase
 
     public function testResetSuccessfully()
     {
-        $this->post('api/auth/reset', [
-            'email' => 'test@email.com',
-            'token' => 'my_super_secret_code',
-            'password' => 'mynewpass',
-            'password_confirmation' => 'mynewpass'
-        ])->seeJson([
-          'success' => true
-        ])->assertResponseOk();
-    }
+        $res = $this->post('api/auth/reset', $this->getResetPasswordData());
 
-    public function testResetSuccessfullyWithTokenRelease()
-    {
-        Config::set('boilerplate.reset_password.release_token', true);
+        echo $res->getContent();
 
-        $this->post('api/auth/reset', [
-            'email' => 'test@email.com',
-            'token' => 'my_super_secret_code',
-            'password' => 'mynewpass',
-            'password_confirmation' => 'mynewpass'
-        ])->seeJsonStructure([
-            'status',
-            'token'
-        ])->seeJson([
-          'success' => true
-        ])->assertResponseOk();
+        $res->assertStatus(201);
     }
 
     public function testResetReturnsProcessError()
     {
-        $this->post('api/auth/reset', [
-            'email' => 'unknown@email.com',
-            'token' => 'this_code_is_invalid',
-            'password' => 'mynewpass',
-            'password_confirmation' => 'mynewpass'
-        ])->seeJsonStructure([
-          'success' => false
-        ])->assertResponseStatus(500);
+        $data = array_merge($this->getResetPasswordData(), ['token' => 'this_code_is_invalid']);
+
+        $this->post('api/auth/reset', $data)
+          ->assertStatus(500);
     }
 
     public function testResetReturnsValidationError()
     {
-        $this->post('api/auth/reset', [
-            'email' => 'test@email.com',
-            'token' => 'my_super_secret_code',
-            'password' => 'mynewpass'
-        ])->seeJsonStructure([
-          'success' => false
-        ])->assertResponseStatus(422);
+        $data = array_merge($this->getResetPasswordData(), ['password_confirmation' => 'different']);
+
+        $this->post('api/auth/reset', $data)
+            ->assertStatus(422);
     }
+
+    // helpers
+
+    protected function getResetPasswordData()
+    {
+        return [
+          'email' => $this->getTestUserEmail(),
+          'token' => 'my_super_secret_code',
+          'password' => 'mynewpass',
+          'password_confirmation' => 'mynewpass'
+        ];
+    }
+
 }

@@ -33,6 +33,9 @@ class UsersTableSeeder extends Seeder
 
     public function customSeed()
     {
+        $testUser = config('boilerplate.test_user');
+        $testUser['password'] = bcrypt($testUser['password']);
+
         $users = [
           [
             'username'  => 'UrosHCS',
@@ -54,7 +57,7 @@ class UsersTableSeeder extends Seeder
             'gender_id' => User::GENDER_MALE,
             'phone'     => '123456',
             'about'     => 'about me something',
-            'image'     => 'images/user/2/stefke-[~FORMAT~].jpg',
+            'image'     => 'images/user/2/stefke-[~FORMAT~].png',
             'active'    => 1,
             'type_id'   => 1,
           ],
@@ -106,6 +109,7 @@ class UsersTableSeeder extends Seeder
             'active'    => 1,
             'type_id'   => 1,
           ],
+          $testUser
         ];
 
 

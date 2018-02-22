@@ -29,7 +29,20 @@ return [
     'comment' => 'images/user/default-comment.jpg',
     'profile' => 'images/user/default-profile.jpg',
     'profile_large' => 'images/user/default-profile_large.jpg',
-//    'orig' => 'images/user/default-orig.jpg',
+    'orig' => 'images/user/default-orig.jpg',
+  ],
+
+  'test_user' => [
+    'username'  => 'test.user',
+    'name'      => 'Test User',
+    'email'     => 'test.user@example.com',
+    'password'  => '12345',
+    'gender_id' => 1,
+    'phone'     => '123456',
+    'about'     => 'about me something',
+    'image'     => 'images/user/placeholder-[~FORMAT~].jpg',
+    'active'    => 1,
+    'type_id'   => 1,
   ],
 
 ];

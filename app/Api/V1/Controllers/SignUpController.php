@@ -20,11 +20,6 @@ class SignUpController extends ApiController
 
     public function signUp(SignUpRequest $request, JWTAuth $JWTAuth)
     {
-        if ($this->user->emailExists($request->email)) {
-            return $this->respondWrongArgs('This email is already registered');
-        }
-
-        //create and save user
         $user = $this->user->store($request->all());
 
         if(!$user) {
@@ -38,7 +33,7 @@ class SignUpController extends ApiController
 
         //send response with or without token
         if (!config('boilerplate.sign_up.release_token')) {
-            return $this->setStatusCode(201)->respond(['message' => 'success']);
+            return $this->respondCreated();
         }
 
         return $this->setStatusCode(201)->respond(['token' => $token]);

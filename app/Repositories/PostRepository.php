@@ -94,7 +94,9 @@ class PostRepository extends Repository implements PostRepositoryInterface
      */
     public function addComments($posts, $limit = 5)
     {
-        if ($posts instanceof Post) {
+        if (!$posts) {
+            return;
+        } else if ($posts instanceof Post) {
             $this->addCommentsToSingePost($posts, $limit);
         } else {
             foreach ($posts as $post) {

@@ -20,13 +20,6 @@ class ForgotPasswordController extends ApiController
     
     public function sendResetEmail(ForgotPasswordRequest $request)
     {
-        //get user by email
-        $emailExists = $this->user->emailExists($request->get('email'));
-
-        if(!$emailExists) {
-            return $this->respondWrongArgs();
-        }
-
         $broker = $this->getPasswordBroker();
         $sendingResponse = $broker->sendResetLink($request->only('email'));
 

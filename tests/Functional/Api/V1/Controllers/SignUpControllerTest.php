@@ -4,45 +4,34 @@ namespace App\Functional\Api\V1\Controllers;
 
 use Config;
 use App\TestCase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class SignUpControllerTest extends TestCase
 {
 //    use DatabaseMigrations;
 
+    protected $signUpUser = [
+      'email'                 => 'blinktest@example.com',
+      'name'                  => 'Blink Test',
+      'username'              => 'blinktest',
+      'password'              => 'blinktest',
+      'password_confirmation' => 'blinktest',
+    ];
+
     public function testSignUpSuccessfully()
     {
-        $this->post('api/auth/signup', [
-            'name' => 'Test User',
-            'email' => 'test@email.com',
-            'password' => '123456'
-        ])->seeJson([
-            'status' => 'ok'
-        ])->assertResponseStatus(201);
-    }
+        $res = $this->post('api/auth/signup', $this->signUpUser);
 
-    public function testSignUpSuccessfullyWithTokenRelease()
-    {
-        Config::set('boilerplate.sign_up.release_token', true);
+//        echo $res->getContent();
 
-        $this->post('api/auth/signup', [
-            'name' => 'Test User',
-            'email' => 'test@email.com',
-            'password' => '123456'
-        ])->seeJsonStructure([
-            'status', 'token'
-        ])->seeJson([
-            'status' => 'ok'
-        ])->assertResponseStatus(201);
+        $res->assertStatus(201);
+
+        \DB::table('users')->where('email', '=', $this->signUpUser['email'])->delete();
     }
 
     public function testSignUpReturnsValidationError()
     {
-        $this->post('api/auth/signup', [
-            'name' => 'Test User',
-            'email' => 'test@email.com'
-        ])->seeJsonStructure([
-            'error'
-        ])->assertResponseStatus(422);
+        $this->post('api/auth/signup', array_merge($this->signUpUser, ['password_confirmation' => 'different']))
+          ->assertJsonStructure(['error'])
+          ->assertStatus(422);
     }
 }

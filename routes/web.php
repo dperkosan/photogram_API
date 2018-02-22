@@ -11,4 +11,6 @@ $router = app(Router::class);
 
     $router->get('/documentation', '\App\Http\Controllers\HomeController@documentation');
 
+    $router->get('/password-reset', '\App\Http\Controllers\HomeController@passwordReset')->name('password.reset');
+
 //});

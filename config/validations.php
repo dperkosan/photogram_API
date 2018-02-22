@@ -6,23 +6,26 @@ return [
     'email'                 => 'required|email|max:100|unique:users',
     'name'                  => 'nullable|max:100',
     'username'              => 'required|max:25|unique:users',
-    'password'              => 'required|min:1|confirmed',
+    'password'              => 'required|min:6|confirmed',
     'password_confirmation' => 'required',
   ],
 
+  // No special validation for login here.
+  // All validation logic is in the controller
   'login' => [
     'email'    => 'required',
     'password' => 'required',
   ],
 
   'forgot_password' => [
-    'email' => 'required|email',
+    'email' => 'required|email|exists:users',
   ],
 
   'reset_password' => [
-    'token'    => 'required',
-    'email'    => 'required|email',
-    'password' => 'required|confirmed',
+    'token'                 => 'required',
+    'email'                 => 'required|email|exists:users',
+    'password'              => 'required|min:6|confirmed',
+    'password_confirmation' => 'required',
   ],
 
   'follow' => [

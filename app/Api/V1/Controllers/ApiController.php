@@ -78,6 +78,7 @@ class ApiController extends Controller
      */
     public function respond($jsonData = [], $headers = [])
     {
+        // Some custom debugging, like console logging directly in json response
         if ($this->debugMessage) {
             $jsonData['debug'] = $this->debugMessage;
         }

@@ -14,6 +14,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected $baseUrl = 'http://photogramapi.test';
 
+    protected $testUser;
     /**
      * Creates the application.
      *
@@ -26,5 +27,18 @@ abstract class TestCase extends BaseTestCase
         $app->make(Kernel::class)->bootstrap();
 
         return $app;
+    }
+
+    protected function getTestUser()
+    {
+        if (!$this->testUser) {
+            $this->testUser = config('boilerplate.test_user');
+        }
+        return $this->testUser;
+    }
+
+    protected function getTestUserEmail()
+    {
+        return $this->getTestUser()['email'];
     }
 }

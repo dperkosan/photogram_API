@@ -23,4 +23,11 @@ class HomeController extends BaseController
 
         return view('documentation', compact('endpoints'));
     }
+
+    public function passwordReset()
+    {
+        return view('password-reset', [
+          'token' => request()->token
+        ]);
+    }
 }

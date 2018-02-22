@@ -104,7 +104,7 @@ class Generator
         ]);
         $this->generateEndpoint('/posts/{id}', 'Delete a post.', static::DELETE);
 
-        $this->generateEndpoint('/home', 'Same as /posts but this one doesn\'t require auth.', static::GET);
+        $this->generateEndpoint('/home', 'Same as /posts with news_feed=1 passed', static::GET);
 
         $this->generateEndpoint('/comments', 'Get comments.', static::GET, [
           'post_id', 'comment_id', 'amount', 'page',

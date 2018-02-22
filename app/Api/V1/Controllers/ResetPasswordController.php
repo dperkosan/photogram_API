@@ -2,7 +2,6 @@
 
 namespace App\Api\V1\Controllers;
 
-use Config;
 use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Support\Facades\Password;
 use App\Interfaces\UserRepositoryInterface;
@@ -14,38 +13,43 @@ class ResetPasswordController extends ApiController
     /**
      * @var UserRepositoryInterface
      */
-    private $user;
+    protected $user;
 
     public function __construct(UserRepositoryInterface $user)
     {
         $this->user = $user;
     }
 
-    public function resetPassword(ResetPasswordRequest $request, JWTAuth $JWTAuth)
+    public function resetPassword(ResetPasswordRequest $request)
     {
-        $response = $this->broker()->reset(
+        $broker = $this->broker();
+
+        // We are already checking if password is confirmed in the ResetPasswordRequest
+        // so we are setting the broker validator to just return true
+        $broker->validator(function () {
+            return true;
+        });
+
+        $response = $broker->reset(
             $this->credentials($request), function ($user, $password) {
                 $this->reset($user, $password);
             }
         );
 
         if($response !== Password::PASSWORD_RESET) {
-            throw new HttpException(500);
+            throw new HttpException(501);
         }
 
-        if(!config('boilerplate.reset_password.release_token')) {
-            return $this->respond([
-                'status_code' => 200
-            ]);
-        }
-
-        //get user by email
-        $user = $this->user->findByEmail($request->get('email'));
-
-        return $this->respond([
-            'status_code' => 200,
-            'token' => $JWTAuth->fromUser($user)
-        ]);
+//        if(!config('boilerplate.reset_password.release_token')) {
+            return $this->respondSuccess();
+//        }
+//
+//        $user = $this->user->findByEmail($request->get('email'));
+//
+//        return $this->respond([
+//            'status_code' => 200,
+//            'token' => $JWTAuth->fromUser($user)
+//        ]);
     }
 
     /**
@@ -53,7 +57,7 @@ class ResetPasswordController extends ApiController
      *
      * @return \Illuminate\Contracts\Auth\PasswordBroker
      */
-    public function broker()
+    protected function broker()
     {
         return Password::broker();
     }
@@ -67,7 +71,7 @@ class ResetPasswordController extends ApiController
     protected function credentials(ResetPasswordRequest $request)
     {
         return $request->only(
-            'email', 'password', 'password_confirmation', 'token'
+            'email', 'password', 'token'
         );
     }
 
