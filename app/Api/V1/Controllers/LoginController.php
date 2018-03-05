@@ -52,7 +52,6 @@ class LoginController extends ApiController
         $imageRepository->addThumbsToUsers($currentUser);
 
         return $this->respond([
-            'status_code' => 200,
             'token' => $token,
             'data' => $currentUser
         ]);

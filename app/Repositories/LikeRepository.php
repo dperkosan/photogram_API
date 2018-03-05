@@ -23,11 +23,11 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
      * Adds auth_like_id (by auth user) to every post and nested comment
      *
      * @param Collection $posts
-     * @param integer    $userId user id of the auth user
+     * @param integer    $authUserId user id of the auth user
      *
      * @return Collection $posts
      */
-    public function addAuthLikeToPosts($posts, $userId)
+    public function addAuthLikeToPosts($posts, $authUserId)
     {
         $likableIds = [];
 
@@ -38,18 +38,18 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
             }
         }
 
-        $likes = $this->getLikesForAuth(array_unique($likableIds), $userId);
+        $likes = $this->getLikesForAuth(array_unique($likableIds), $authUserId);
 
-        if ($likes->isNotEmpty()) {
+//        if ($likes->isNotEmpty()) {
 
-            foreach ($posts as $post) {
-                $this->addLikeId($post, $this->likablePost, $likes);
+        foreach ($posts as $post) {
+            $this->addLikeId($post, $this->likablePost, $likes);
 
-                foreach ($post->comments as $comment) {
-                    $this->addLikeId($comment, $this->likableComment, $likes);
-                }
+            foreach ($post->comments as $comment) {
+                $this->addLikeId($comment, $this->likableComment, $likes);
             }
         }
+//        }
 
         return $posts;
     }

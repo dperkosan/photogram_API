@@ -31,20 +31,6 @@ class PostsController extends ApiController
         $this->imageRepository = $imageRepository;
     }
 
-    /**
-     * Get x number of latest posts
-     *
-     * @param PostPaginationRequest $request
-     *
-     * @return mixed
-     */
-    public function getPosts(PostPaginationRequest $request)
-    {
-        $posts = $this->posts->getPosts($request->amount, $request->page);
-
-        return $this->respondWithData($posts);
-    }
-
     public function newsFeed(PostPaginationRequest $request)
     {
         return $this->baseNewsFeed($request);
@@ -66,7 +52,7 @@ class PostsController extends ApiController
 
     public function index(PostPaginationRequest $request)
     {
-        if (1 === (int) $request->news_feed) {
+        if (isset($request->news_feed)) {
             return $this->baseNewsFeed($request);
         }
 
@@ -91,7 +77,16 @@ class PostsController extends ApiController
 
     public function show($post)
     {
-        return $this->respondWithData($this->posts->getPost($post));
+        $posts = $this->posts->getPost($post);
+
+        $authUser = $this->authUser();
+        if ($authUser) {
+            $this->posts->addAuthLike($posts, $authUser->id);
+        }
+        $this->imageRepository->addThumbsToPosts($posts);
+        $this->imageRepository->addThumbsToUsers($posts, 'user_image');
+
+        return $this->respondWithData($posts->first());
     }
 
     public function store(PostRequest $request, HashtagRepositoryInterface $hashtags)
@@ -147,7 +142,7 @@ class PostsController extends ApiController
         return $this->respondCreated();
     }
 
-    public function update(Request $request, $post, HashtagRepositoryInterface $hashtags)
+    public function update(Request $request, $post, HashtagRepositoryInterface $hashtagRepository)
     {
         $post = Post::find($post);
         if (!$this->belongsToAuthUser($post)) {
@@ -156,7 +151,7 @@ class PostsController extends ApiController
 
         if (isset($request->description)) {
             $post->description = $request->description;
-            $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
+            $hashtagRepository->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
         }
 
         if (isset($request->thumbnail)) {

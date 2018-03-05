@@ -14,7 +14,10 @@ abstract class TestCase extends BaseTestCase
      */
     protected $baseUrl = 'http://photogramapi.test';
 
-    protected $testUser;
+    /**
+     * @var array of test user data
+     */
+    protected $testUserData;
     /**
      * Creates the application.
      *
@@ -29,16 +32,59 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    protected function getTestUser()
+    /**
+     * Get all data for the test user.
+     * This is just an array and doesn't have an id set.
+     *
+     * @return array
+     */
+    protected function getTestUserData()
     {
-        if (!$this->testUser) {
-            $this->testUser = config('boilerplate.test_user');
+        if (!$this->testUserData) {
+            $this->testUserData = config('boilerplate.test_user');
         }
-        return $this->testUser;
+        return $this->testUserData;
     }
 
     protected function getTestUserEmail()
     {
-        return $this->getTestUser()['email'];
+        return $this->getTestUserData()['email'];
+    }
+
+    /**************************************
+     * Authentication methods
+     **************************************/
+
+    /**
+     * @param array $data
+     *
+     * @return string
+     */
+    protected function buildUrl(array $data) : string
+    {
+        return $this->url . '?' . http_build_query($data);
+    }
+
+    protected function buildAuthHeader(string $token) : array
+    {
+        return ['Authorization' => 'Bearer ' . $token];
+    }
+
+    protected function apiGetWithToken(array $data = null)
+    {
+        return $this->apiGet(DataProvider::getToken(), $data);
+    }
+
+    protected function apiGetWithoutHeader(array $data = null)
+    {
+        return $this->apiGet(null, $data);
+    }
+
+    protected function apiGet(string $token = null, array $data = null)
+    {
+        $headers = empty($token) ? [] : $this->buildAuthHeader($token);
+        $url = empty($data) ? $this->url : $this->buildUrl($data);
+
+        return $this->get($url, $headers);
     }
 }

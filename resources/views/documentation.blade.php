@@ -6,12 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Photogram</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #eeeeee;
+            color: black;
+            padding: 0 3em 0 3em;
+        }
+        hr {
+            background-color: black;
+        }
+    </style>
 </head>
 <body>
 
 <h1>API documentation</h1>
 
-<p>All of the endpoints should be listed here. Prepend every endpoint with /api.</p>
+<p>{{ $intro }}</p>
 
 @foreach ($endpoints as $e)
     <hr>

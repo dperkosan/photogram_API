@@ -20,8 +20,9 @@ class HomeController extends BaseController
     public function documentation()
     {
         $endpoints = Generator::getInstance()->getData();
+        $intro = Generator::getInstance()->intro;
 
-        return view('documentation', compact('endpoints'));
+        return view('documentation', compact(['endpoints', 'intro']));
     }
 
     public function passwordReset()

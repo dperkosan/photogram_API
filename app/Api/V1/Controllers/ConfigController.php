@@ -23,30 +23,30 @@ class ConfigController extends ApiController
         return [
           'user' => [
             'genders' => [
-              1 => 'male',
-              2 => 'female',
-              3 => 'other',
+              'male' => 1,
+              'female' => 2,
+              'other' => 3,
             ],
           ],
 
           'post' => [
             'types' => [
-              1 => 'picture',
-              2 => 'video',
+              'picture' => 1,
+              'video' => 2,
             ],
           ],
 
           'like' => [
             'likable_types' => [
-              1 => 'post',
-              2 => 'comment',
+              'post' => 1,
+              'comment' => 2,
             ],
           ],
 
           'hashtag' => [
             'taggable_types' => [
-              1 => 'post',
-              2 => 'comment',
+              'post' => 1,
+              'comment' => 2,
             ],
           ],
         ];

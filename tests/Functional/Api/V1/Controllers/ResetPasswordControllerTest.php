@@ -2,21 +2,21 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
-use DB;
 use App\TestCase;
-use Carbon\Carbon;
 
 class ResetPasswordControllerTest extends TestCase
 {
+    protected $testToken;
+
     protected function setUp()
     {
         parent::setUp();
 
-        DB::table('password_resets')->insert([
-            'email' => $this->getTestUserEmail(),
-            'token' => 'my_super_secret_code',
-            'created_at' => Carbon::now()
-        ]);
+        $broker = \Password::broker();
+
+        $user = $broker->getUser(['email' => $this->getTestUserEmail()]);
+
+        $this->testToken = $broker->createToken($user);
     }
 
     public function testResetSuccessfully()
@@ -25,15 +25,22 @@ class ResetPasswordControllerTest extends TestCase
 
         echo $res->getContent();
 
-        $res->assertStatus(201);
+        $res->assertStatus(204);
+
+        $updateArray = [
+          'password' => bcrypt($this->getTestUserData()['password'])
+        ];
+
+        \DB::table('users')->where('email', '=', $this->getTestUserEmail())
+          ->update($updateArray);
     }
 
     public function testResetReturnsProcessError()
     {
-        $data = array_merge($this->getResetPasswordData(), ['token' => 'this_code_is_invalid']);
+        $data = array_merge($this->getResetPasswordData(), ['token' => 'this_token_is_invalid']);
 
         $this->post('api/auth/reset', $data)
-          ->assertStatus(500);
+          ->assertStatus(403);
     }
 
     public function testResetReturnsValidationError()
@@ -50,7 +57,7 @@ class ResetPasswordControllerTest extends TestCase
     {
         return [
           'email' => $this->getTestUserEmail(),
-          'token' => 'my_super_secret_code',
+          'token' => $this->testToken,
           'password' => 'mynewpass',
           'password_confirmation' => 'mynewpass'
         ];

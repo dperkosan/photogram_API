@@ -12,7 +12,7 @@ class ForgotPasswordControllerTest extends TestCase
             'email' => $this->getTestUserEmail()
         ]);
 
-        echo $res->getContent();
+//        echo $res->getContent();
 
         $res->assertSuccessful();
     }

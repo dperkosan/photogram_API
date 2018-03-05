@@ -8,25 +8,31 @@ class LoginControllerTest extends TestCase
 {
     public function testLoginSuccessfully()
     {
-        $this->call('POST', 'api/auth/login', [
-          'email'    => $this->getTestUserEmail(),
-          'password' => $this->getTestUser()['password'],
-        ])->assertJsonStructure(['token'])
-          ->assertSuccessful();
+        $res = $this->call('POST', 'api/auth/login', [
+            'email'    => $this->getTestUserEmail(),
+            'password' => $this->getTestUserData()['password'],
+        ]);
+
+        $responseJson = $res->decodeResponseJson();
+
+        $res->assertJsonStructure(['token'], $responseJson)
+            ->assertSuccessful();
+
+        return $responseJson['token'];
     }
 
     public function testLoginWithReturnsWrongCredentialsError()
     {
         $this->post('api/auth/login', [
-          'email'    => 'unknown@email.com',
-          'password' => '123456',
+            'email'    => 'unknown@email.com',
+            'password' => '123456',
         ])->assertStatus(403);
     }
 
     public function testLoginWithReturnsValidationError()
     {
         $this->post('api/auth/login', [
-          'email' => $this->getTestUserEmail(),
+            'email' => $this->getTestUserEmail(),
         ])->assertStatus(422);
     }
 }

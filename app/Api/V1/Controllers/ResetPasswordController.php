@@ -26,22 +26,23 @@ class ResetPasswordController extends ApiController
 
         // We are already checking if password is confirmed in the ResetPasswordRequest
         // so we are setting the broker validator to just return true
-        $broker->validator(function () {
+        $broker->validator(function ($credentials) {
             return true;
         });
-
         $response = $broker->reset(
             $this->credentials($request), function ($user, $password) {
                 $this->reset($user, $password);
             }
         );
 
-        if($response !== Password::PASSWORD_RESET) {
-            throw new HttpException(501);
+        if ($response === Password::INVALID_USER) {
+            return $this->respondForbidden('This email is not registered.');
+        } else if ($response === Password::INVALID_TOKEN) {
+            return $this->respondForbidden('Token wrong or expired.');
         }
 
-//        if(!config('boilerplate.reset_password.release_token')) {
-            return $this->respondSuccess();
+//        if (!config('boilerplate.reset_password.release_token')) {
+        return $this->setStatusCode(204)->respond();
 //        }
 //
 //        $user = $this->user->findByEmail($request->get('email'));
@@ -71,7 +72,7 @@ class ResetPasswordController extends ApiController
     protected function credentials(ResetPasswordRequest $request)
     {
         return $request->only(
-            'email', 'password', 'token'
+            'email', 'password', 'password_confirmation', 'token'
         );
     }
 

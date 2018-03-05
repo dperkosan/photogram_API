@@ -5,7 +5,9 @@ namespace App\Api\V1\Controllers;
 use App\Api\V1\Requests\CommentPaginationRequest;
 use App\Api\V1\Requests\CommentRequest;
 use App\Comment;
+use App\HashtagsLink;
 use App\Interfaces\CommentRepositoryInterface;
+use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\ImageRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -21,27 +23,32 @@ class CommentsController extends ApiController
         return $this->respondWithData($comments);
     }
 
-    public function store(CommentRequest $request)
+    public function store(CommentRequest $request, HashtagRepositoryInterface $hashtagRepository)
     {
         $commentData = $request->only(['body', 'post_id', 'comment_id']);
-        // TODO: save hashtags ffs
         $commentData['user_id'] = $this->authUser()->id;
 
         $comment = Comment::create($commentData);
 
+        $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
+
         return $this->respondWithData($comment);
     }
 
-    public function update(Request $request, $comment)
+    public function update(Request $request, $comment, HashtagRepositoryInterface $hashtagRepository)
     {
         $comment = Comment::find($comment);
 
         if (!$this->belongsToAuthUser($comment)) {
             return $this->respondForbidden('This comment is not yours!');
         }
-        // TODO: save hashtags ffs
 
-        if (!$comment->update($request->only(['body']))) {
+        if (isset($request->body)) {
+            $comment->body = $request->body;
+            $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
+        }
+
+        if (!$comment->save()) {
             return $this->respondInternalError('Failed to save comment');
         }
 
@@ -53,7 +60,7 @@ class CommentsController extends ApiController
         $comment = Comment::find($comment);
 
         if (!$this->belongsToAuthUser($comment)) {
-            return $this->respondForbidden('This like is not yours!');
+            return $this->respondForbidden('This comment is not yours!');
         }
 
         if (!$comment->delete()) {

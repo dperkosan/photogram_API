@@ -125,7 +125,7 @@ class ApiController extends Controller
 
     public function respondWrongArgs($message = 'Wrong args')
     {
-        return $this->setStatusCode(400)->respondWithError($message);
+        return $this->setStatusCode(422)->respondWithError($message);
     }
 
     public function respondUnauthorized($message = 'Unauthorized')

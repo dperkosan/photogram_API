@@ -42,13 +42,13 @@ class HashtagRepository implements HashtagRepositoryInterface
         // insert hashtags into database if not already in
         $hashtagLinkData = [];
         foreach ($hashtags as $hashtag) {
-            $hashtag = $this->hashtag->firstOrCreate([
+            $hashtagInstance = $this->hashtag->firstOrCreate([
               'name' => $hashtag,
             ]);
 
             // While inserting hashtags, fill the data to insert later
             $hashtagLinkData[] = [
-              'hashtag_id' => $hashtag->id,
+              'hashtag_id' => $hashtagInstance->id,
               'taggable_id' => $taggableId,
               'taggable_type' => $taggableType,
             ];

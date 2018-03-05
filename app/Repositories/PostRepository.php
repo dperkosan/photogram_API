@@ -27,7 +27,10 @@ class PostRepository extends Repository implements PostRepositoryInterface
 
     public function getPost($id)
     {
-        $this->fullQuery()->find($id);
+        $posts = $this->fullQuery()->whereKey($id)->get();
+        $this->addComments($posts);
+
+        return $posts;
     }
 
     /**

@@ -7,7 +7,12 @@ use Illuminate\Support\Collection;
 
 class ImageRepository implements ImageRepositoryInterface
 {
-    protected $placeholder = '[~FORMAT~]';
+    protected $placeholder;
+
+    public function __construct()
+    {
+        $this->placeholder = config('boilerplate.image_format_placeholder');
+    }
 
     /**
      * @param mixed  $objects       collection of object or one object
@@ -41,7 +46,7 @@ class ImageRepository implements ImageRepositoryInterface
                 $this->addThumbsToOnePost($post, $thumbs, $imageAttr, $postTypeId);
             }
         } else {
-            $this->addThumbsToOneObject($posts, $thumbs, $imageAttr, $postTypeId);
+            $this->addThumbsToOnePost($posts, $thumbs, $imageAttr, $postTypeId);
         }
     }
 
@@ -81,17 +86,27 @@ class ImageRepository implements ImageRepositoryInterface
             $object->$imageAttr = $defaultThumbs;
 
         } else if (strpos($object->$imageAttr, $this->placeholder) !== false) {
-
-            $thumbImages = [];
-            foreach ($thumbs as $thumbName => $thumbFormat) {
-                $thumbImages[$thumbName] = str_replace($this->placeholder, $thumbName, $object->$imageAttr);
-            }
-
-            $thumbImages['placeholder'] = $object->$imageAttr;
-            $thumbImages['orig'] = str_replace($this->placeholder, 'orig', $object->$imageAttr);
-
+            $thumbImages = $this->generateThumbsFromString($object->$imageAttr, $thumbs);
             $object->$imageAttr = $thumbImages;
         }
     }
 
+    /**
+     * @param string $imagePathString string with $this->placeholder string somewhere in it
+     * @param array  $thumbs
+     *
+     * @return array
+     */
+    public function generateThumbsFromString($imagePathString, $thumbs)
+    {
+        $thumbImages = [];
+        foreach ($thumbs as $thumbName => $thumbFormat) {
+            $thumbImages[$thumbName] = str_replace($this->placeholder, $thumbName, $imagePathString);
+        }
+
+        $thumbImages['placeholder'] = $imagePathString;
+        $thumbImages['orig'] = str_replace($this->placeholder, 'orig', $imagePathString);
+
+        return $thumbImages;
+    }
 }
