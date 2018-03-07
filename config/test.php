@@ -9,13 +9,13 @@ $userImage = [
     'orig',
 ];
 
-$media = [
-    'small',
-    'medium',
-    'large',
-    'placeholder',
-    'orig',
-];
+//$media = [
+//    'small',
+//    'medium',
+//    'large',
+//    'placeholder',
+//    'orig',
+//];
 
 return [
     'json_structure' => [
@@ -26,7 +26,7 @@ return [
             'id',
             'user_id',
             'type_id',
-            'media'      => $media,
+            'media',
             'thumbnail',
             'description',
             'created_at',

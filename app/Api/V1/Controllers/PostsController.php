@@ -139,7 +139,7 @@ class PostsController extends ApiController
 
         $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
 
-        return $this->respondCreated();
+        return $this->setStatusCode(201)->respondWithData($post);
     }
 
     public function update(Request $request, $post, HashtagRepositoryInterface $hashtagRepository)
@@ -164,7 +164,7 @@ class PostsController extends ApiController
 
         $post->save();
 
-        return $this->respondSuccess();
+        return $this->respondWithData($post);
     }
 
     public function destroy($post)

@@ -2,6 +2,10 @@
 
 # New doc
 
+Find posts with 1000 comments (can do this in tinker):
+
+\DB::select('select p.id, count(c.id) as comments_count from posts p inner join comments c on c.post_id = p.id group by p.id having comments_count > 999;');
+
 #### TODO:
 * Deal with tokens expiring
 

@@ -15,6 +15,13 @@ abstract class TestCase extends BaseTestCase
     protected $baseUrl = 'http://photogramapi.test';
 
     /**
+     * Url path, concatenated to the $baseUrl
+     *
+     * @var string
+     */
+    protected $path = '';
+
+    /**
      * @var array of test user data
      */
     protected $testUserData;
@@ -32,23 +39,11 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    /**
-     * Get all data for the test user.
-     * This is just an array and doesn't have an id set.
-     *
-     * @return array
-     */
-    protected function getTestUserData()
+    protected function refreshApplicationIfNotRefreshed()
     {
-        if (!$this->testUserData) {
-            $this->testUserData = config('boilerplate.test_user');
+        if (! $this->app) {
+            $this->refreshApplication();
         }
-        return $this->testUserData;
-    }
-
-    protected function getTestUserEmail()
-    {
-        return $this->getTestUserData()['email'];
     }
 
     /**************************************
@@ -62,29 +57,46 @@ abstract class TestCase extends BaseTestCase
      */
     protected function buildUrl(array $data) : string
     {
-        return $this->url . '?' . http_build_query($data);
+        return empty($data) ? $this->path : $this->path . '?' . http_build_query($data);
     }
 
-    protected function buildAuthHeader(string $token) : array
+    protected function apiGet(array $data = null, $includeTokenInHeader = true)
     {
-        return ['Authorization' => 'Bearer ' . $token];
-    }
-
-    protected function apiGetWithToken(array $data = null)
-    {
-        return $this->apiGet(DataProvider::getToken(), $data);
-    }
-
-    protected function apiGetWithoutHeader(array $data = null)
-    {
-        return $this->apiGet(null, $data);
-    }
-
-    protected function apiGet(string $token = null, array $data = null)
-    {
-        $headers = empty($token) ? [] : $this->buildAuthHeader($token);
-        $url = empty($data) ? $this->url : $this->buildUrl($data);
+        $url = $this->buildUrl($data);
+        $headers = $includeTokenInHeader ? DataProvider::getHeader() : [];
 
         return $this->get($url, $headers);
+    }
+
+
+    protected function apiPost(array $data = [], string $pathSuffix = '', $headers = [], $includeTokenInHeader = true)
+    {
+        if ($includeTokenInHeader) {
+            $headers = array_merge($headers, DataProvider::getHeader());
+        }
+
+        return $this->post($this->path . $pathSuffix, $data, $headers);
+    }
+
+    protected function apiPatch(int $id, array $data = [], $headers = [], $includeTokenInHeader = true)
+    {
+        if ($includeTokenInHeader) {
+            $headers = array_merge($headers, DataProvider::getHeader());
+        }
+
+        $path = $this->path . '/' . $id;
+
+        return $this->patch($path, $data, $headers);
+    }
+
+    protected function apiDelete(int $id, $data = [], $headers = [], $includeTokenInHeader = true)
+    {
+        if ($includeTokenInHeader) {
+            $headers = array_merge($headers, DataProvider::getHeader());
+        }
+
+        $path = $this->path . '/' . $id;
+
+        return $this->delete($path, $data, $headers);
     }
 }

@@ -50,7 +50,7 @@ class UsersTableSeeder extends Seeder
             'type_id'   => 1,
           ],
           [
-            'username'  => 'stefke',
+            'username'  => 'esteban',
             'name'      => 'Stefan Petković',
             'email'     => 'stefan.petkovic@diwanee.com',
             'password'  => bcrypt('1'),

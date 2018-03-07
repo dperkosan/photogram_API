@@ -2,13 +2,15 @@
 
 namespace App;
 
+use Illuminate\Http\Testing\File;
+use Illuminate\Http\UploadedFile;
+
 /**
- * Class DataProvider
- *
  * Provides data that is used in tests. The implementation is made to generate data only once,
  * and on subsequent requests with get methods just returns the data. Like mini singleton for each attribute.
  *
- * To add a new property that can be retrieved from this class implement two methods: getter and generator.
+ * To add a new property that can be retrieved from this class implement two methods:
+ * static method getter and non-static method generator.
  * For example, token is implemented with getToken() and generateToken().
  *
  * The getter is always the same. Only the suffix changes in the method namem like:
@@ -23,6 +25,19 @@ namespace App;
  */
 class DataProvider
 {
+    /**
+     * Contains keys:
+     *
+     *  test_user_data,
+     *  test_user_email,
+     *  test_user,
+     *  token,
+     *  header
+     *
+     * and maybe more.
+     *
+     * @var array of properties
+     */
     protected $data;
 
     /**
@@ -35,7 +50,7 @@ class DataProvider
         $this->data = [];
     }
 
-    protected static function getInstance()
+    protected static function getInstance() : self
     {
         if (empty(static::$instance)) {
             static::$instance = new static();
@@ -47,7 +62,7 @@ class DataProvider
     protected function resolve($name)
     {
         if (!array_key_exists($name, $this->data)) {
-            $this->{'generate'.ucfirst($name)}();
+            $this->data[$name] = $this->{'generate'.ucfirst(camel_case($name))}();
         }
 
         return $this->data[$name];
@@ -61,19 +76,65 @@ class DataProvider
     | Below are methods for every data property.
     */
 
+    public static function getTestUserData() : array
+    {
+        return static::getInstance()->resolve('test_user_data');
+    }
 
-    public static function getToken()
+    protected function generateTestUserData() : array
+    {
+        return config('boilerplate.test_user');
+    }
+
+    public static function getTestUserEmail() : string
+    {
+        return static::getInstance()->resolve('test_user_email');
+    }
+
+    protected function generateTestUserEmail() : string
+    {
+        return static::getTestUserData()['email'];
+    }
+
+    public static function getTestUser() : User
+    {
+        return static::getInstance()->resolve('test_user');
+    }
+
+    protected function generateTestUser() : User
+    {
+        $email = static::getTestUserData()['email'];
+
+        return User::where('email', $email)->first();
+    }
+
+    public static function getToken() : string
     {
         return static::getInstance()->resolve('token');
     }
 
-    protected function generateToken()
+    protected function generateToken() : string
     {
-//        echo "\nGenerating token...\n";
-        $email = config('boilerplate.test_user')['email'];
+        return \JWTAuth::fromUser(static::getTestUser());
+    }
 
-        $user = User::where('email', $email)->first();
+    public static function getHeader() : array
+    {
+        return static::getInstance()->resolve('header');
+    }
 
-        $this->data['token'] = \JWTAuth::fromUser($user);
+    protected function generateHeader() : array
+    {
+        return ['Authorization' => 'Bearer ' . static::getToken()];
+    }
+
+    public static function getFakeImage() : File
+    {
+        return static::getInstance()->resolve('fake_image');
+    }
+
+    protected function generateFakeImage() : File
+    {
+        return UploadedFile::fake()->image('fake_image.png');
     }
 }

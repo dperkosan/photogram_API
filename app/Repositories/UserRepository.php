@@ -61,9 +61,9 @@ class UserRepository extends Repository implements UserRepositoryInterface
 
     public function addCounts($user)
     {
-        $user->posts_count = \DB::table('posts')->where('user_id', $user->id)->count();
-        $user->followers_count = \DB::table('followers')->where('followed_id', $user->id)->count();
-        $user->following_count = \DB::table('followers')->where('follower_id', $user->id)->count();
+        $user->posts_count = \App\Post::where('user_id', $user->id)->count();
+        $user->followers_count = \App\Follower::where('followed_id', $user->id)->count();
+        $user->following_count = \App\Follower::where('follower_id', $user->id)->count();
 
         return $user;
     }

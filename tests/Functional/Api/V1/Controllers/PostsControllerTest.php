@@ -2,16 +2,24 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
+use App\DataProvider;
+use App\Post;
 use App\TestCase;
+use Illuminate\Http\UploadedFile;
 
 class PostsControllerTest extends TestCase
 {
-    protected $url = 'api/posts';
+    protected $path = 'api/posts';
 
     public function queryParams()
     {
-        $userId = $this->getTestUserData()['id'];
-        $username = $this->getTestUserData()['username'];
+        // Refresh (or create) application needs to happen here because
+        // data providers are loaded before the setUp() by phpunit
+        // and laravel app is loaded only in setUp()
+        $this->refreshApplicationIfNotRefreshed();
+        $user = DataProvider::getTestUser();
+        $userId = $user->id;
+        $username = $user->username;
 
         return [
             [
@@ -51,8 +59,10 @@ class PostsControllerTest extends TestCase
      */
     public function testPostsDataStructure($queryParams)
     {
-        var_dump($queryParams);
-        $res = $this->apiGetWithToken($queryParams);
+        $postDataStructure = config('test.json_structure.post');
+        $commentDataStructure = config('test.json_structure.comment');
+
+        $res = $this->apiGet($queryParams);
 
         $res->assertStatus(200);
 
@@ -60,14 +70,14 @@ class PostsControllerTest extends TestCase
 
         $res->assertJsonStructure([
             'data' => [
-                config('test.json_structure.post'),
+                $postDataStructure,
             ],
         ], $responseJson);
 
         foreach ($responseJson['data'] as $post) {
             if ($post['comments_count'] > 0) {
                 $res->assertJsonStructure([
-                    config('test.json_structure.comment'),
+                    $commentDataStructure,
                 ], $post['comments']);
                 // to break or not to break
                 // that is the question
@@ -78,15 +88,55 @@ class PostsControllerTest extends TestCase
 
     public function testPropertyPageRequired()
     {
-        $this->apiGetWithToken([
+        $this->apiGet([
             'amount' => 10,
         ])->assertStatus(422);
     }
 
     public function testPropertyAmountRequired()
     {
-        $this->apiGetWithToken([
+        $this->apiGet([
             'page' => 1,
         ])->assertStatus(422);
+    }
+
+    public function testCreatePost()
+    {
+        $res = $this->apiPost([
+            'image' => DataProvider::getFakeImage(),
+            'thumbnail' => DataProvider::getFakeImage(),
+            'description' => 'Test description',
+        ]);
+
+        $res->assertSuccessful();
+
+        return $res->decodeResponseJson()['data']['id'];
+    }
+
+    /**
+     * @depends testCreatePost
+     *
+     * @param $id
+     */
+    public function testUpdatePost($id)
+    {
+        $res = $this->apiPatch($id, [
+//            'thumbnail' => DataProvider::getFakeImage(),
+            'description' => 'Test description updated',
+        ]);
+
+        $res->assertSuccessful();
+
+        return $res->decodeResponseJson()['data']['id'];
+    }
+
+    /**
+     * @depends testUpdatePost
+     *
+     * @param $id
+     */
+    public function testDeletePost($id)
+    {
+        $this->apiDelete($id)->assertSuccessful();
     }
 }

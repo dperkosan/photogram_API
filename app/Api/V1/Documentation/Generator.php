@@ -63,8 +63,8 @@ class Generator
           'username', 'email', 'name', 'gender_id'
         ]);
 
-        $this->get('/users/find', 'Find a user. Send any of the parameters. For example you can find a user named John doe with gender_id of 1.', [
-          'username', 'email', 'name', 'gender_id'
+        $this->get('/users/find', 'Find a user. Send any of the parameters. For example you can find a user named John doe with gender_id of 1. If you pass an "id" other params are ignored.', [
+          'id', 'username', 'email', 'name', 'gender_id'
         ]);
 
         $this->get('/users/auth', 'Get data for authenticated user, like image, name, gender, etc.');
@@ -186,6 +186,11 @@ class Generator
     protected function allParams()
     {
         return [
+            [
+                'name'            => 'id',
+                'description'     => 'Primary key of a resource',
+                'possible_values' => 'integer',
+            ],
             // PAGINATION
             [
               'name'            => 'amount',

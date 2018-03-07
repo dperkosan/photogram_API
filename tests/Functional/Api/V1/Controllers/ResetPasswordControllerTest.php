@@ -2,6 +2,7 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
+use App\DataProvider;
 use App\TestCase;
 
 class ResetPasswordControllerTest extends TestCase
@@ -14,7 +15,7 @@ class ResetPasswordControllerTest extends TestCase
 
         $broker = \Password::broker();
 
-        $user = $broker->getUser(['email' => $this->getTestUserEmail()]);
+        $user = $broker->getUser(['email' => DataProvider::getTestUserEmail()]);
 
         $this->testToken = $broker->createToken($user);
     }
@@ -28,10 +29,10 @@ class ResetPasswordControllerTest extends TestCase
         $res->assertStatus(204);
 
         $updateArray = [
-          'password' => bcrypt($this->getTestUserData()['password'])
+          'password' => bcrypt(DataProvider::getTestUserData()['password'])
         ];
 
-        \DB::table('users')->where('email', '=', $this->getTestUserEmail())
+        \DB::table('users')->where('email', '=', DataProvider::getTestUserEmail())
           ->update($updateArray);
     }
 
@@ -56,7 +57,7 @@ class ResetPasswordControllerTest extends TestCase
     protected function getResetPasswordData()
     {
         return [
-          'email' => $this->getTestUserEmail(),
+          'email' => DataProvider::getTestUserEmail(),
           'token' => $this->testToken,
           'password' => 'mynewpass',
           'password_confirmation' => 'mynewpass'

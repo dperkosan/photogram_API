@@ -2,19 +2,16 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
+use App\DataProvider;
 use App\TestCase;
 
 class ForgotPasswordControllerTest extends TestCase
 {
     public function testForgotPasswordRecoverySuccessfully()
     {
-        $res = $this->post('api/auth/recovery', [
-            'email' => $this->getTestUserEmail()
-        ]);
-
-//        echo $res->getContent();
-
-        $res->assertSuccessful();
+        $this->post('api/auth/recovery', [
+            'email' => DataProvider::getTestUserEmail()
+        ])->assertSuccessful();
     }
 
     public function testForgotPasswordRecoveryReturnsUserNotFoundError()

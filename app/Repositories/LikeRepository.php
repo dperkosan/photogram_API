@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\LikeRepositoryInterface;
 use App\Like;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class LikeRepository extends Repository implements LikeRepositoryInterface
 {
@@ -72,10 +72,8 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
 
         $likes = $this->getLikesForAuth($likableIds, $userId);
 
-        if ($likes->isNotEmpty()) {
-            foreach ($comments as $comment) {
-                $this->addLikeId($comment, $this->likableComment, $likes);
-            }
+        foreach ($comments as $comment) {
+            $this->addLikeId($comment, $this->likableComment, $likes);
         }
 
         return $comments;

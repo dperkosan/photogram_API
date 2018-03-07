@@ -24,6 +24,7 @@ class CreateCommentsTable extends Migration
             $table->foreign('comment_id')->references('id')->on('comments');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
+            $table->softDeletes();
         });
     }
 

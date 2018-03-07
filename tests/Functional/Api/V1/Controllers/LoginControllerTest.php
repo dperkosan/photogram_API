@@ -2,23 +2,19 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
+use App\DataProvider;
 use App\TestCase;
 
 class LoginControllerTest extends TestCase
 {
     public function testLoginSuccessfully()
     {
-        $res = $this->call('POST', 'api/auth/login', [
-            'email'    => $this->getTestUserEmail(),
-            'password' => $this->getTestUserData()['password'],
-        ]);
-
-        $responseJson = $res->decodeResponseJson();
-
-        $res->assertJsonStructure(['token'], $responseJson)
+        $this->call('POST', 'api/auth/login', [
+            'email'    => DataProvider::getTestUserEmail(),
+            'password' => DataProvider::getTestUserData()['password'],
+        ])
+            ->assertJsonStructure(['token'])
             ->assertSuccessful();
-
-        return $responseJson['token'];
     }
 
     public function testLoginWithReturnsWrongCredentialsError()
@@ -32,7 +28,7 @@ class LoginControllerTest extends TestCase
     public function testLoginWithReturnsValidationError()
     {
         $this->post('api/auth/login', [
-            'email' => $this->getTestUserEmail(),
+            'email' => DataProvider::getTestUserEmail(),
         ])->assertStatus(422);
     }
 }

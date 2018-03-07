@@ -5,6 +5,7 @@ use App\Api\V1\Requests\UserRequest;
 use App\Api\V1\Traits\ThumbsTrait;
 use App\Interfaces\ImageRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
+use App\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
 
@@ -72,9 +73,28 @@ class UsersController extends ApiController
 
     public function find(Request $request, JWTAuth $JWTAuth, ImageRepositoryInterface $imageRepository)
     {
-        $user = $this->users->findWhere($request->only([
-          'username', 'email', 'name', 'gender_id'
-        ]));
+        if ($request->id) {
+            $user = $this->users->findById($request->id);
+        } else {
+            $user = $this->users->findWhere($request->only([
+                'username', 'email', 'name', 'gender_id'
+            ]));
+        }
+
+        if ($user) {
+            $this->users->addCounts($user);
+            $imageRepository->addThumbsToUsers($user);
+            if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
+                $this->users->addIsFollowed($user, $authUser->id);
+            }
+        }
+
+        return $this->respondWithData($user);
+    }
+
+    public function show($user, JWTAuth $JWTAuth, ImageRepositoryInterface $imageRepository)
+    {
+        $user = User::find($user);
 
         if ($user) {
             $this->users->addCounts($user);
