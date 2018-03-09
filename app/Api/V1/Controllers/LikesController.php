@@ -13,10 +13,10 @@ class LikesController extends ApiController
     public function index(LikePaginationRequest $request, UserRepositoryInterface $userRepository, ImageRepositoryInterface $imageRepository)
     {
         $users = $userRepository->usersFromLikes(
-          $request->likable_id,
-          $request->likable_type,
-          $request->amount,
-          $request->page
+            $request->likable_id,
+            $request->likable_type,
+            $request->amount,
+            $request->page
         );
 
         if ($users && $authUser = $this->authUser()) {

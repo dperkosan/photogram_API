@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Like extends Model
 {
-    use SoftDeletes;
+//    use SoftDeletes;
 
     // likable_type
     const LIKABLE_POST = 1;
     const LIKABLE_COMMENT = 2;
 
-    protected $dates = ['deleted_at'];
+//    protected $dates = ['deleted_at'];
 
     protected $fillable = ['user_id', 'likable_id', 'likable_type'];
 

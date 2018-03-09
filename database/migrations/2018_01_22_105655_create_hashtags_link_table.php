@@ -16,7 +16,7 @@ class CreateHashtagsLinkTable extends Migration
         Schema::create('hashtags_link', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('hashtag_id')->unsigned();
-            $table->foreign('hashtag_id')->references('id')->on('hashtags');
+            $table->foreign('hashtag_id')->references('id')->on('hashtags')->onDelete('cascade');
             $table->integer('taggable_id')->unsigned();
             $table->tinyInteger('taggable_type')->unsigned();
             $table->unique(['hashtag_id', 'taggable_id', 'taggable_type']);
