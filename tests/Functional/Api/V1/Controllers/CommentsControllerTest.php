@@ -2,8 +2,8 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
-use App\TestCase;
 use App\DataProvider;
+use App\TestCase;
 
 class CommentsControllerTest extends TestCase
 {
@@ -18,7 +18,7 @@ class CommentsControllerTest extends TestCase
             'page'    => 1,
             'post_id' => 1,
         ]);
-echo $res->getContent();
+
         $res->assertStatus(200);
 
         $res->assertJsonStructure([
@@ -26,5 +26,53 @@ echo $res->getContent();
                 $commentDataStructure
             ]
         ]);
+    }
+
+    public function testPropertyPageRequired()
+    {
+        $this->paginationPropertyPageMissing();
+    }
+
+    public function testPropertyAmountRequired()
+    {
+        $this->paginationPropertyAmountMissing();
+    }
+
+    public function testCreateComment()
+    {
+        $res = $this->apiPost([
+            'body' => 'Test comment body.',
+            'post_id' => 1,
+        ]);
+
+        $res->assertSuccessful();
+
+        return $res->decodeResponseJson()['data']['id'];
+    }
+
+    /**
+     * @depends testCreatePost
+     *
+     * @param $id
+     */
+    public function testUpdatePost($id)
+    {
+        $res = $this->apiPatch($id, [
+            'body' => 'Test comment body updated',
+        ]);
+
+        $res->assertSuccessful();
+
+        return $res->decodeResponseJson()['data']['id'];
+    }
+
+    /**
+     * @depends testUpdatePost
+     *
+     * @param $id
+     */
+    public function testDeletePost($id)
+    {
+        $this->apiDelete($id)->assertSuccessful();
     }
 }

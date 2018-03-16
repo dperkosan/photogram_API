@@ -13,11 +13,11 @@ use Illuminate\Http\Request;
 
 class CommentsController extends ApiController
 {
-    public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentsRepository, ImageRepositoryInterface $imageRepository)
+    public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentRepository, ImageRepositoryInterface $imageRepository)
     {
-        $comments = $commentsRepository->getComments($request->post_id, $request->comment_id, $request->amount, $request->page);
+        $comments = $commentRepository->getComments($request->post_id, $request->comment_id, $request->amount, $request->page);
 
-        $commentsRepository->addAuthLike($comments, $this->authUser()->id);
+        $commentRepository->addAuthLike($comments, $this->authUser()->id);
         $imageRepository->addThumbsToUsers($comments, 'user_image');
 
         return $this->respondWithData($comments);
@@ -37,6 +37,10 @@ class CommentsController extends ApiController
 
     public function update(Request $request, $comment, HashtagRepositoryInterface $hashtagRepository)
     {
+        $this->validate($request, [
+            'body' => 'required',
+        ]);
+
         $comment = Comment::find($comment);
 
         if (!$this->belongsToAuthUser($comment)) {

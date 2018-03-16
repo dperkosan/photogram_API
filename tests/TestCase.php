@@ -99,4 +99,18 @@ abstract class TestCase extends BaseTestCase
 
         return $this->delete($path, $data, $headers);
     }
+
+    protected function paginationPropertyPageMissing()
+    {
+        return $this->apiGet([
+            'amount' => 10,
+        ])->assertStatus(422);
+    }
+
+    protected function paginationPropertyAmountMissing()
+    {
+        return $this->apiGet([
+            'page' => 1,
+        ])->assertStatus(422);
+    }
 }

@@ -89,6 +89,17 @@ class PostsController extends ApiController
         return $this->respondWithData($posts->first());
     }
 
+    public function newStore(PostRequest $request, ImageRepositoryInterface $imageRepository, HashtagRepositoryInterface $hashtags)
+    {
+        $mediaType = $request->image ? 'image' : 'video';
+        $isImage = $mediaType === 'image';
+        $media = $request->file($mediaType);
+        $user = $this->authUser();
+
+
+
+    }
+
     public function store(PostRequest $request, HashtagRepositoryInterface $hashtags)
     {
         $mediaType = $request->image ? 'image' : 'video';
@@ -122,20 +133,23 @@ class PostsController extends ApiController
         $thumbnailPath = null;
         if (!$isImage) {
             $thumbnail = $request->file('thumbnail');
-            $user = $this->authUser();
             $thumbnailName = $namePrefix . $thumbnail->getClientOriginalExtension();
             $path = "videos/post/{$userId}/{$currentYear}";
 
             $thumbnailPath = $storage->putFileAs($path, $thumbnail, $thumbnailName);
         }
 
-        $post = Post::create([
-          'user_id'     => $user->id,
-          'type_id'     => $isImage ? Post::TYPE_IMAGE : Post::TYPE_VIDEO,
-          'media'       => $mediaPath,
-          'thumbnail'   => $thumbnailPath,
-          'description' => $request->description,
-        ]);
+        $postData = [
+            'user_id'     => $user->id,
+            'type_id'     => $isImage ? Post::TYPE_IMAGE : Post::TYPE_VIDEO,
+            'media'       => $mediaPath,
+            'thumbnail'   => $thumbnailPath,
+        ];
+        if (!empty($request->description)) {
+            $postData['description'] = $request->description;
+        }
+
+        $post = Post::create($postData);
 
         $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
 
@@ -154,15 +168,29 @@ class PostsController extends ApiController
             $hashtagRepository->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
         }
 
+        // TODO: Thumbnails
         if (isset($request->thumbnail)) {
+            // If post type_id is 1 (image) deny the thumbnail
+
+            //
+
             $storage = \Storage::disk('public');
             if ($storage->exists($post->thumbnail)) {
                 $storage->delete($post->thumbnail);
             }
+            $thumbnail = $request->file('thumbnail');
+            $thumbnailName = $namePrefix . $thumbnail->getClientOriginalExtension();
+            $path = "videos/post/{$userId}/{$currentYear}";
+
+            $thumbnailPath = $storage->putFileAs($path, $thumbnail, $thumbnailName);
+
+
             $post->thumbnail = $request->thumbnail;
         }
 
-        $post->save();
+        if (!$post->save()) {
+            return $this->respondInternalError('Failed to save post');
+        }
 
         return $this->respondWithData($post);
     }

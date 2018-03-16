@@ -88,16 +88,12 @@ class PostsControllerTest extends TestCase
 
     public function testPropertyPageRequired()
     {
-        $this->apiGet([
-            'amount' => 10,
-        ])->assertStatus(422);
+        $this->paginationPropertyPageMissing();
     }
 
     public function testPropertyAmountRequired()
     {
-        $this->apiGet([
-            'page' => 1,
-        ])->assertStatus(422);
+        $this->paginationPropertyAmountMissing();
     }
 
     public function testCreatePost()
