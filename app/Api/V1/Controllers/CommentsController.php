@@ -8,17 +8,17 @@ use App\Comment;
 use App\HashtagsLink;
 use App\Interfaces\CommentRepositoryInterface;
 use App\Interfaces\HashtagRepositoryInterface;
-use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\MediaRepositoryInterface;
 use Illuminate\Http\Request;
 
 class CommentsController extends ApiController
 {
-    public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentRepository, ImageRepositoryInterface $imageRepository)
+    public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentRepository, MediaRepositoryInterface $mediaRepo)
     {
         $comments = $commentRepository->getComments($request->post_id, $request->comment_id, $request->amount, $request->page);
 
         $commentRepository->addAuthLike($comments, $this->authUser()->id);
-        $imageRepository->addThumbsToUsers($comments, 'user_image');
+        $mediaRepo->addThumbsToUsers($comments, 'user_image');
 
         return $this->respondWithData($comments);
     }
@@ -56,7 +56,7 @@ class CommentsController extends ApiController
             return $this->respondInternalError('Failed to save comment');
         }
 
-        return $this->respondSuccess();
+        return $this->respondWithData($comment);
     }
 
     public function destroy($comment)

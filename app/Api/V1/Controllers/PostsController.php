@@ -6,7 +6,7 @@ use App\Api\V1\Requests\PostPaginationRequest;
 use App\Api\V1\Requests\PostRequest;
 use App\HashtagsLink;
 use App\Interfaces\HashtagRepositoryInterface;
-use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\PostRepositoryInterface;
 use App\Post;
 use Illuminate\Http\Request;
@@ -22,13 +22,13 @@ class PostsController extends ApiController
      */
     private $posts;
     private $jwtAuth;
-    private $imageRepository;
+    private $mediaRepo;
 
-    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts, ImageRepositoryInterface $imageRepository)
+    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts, MediaRepositoryInterface $mediaRepo)
     {
         $this->jwtAuth = $jwtAuth;
         $this->posts = $posts;
-        $this->imageRepository = $imageRepository;
+        $this->imageRepository = $mediaRepo;
     }
 
     public function newsFeed(PostPaginationRequest $request)
@@ -89,18 +89,43 @@ class PostsController extends ApiController
         return $this->respondWithData($posts->first());
     }
 
-    public function newStore(PostRequest $request, ImageRepositoryInterface $imageRepository, HashtagRepositoryInterface $hashtags)
+    public function store(PostRequest $request, MediaRepositoryInterface $mediaRepo, HashtagRepositoryInterface $hashtags)
     {
         $mediaType = $request->image ? 'image' : 'video';
         $isImage = $mediaType === 'image';
         $media = $request->file($mediaType);
         $user = $this->authUser();
 
+        if ($isImage) {
+            $mediaPath = $mediaRepo->savePostImage($media, $user);
+        } else {
+            $mediaPath = $mediaRepo->savePostVideo($media, $user);
+        }
 
+        $thumbnailPath = null;
+        if (!$isImage) {
+            $thumbnailPath = $mediaRepo->savePostThumbnail($request->file('thumbnail'), $user);
+        }
+
+        $postData = [
+            'user_id'     => $user->id,
+            'type_id'     => $isImage ? Post::TYPE_IMAGE : Post::TYPE_VIDEO,
+            'media'       => $mediaPath,
+            'thumbnail'   => $thumbnailPath,
+        ];
+        if (!empty($request->description)) {
+            $postData['description'] = $request->description;
+        }
+
+        $post = Post::create($postData);
+
+        $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
+
+        return $this->setStatusCode(201)->respondWithData($post);
 
     }
 
-    public function store(PostRequest $request, HashtagRepositoryInterface $hashtags)
+    public function storeOld(PostRequest $request, MediaRepositoryInterface $mediaRepo, HashtagRepositoryInterface $hashtags)
     {
         $mediaType = $request->image ? 'image' : 'video';
         $isImage = $mediaType === 'image';
@@ -114,8 +139,8 @@ class PostsController extends ApiController
 
         $namePrefix = date('Ymdhis') . '-' . $user->username;
 
-        $mediaName = $namePrefix . "-[~FORMAT~].{$mediaExtension}";
-        $mediaNameOrig = $namePrefix . "-orig.{$mediaExtension}";
+        $mediaName = "{$namePrefix}-[~FORMAT~].{$mediaExtension}";
+        $mediaNameOrig = "{$namePrefix}-orig.{$mediaExtension}";
 
         $folder = $mediaType . 's';
         $path = "{$folder}/post/{$userId}/{$currentYear}";
@@ -125,7 +150,7 @@ class PostsController extends ApiController
 
         // make some thumbs
         if ($mediaType === 'image') {
-            $this->makeThumbs($path, $mediaName);
+            $mediaRepo->makeThumbs($path, $mediaName, 'post');
         }
 
         $mediaPath = str_replace("{$namePrefix}-orig", "{$namePrefix}-[~FORMAT~]", $mediaPath);

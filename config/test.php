@@ -18,9 +18,34 @@ $userImage = [
 //];
 
 return [
+
     'json_structure' => [
+        'user_image' => $userImage,
+        'auth_user' => [
+            'id',
+            'username',
+            'name',
+            'email',
+            'gender_id',
+            'phone',
+            'about',
+            'image' => $userImage,
+            'posts_count',
+            'followers_count',
+            'following_count',
+        ],
         'user'    => [
-            // TODO: user structure
+            'id',
+            'username',
+            'name',
+            'email',
+            'gender_id',
+            'phone',
+            'about',
+            'image' => $userImage,
+            'posts_count',
+            'followers_count',
+            'following_count',
         ],
         'post'    => [
             'id',

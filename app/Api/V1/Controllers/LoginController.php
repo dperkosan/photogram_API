@@ -2,7 +2,7 @@
 
 namespace App\Api\V1\Controllers;
 
-use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use Tymon\JWTAuth\JWTAuth;
 use App\Api\V1\Requests\LoginRequest;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class LoginController extends ApiController
 {
-    public function login(LoginRequest $request, JWTAuth $JWTAuth, UserRepositoryInterface $userRepository, ImageRepositoryInterface $imageRepository)
+    public function login(LoginRequest $request, JWTAuth $JWTAuth, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepo)
     {
         $credentials = $request->only(['password']);
         $emailOrUsername = $request->email;
@@ -49,7 +49,7 @@ class LoginController extends ApiController
         }
 
         $userRepository->addCounts($currentUser);
-        $imageRepository->addThumbsToUsers($currentUser);
+        $mediaRepo->addThumbsToUsers($currentUser);
 
         return $this->respond([
             'token' => $token,

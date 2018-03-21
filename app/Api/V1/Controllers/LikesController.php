@@ -4,13 +4,13 @@ namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\LikePaginationRequest;
 use App\Api\V1\Requests\LikeRequest;
-use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\Like;
 
 class LikesController extends ApiController
 {
-    public function index(LikePaginationRequest $request, UserRepositoryInterface $userRepository, ImageRepositoryInterface $imageRepository)
+    public function index(LikePaginationRequest $request, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepo)
     {
         $users = $userRepository->usersFromLikes(
             $request->likable_id,
@@ -23,7 +23,7 @@ class LikesController extends ApiController
             $userRepository->addIsFollowed($users, $authUser->id);
         }
 
-        $imageRepository->addThumbsToUsers($users);
+        $mediaRepo->addThumbsToUsers($users);
 
         return $this->respondWithData($users);
     }

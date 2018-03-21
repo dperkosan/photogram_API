@@ -44,9 +44,8 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
         $api->group(['prefix' => 'users'], function (Router $api) {
 
-//            $api->get('/{user}', 'UsersController@show');
-
             $api->group(['prefix' => 'auth'], function (Router $api) {
+
                 $api->get('/', 'UsersController@getAuthUser');
                 $api->post('/image', 'UsersController@updateAuthProfileImage');
                 $api->patch('/update', 'UsersController@updateAuthUser');

@@ -68,6 +68,16 @@ class DataProvider
         return $this->data[$name];
     }
 
+    protected function unsetDataKey($key)
+    {
+        unset($this->data[$key]);
+    }
+
+    public static function unsetKey($key)
+    {
+        static::getInstance()->unsetDataKey($key);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Data properties / keys

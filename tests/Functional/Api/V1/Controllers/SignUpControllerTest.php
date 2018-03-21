@@ -2,7 +2,6 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
-use Config;
 use App\TestCase;
 
 class SignUpControllerTest extends TestCase

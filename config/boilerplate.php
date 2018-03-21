@@ -26,6 +26,16 @@ return [
         ],
     ],
 
+    'path' => [
+        'images' => [
+            'post' => 'images/post',
+            'user' => 'images/user',
+        ],
+        'videos' => [
+            'post' => 'videos/post',
+        ]
+    ],
+
     'image_format_placeholder' => $imageFormatPlaceholder,
 
     'default_user_images' => [

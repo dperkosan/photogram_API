@@ -27,8 +27,15 @@ interface UserRepositoryInterface
      * @return \App\User
      */
     public function findById($id);
+
     /**
      * Same arguments functionality as in the query where() function
+     *
+     * @param  string|array|\Closure  $column
+     * @param  mixed   $operator
+     * @param  mixed   $value
+     * @param  string  $boolean
+     *
      * @return \App\User
      */
     public function findWhere($column, $operator = null, $value = null, $boolean = 'and');

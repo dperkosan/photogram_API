@@ -3,7 +3,7 @@ namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\UserRequest;
 use App\Api\V1\Traits\ThumbsTrait;
-use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Illuminate\Http\Request;
@@ -42,14 +42,18 @@ class UsersController extends ApiController
 
         $updateData = array_merge($updateData, $requestData);
 
+        if (!$updateData) {
+            return $this->respondWrongArgs('Nothing to update.');
+        }
+
         if (!$user->update($updateData)) {
             return $this->respondInternalError('Could not update user.');
         }
 
-        return $this->setStatusCode(204)->respond(['updatedData' => $updateData]);
+        return $this->respondWithData($user);
     }
 
-    public function getAuthUser(ImageRepositoryInterface $imageRepository)
+    public function getAuthUser(MediaRepositoryInterface $mediaRepo)
     {
         $user = $this->authUser();
 
@@ -58,7 +62,7 @@ class UsersController extends ApiController
         }
 
         $this->users->addCounts($user);
-        $imageRepository->addThumbsToUsers($user);
+        $mediaRepo->addThumbsToUsers($user);
 
         return $this->respondWithData($user);
     }
@@ -71,7 +75,7 @@ class UsersController extends ApiController
         return $this->respondWithData(['exists' => $exists]);
     }
 
-    public function find(Request $request, JWTAuth $JWTAuth, ImageRepositoryInterface $imageRepository)
+    public function find(Request $request, JWTAuth $JWTAuth, MediaRepositoryInterface $mediaRepo)
     {
         if ($request->id) {
             $user = $this->users->findById($request->id);
@@ -83,7 +87,7 @@ class UsersController extends ApiController
 
         if ($user) {
             $this->users->addCounts($user);
-            $imageRepository->addThumbsToUsers($user);
+            $mediaRepo->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->users->addIsFollowed($user, $authUser->id);
             }
@@ -92,13 +96,16 @@ class UsersController extends ApiController
         return $this->respondWithData($user);
     }
 
-    public function show($user, JWTAuth $JWTAuth, ImageRepositoryInterface $imageRepository)
+    /*
+     * 2018-03-21 not used atm
+     */
+    public function show($user, JWTAuth $JWTAuth, MediaRepositoryInterface $mediaRepo)
     {
         $user = User::find($user);
 
         if ($user) {
             $this->users->addCounts($user);
-            $imageRepository->addThumbsToUsers($user);
+            $mediaRepo->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->users->addIsFollowed($user, $authUser->id);
             }
@@ -107,7 +114,7 @@ class UsersController extends ApiController
         return $this->respondWithData($user);
     }
 
-    public function updateAuthProfileImage(Request $request)
+    public function updateAuthProfileImage(Request $request, MediaRepositoryInterface $mediaRepo)
     {
         $this->validate($request, [
           'image' => 'required|image'
@@ -116,27 +123,13 @@ class UsersController extends ApiController
         $image = $request->file('image');
         $user = $this->authUser();
 
-        $imageNameOrig = "{$user->username}-orig.{$image->getClientOriginalExtension()}";
-        $imageName = "{$user->username}-[~FORMAT~].{$image->getClientOriginalExtension()}";
-
-        $storage = \Storage::disk('public');
-        if ($storage->exists($user->image)) {
-            $storage->delete($user->image);
-        }
-
-        $path = "/images/user/{$user->id}";
-
-        $imagePath = $storage->putFileAs($path, $image, $imageNameOrig);
-        $imagePath = str_replace('-orig', '-[~FORMAT~]', $imagePath);
-
-        // make some thumbs
-        $this->makeThumbs($path, $imageName, 'user');
+        $imagePath = $mediaRepo->updateUserImage($image, $user);
 
         if ($user->image !== $imagePath) {
             $user->image = $imagePath;
             $user->save();
         }
-
-        return $this->respondWithData(['image' => $imagePath]);
+        $mediaRepo->addThumbsToUsers($user);
+        return $this->respondWithData(['image' => $user->image]);
     }
 }

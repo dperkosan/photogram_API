@@ -2,7 +2,6 @@
 
 namespace App\Functional\Api\V1\Controllers;
 
-use App\DataProvider;
 use App\TestCase;
 
 class CommentsControllerTest extends TestCase
@@ -11,19 +10,17 @@ class CommentsControllerTest extends TestCase
 
     public function testCommentsDataStructure()
     {
-        $commentDataStructure = config('test.json_structure.comment');
-
         $res = $this->apiGet([
             'amount'  => 10,
             'page'    => 1,
             'post_id' => 1,
         ]);
 
-        $res->assertStatus(200);
+        $res->assertSuccessful();
 
         $res->assertJsonStructure([
             'data' => [
-                $commentDataStructure
+                config('test.json_structure.comment')
             ]
         ]);
     }
@@ -51,15 +48,15 @@ class CommentsControllerTest extends TestCase
     }
 
     /**
-     * @depends testCreatePost
+     * @depends testCreateComment
      *
      * @param $id
      */
-    public function testUpdatePost($id)
+    public function testUpdateComment($id)
     {
-        $res = $this->apiPatch($id, [
+        $res = $this->apiPatch([
             'body' => 'Test comment body updated',
-        ]);
+        ], '/' . $id);
 
         $res->assertSuccessful();
 
@@ -67,11 +64,11 @@ class CommentsControllerTest extends TestCase
     }
 
     /**
-     * @depends testUpdatePost
+     * @depends testUpdateComment
      *
      * @param $id
      */
-    public function testDeletePost($id)
+    public function testDeleteComment($id)
     {
         $this->apiDelete($id)->assertSuccessful();
     }

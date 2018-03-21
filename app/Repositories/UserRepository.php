@@ -127,6 +127,10 @@ class UserRepository extends Repository implements UserRepositoryInterface
     }
 
     /**
+     * @param  string|array|\Closure  $column
+     * @param  mixed   $operator
+     * @param  mixed   $value
+     * @param  string  $boolean
      * @return \App\User
      */
     public function findWhere($column, $operator = null, $value = null, $boolean = 'and')

@@ -5,7 +5,7 @@ namespace App\Api\V1\Controllers;
 use App\Api\V1\Requests\FollowerPaginationRequest;
 use App\Api\V1\Requests\FollowRequest;
 use App\Events\NewFollower;
-use App\Interfaces\ImageRepositoryInterface;
+use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Auth;
@@ -41,7 +41,7 @@ class FollowersController extends ApiController
         return $this->followers->getFollowers($this->authUser()->id);
     }
 
-    public function mutual(FollowerPaginationRequest $request, UserRepositoryInterface $userRepository, ImageRepositoryInterface $imageRepository)
+    public function mutual(FollowerPaginationRequest $request, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepo)
     {
         $authUserId = $this->authUser()->id;
         $userIds[] = $authUserId;
@@ -49,7 +49,7 @@ class FollowersController extends ApiController
 
         $users = $userRepository->usersMutualFollowers($userIds, $request->amount, $request->page);
 
-        $imageRepository->addThumbsToUsers($users);
+        $mediaRepo->addThumbsToUsers($users);
         $userRepository->addIsFollowed($users, $authUserId);
 
         return $this->respondWithData($users);

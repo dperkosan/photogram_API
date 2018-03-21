@@ -1,21 +1,17 @@
 <?php
 namespace App;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
     use Notifiable;
-    use SoftDeletes;
 
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
     const GENDER_OTHER = 3;
 
-
-    protected $dates = ['deleted_at'];
     /**
      * The attributes that are mass assignable.
      *

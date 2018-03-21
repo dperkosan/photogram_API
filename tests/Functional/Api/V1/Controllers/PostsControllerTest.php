@@ -116,10 +116,10 @@ class PostsControllerTest extends TestCase
      */
     public function testUpdatePost($id)
     {
-        $res = $this->apiPatch($id, [
+        $res = $this->apiPatch([
 //            'thumbnail' => DataProvider::getFakeImage(),
             'description' => 'Test description updated',
-        ]);
+        ], '/' . $id);
 
         $res->assertSuccessful();
 

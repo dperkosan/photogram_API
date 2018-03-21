@@ -22,10 +22,6 @@ abstract class TestCase extends BaseTestCase
     protected $path = '';
 
     /**
-     * @var array of test user data
-     */
-    protected $testUserData;
-    /**
      * Creates the application.
      *
      * @return \Illuminate\Foundation\Application
@@ -51,18 +47,20 @@ abstract class TestCase extends BaseTestCase
      **************************************/
 
     /**
-     * @param array $data
+     * @param array  $data
+     * @param string $pathSuffix
      *
      * @return string
      */
-    protected function buildUrl(array $data) : string
+    protected function buildUrl(array $data, $pathSuffix = '') : string
     {
-        return empty($data) ? $this->path : $this->path . '?' . http_build_query($data);
+        $url = $this->path . $pathSuffix;
+        return empty($data) ? $url : $url . '?' . http_build_query($data);
     }
 
-    protected function apiGet(array $data = null, $includeTokenInHeader = true)
+    protected function apiGet(array $data = [], string $pathSuffix = '', bool $includeTokenInHeader = true)
     {
-        $url = $this->buildUrl($data);
+        $url = $this->buildUrl($data, $pathSuffix);
         $headers = $includeTokenInHeader ? DataProvider::getHeader() : [];
 
         return $this->get($url, $headers);
@@ -78,13 +76,13 @@ abstract class TestCase extends BaseTestCase
         return $this->post($this->path . $pathSuffix, $data, $headers);
     }
 
-    protected function apiPatch(int $id, array $data = [], $headers = [], $includeTokenInHeader = true)
+    protected function apiPatch(array $data = [], $pathSuffix = '', $headers = [], $includeTokenInHeader = true)
     {
         if ($includeTokenInHeader) {
             $headers = array_merge($headers, DataProvider::getHeader());
         }
 
-        $path = $this->path . '/' . $id;
+        $path = $this->path . $pathSuffix;
 
         return $this->patch($path, $data, $headers);
     }

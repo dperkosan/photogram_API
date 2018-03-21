@@ -33,7 +33,7 @@ return [
     ],
 
     'user' => [
-        'name'      => 'required|max:100',
+        'name'      => 'max:100',
         'gender_id' => 'integer|between:1,3',
     ],
 
