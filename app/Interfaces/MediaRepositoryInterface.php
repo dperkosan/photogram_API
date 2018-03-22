@@ -15,5 +15,5 @@ interface MediaRepositoryInterface
     public function updateUserImage($image, $user);
 
     public function deletePostImage($imagePath);
-    public function deleteFiles($filePath);
+    public function deleteFiles($filePaths);
 }

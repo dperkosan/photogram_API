@@ -101,7 +101,7 @@ class PostsController extends ApiController
         }
 
         $thumbnailPath = null;
-        if (!$isImage) {
+        if (!$isImage && $request->has('thumbnail')) {
             $thumbnailPath = $mediaRepo->savePostVideoOrThumbnail($request->file('thumbnail'), $user);
         }
 
@@ -164,10 +164,6 @@ class PostsController extends ApiController
             return $this->respondForbidden('This post is not yours!');
         }
 
-        if (!$post->delete()) {
-            return $this->respondInternalError('Failed to delete post');
-        }
-
         $success = false;
         if ($post->type_id === Post::TYPE_IMAGE) {
             $success = $mediaRepo->deletePostImage($post->image);
@@ -175,6 +171,10 @@ class PostsController extends ApiController
             $success = $mediaRepo->deleteFiles($post->video);
         }
 
-        return $this->respondWithMessage('Post deleted; image/video files deletion ' . $success ? 'succeeded.' : 'failed!');
+        if (!$post->delete()) {
+            return $this->respondInternalError('Failed to delete post');
+        }
+
+        return $this->respondWithMessage('Post deleted; image/video files deletion ' . ($success ? 'succeeded.' : 'failed!'));
     }
 }

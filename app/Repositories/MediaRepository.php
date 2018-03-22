@@ -171,9 +171,9 @@ class MediaRepository implements MediaRepositoryInterface
         return $this->getStorage()->delete($thumbImages);
     }
 
-    public function deleteFiles($filePath)
+    public function deleteFiles($filePaths)
     {
-        return $this->getStorage()->delete($filePath);
+        return $this->getStorage()->delete($filePaths);
     }
 
     /*
