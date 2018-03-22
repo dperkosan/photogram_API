@@ -22,21 +22,19 @@ class PostsController extends ApiController
      */
     private $posts;
     private $jwtAuth;
-    private $mediaRepo;
 
-    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts, MediaRepositoryInterface $mediaRepo)
+    public function __construct(JWTAuth $jwtAuth, PostRepositoryInterface $posts)
     {
         $this->jwtAuth = $jwtAuth;
         $this->posts = $posts;
-        $this->imageRepository = $mediaRepo;
     }
 
-    public function newsFeed(PostPaginationRequest $request)
+    public function newsFeed(PostPaginationRequest $request, MediaRepositoryInterface $mediaRepo)
     {
-        return $this->baseNewsFeed($request);
+        return $this->baseNewsFeed($request, $mediaRepo);
     }
 
-    private function baseNewsFeed($request)
+    private function baseNewsFeed($request, MediaRepositoryInterface $mediaRepo)
     {
         $userId = $this->authUser()->id;
 
@@ -44,16 +42,16 @@ class PostsController extends ApiController
 
         $this->posts->addAuthLike($posts, $userId);
 
-        $this->imageRepository->addThumbsToPosts($posts);
-        $this->imageRepository->addThumbsToUsers($posts, 'user_image');
+        $mediaRepo->addThumbsToPosts($posts);
+        $mediaRepo->addThumbsToUsers($posts, 'user_image');
 
         return $this->respondWithData($posts);
     }
 
-    public function index(PostPaginationRequest $request)
+    public function index(PostPaginationRequest $request, MediaRepositoryInterface $mediaRepo)
     {
         if (isset($request->news_feed)) {
-            return $this->baseNewsFeed($request);
+            return $this->baseNewsFeed($request, $mediaRepo);
         }
 
         $userId = null;
@@ -69,13 +67,13 @@ class PostsController extends ApiController
         if ($authUser) {
             $this->posts->addAuthLike($posts, $authUser->id);
         }
-        $this->imageRepository->addThumbsToPosts($posts);
-        $this->imageRepository->addThumbsToUsers($posts, 'user_image');
+        $mediaRepo->addThumbsToPosts($posts);
+        $mediaRepo->addThumbsToUsers($posts, 'user_image');
 
         return $this->respondWithData($posts);
     }
 
-    public function show($post)
+    public function show($post, MediaRepositoryInterface $mediaRepo)
     {
         $posts = $this->posts->getPost($post);
 
@@ -83,8 +81,8 @@ class PostsController extends ApiController
         if ($authUser) {
             $this->posts->addAuthLike($posts, $authUser->id);
         }
-        $this->imageRepository->addThumbsToPosts($posts);
-        $this->imageRepository->addThumbsToUsers($posts, 'user_image');
+        $mediaRepo->addThumbsToPosts($posts);
+        $mediaRepo->addThumbsToUsers($posts, 'user_image');
 
         return $this->respondWithData($posts->first());
     }
@@ -99,12 +97,12 @@ class PostsController extends ApiController
         if ($isImage) {
             $mediaPath = $mediaRepo->savePostImage($media, $user);
         } else {
-            $mediaPath = $mediaRepo->savePostVideo($media, $user);
+            $mediaPath = $mediaRepo->savePostVideoOrThumbnail($media, $user);
         }
 
         $thumbnailPath = null;
         if (!$isImage) {
-            $thumbnailPath = $mediaRepo->savePostThumbnail($request->file('thumbnail'), $user);
+            $thumbnailPath = $mediaRepo->savePostVideoOrThumbnail($request->file('thumbnail'), $user);
         }
 
         $postData = [
@@ -125,63 +123,7 @@ class PostsController extends ApiController
 
     }
 
-    public function storeOld(PostRequest $request, MediaRepositoryInterface $mediaRepo, HashtagRepositoryInterface $hashtags)
-    {
-        $mediaType = $request->image ? 'image' : 'video';
-        $isImage = $mediaType === 'image';
-
-        $media = $request->file($mediaType);
-        $mediaExtension = $media->getClientOriginalExtension();
-
-        $user = $this->authUser();
-        $userId = $user->id;
-        $currentYear = date('Y');
-
-        $namePrefix = date('Ymdhis') . '-' . $user->username;
-
-        $mediaName = "{$namePrefix}-[~FORMAT~].{$mediaExtension}";
-        $mediaNameOrig = "{$namePrefix}-orig.{$mediaExtension}";
-
-        $folder = $mediaType . 's';
-        $path = "{$folder}/post/{$userId}/{$currentYear}";
-        $storage = \Storage::disk('public');
-
-        $mediaPath = $storage->putFileAs($path, $media, $mediaNameOrig);
-
-        // make some thumbs
-        if ($mediaType === 'image') {
-            $mediaRepo->makeThumbs($path, $mediaName, 'post');
-        }
-
-        $mediaPath = str_replace("{$namePrefix}-orig", "{$namePrefix}-[~FORMAT~]", $mediaPath);
-
-        $thumbnailPath = null;
-        if (!$isImage) {
-            $thumbnail = $request->file('thumbnail');
-            $thumbnailName = $namePrefix . $thumbnail->getClientOriginalExtension();
-            $path = "videos/post/{$userId}/{$currentYear}";
-
-            $thumbnailPath = $storage->putFileAs($path, $thumbnail, $thumbnailName);
-        }
-
-        $postData = [
-            'user_id'     => $user->id,
-            'type_id'     => $isImage ? Post::TYPE_IMAGE : Post::TYPE_VIDEO,
-            'media'       => $mediaPath,
-            'thumbnail'   => $thumbnailPath,
-        ];
-        if (!empty($request->description)) {
-            $postData['description'] = $request->description;
-        }
-
-        $post = Post::create($postData);
-
-        $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
-
-        return $this->setStatusCode(201)->respondWithData($post);
-    }
-
-    public function update(Request $request, $post, HashtagRepositoryInterface $hashtagRepository)
+    public function update(Request $request, $post, MediaRepositoryInterface $mediaRepo, HashtagRepositoryInterface $hashtagRepository)
     {
         $post = Post::find($post);
         if (!$this->belongsToAuthUser($post)) {
@@ -195,22 +137,17 @@ class PostsController extends ApiController
 
         // TODO: Thumbnails
         if (isset($request->thumbnail)) {
-            // If post type_id is 1 (image) deny the thumbnail
+            $user = $this->authUser();
 
-            //
+            if ($post->type_id === Post::TYPE_VIDEO) {
+                $thumbnailPath = $mediaRepo->savePostVideoOrThumbnail($request->thumbnail, $user);
 
-            $storage = \Storage::disk('public');
-            if ($storage->exists($post->thumbnail)) {
-                $storage->delete($post->thumbnail);
+                // If thumbnail image is saved delete the old one and set the new one for the post
+                if ($thumbnailPath) {
+                    $mediaRepo->deleteFiles($post->thumbnail);
+                    $post->thumbnail = $thumbnailPath;
+                }
             }
-            $thumbnail = $request->file('thumbnail');
-            $thumbnailName = $namePrefix . $thumbnail->getClientOriginalExtension();
-            $path = "videos/post/{$userId}/{$currentYear}";
-
-            $thumbnailPath = $storage->putFileAs($path, $thumbnail, $thumbnailName);
-
-
-            $post->thumbnail = $request->thumbnail;
         }
 
         if (!$post->save()) {
@@ -220,7 +157,7 @@ class PostsController extends ApiController
         return $this->respondWithData($post);
     }
 
-    public function destroy($post)
+    public function destroy($post, MediaRepositoryInterface $mediaRepo)
     {
         $post = Post::find($post);
         if (!$this->belongsToAuthUser($post)) {
@@ -231,6 +168,13 @@ class PostsController extends ApiController
             return $this->respondInternalError('Failed to delete post');
         }
 
-        return $this->respondSuccess();
+        $success = false;
+        if ($post->type_id === Post::TYPE_IMAGE) {
+            $success = $mediaRepo->deletePostImage($post->image);
+        } else if ($post->type_id === Post::TYPE_VIDEO) {
+            $success = $mediaRepo->deleteFiles($post->video);
+        }
+
+        return $this->respondWithMessage('Post deleted; image/video files deletion ' . $success ? 'succeeded.' : 'failed!');
     }
 }

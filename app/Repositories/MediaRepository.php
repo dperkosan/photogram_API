@@ -114,49 +114,21 @@ class MediaRepository implements MediaRepositoryInterface
     }
 
     /**
-     * @param \Illuminate\Http\UploadedFile $video
+     * @param \Illuminate\Http\UploadedFile $media
      * @param                               $user
      *
      * @return false|mixed|string
      */
-    public function savePostVideo($video, $user)
+    public function savePostVideoOrThumbnail($media, $user)
     {
-        $imageExtension = $video->getClientOriginalExtension();
         $currentYear = date('Y');
         $namePrefix = date('Ymdhis') . '-' . $user->username;
 
-        $mediaName = "{$namePrefix}.{$imageExtension}";
+        $mediaName = "{$namePrefix}.{$media->getClientOriginalExtension()}";
 
         $path = "videos/post/{$user->id}/{$currentYear}";
 
-        return $this->getStorage()->putFileAs($path, $video, $mediaName);
-    }
-
-    public function savePostThumbnail($thumbnail, $user)
-    {
-        // TODO: Implement savePostThumbnail() method.
-    }
-
-    /**
-     * @param \Illuminate\Http\UploadedFile $image
-     * @param                               $user
-     *
-     * @return false|mixed|string
-     */
-    public function saveImage($image, $user)
-    {
-
-    }
-
-    /**
-     * @param \Illuminate\Http\UploadedFile $video
-     * @param                               $user
-     *
-     * @return false|mixed|string
-     */
-    public function saveVideo($video, $user)
-    {
-
+        return $this->getStorage()->putFileAs($path, $media, $mediaName);
     }
 
     /**
@@ -179,6 +151,29 @@ class MediaRepository implements MediaRepositoryInterface
                 $constraint->upsize();
             })->save()->destroy();
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Methods for deleting media
+    |--------------------------------------------------------------------------
+    */
+
+    public function deletePostImage($imagePath)
+    {
+        $thumbs = config('boilerplate.thumbs.post');
+
+        $thumbImages = [];
+        foreach ($thumbs as $thumbName => $thumbFormat) {
+            $thumbImages[] = str_replace($this->placeholder, $thumbName, $imagePath);
+        }
+
+        return $this->getStorage()->delete($thumbImages);
+    }
+
+    public function deleteFiles($filePath)
+    {
+        return $this->getStorage()->delete($filePath);
     }
 
     /*

@@ -10,8 +10,10 @@ interface MediaRepositoryInterface
     public function addThumbsToPosts($objects, $imageAttr = 'media');
 
     public function savePostImage($image, $User);
-    public function savePostVideo($video, $user);
-    public function savePostThumbnail($thumbnail, $user);
+    public function savePostVideoOrThumbnail($media, $user);
     public function makeThumbs($path, $mediaName, $thumbsFor);
     public function updateUserImage($image, $user);
+
+    public function deletePostImage($imagePath);
+    public function deleteFiles($filePath);
 }
