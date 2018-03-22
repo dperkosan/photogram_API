@@ -123,13 +123,15 @@ class UsersController extends ApiController
         $image = $request->file('image');
         $user = $this->authUser();
 
-        $imagePath = $mediaRepo->updateUserImage($image, $user);
+        $mediaRepo->deleteFiles($user->image);
+        $imagePath = $mediaRepo->saveUserImage($image, $user);
 
         if ($user->image !== $imagePath) {
             $user->image = $imagePath;
             $user->save();
         }
         $mediaRepo->addThumbsToUsers($user);
+
         return $this->respondWithData(['image' => $user->image]);
     }
 }

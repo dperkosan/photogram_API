@@ -41,6 +41,23 @@ class MediaRepository implements MediaRepositoryInterface
         $this->orig = 'orig';
     }
 
+
+    /**
+     * @param \Illuminate\Http\UploadedFile $file
+     *
+     * @return string
+     */
+    public function getExtension($file)
+    {
+        $extension = $file->getClientOriginalExtension();
+
+        if ($extension === 'jpeg') {
+            return 'jpg';
+        }
+
+        return $extension;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Methods for storing media files
@@ -65,19 +82,15 @@ class MediaRepository implements MediaRepositoryInterface
      *
      * @return false|mixed|string
      */
-    public function updateUserImage($image, $user)
+    public function saveUserImage($image, $user)
     {
-        $imageNameOrig = "{$user->username}-orig.{$image->getClientOriginalExtension()}";
-        $imageName = "{$user->username}-{$this->placeholder}.{$image->getClientOriginalExtension()}";
-
-        $storage = $this->getStorage();
-        if ($storage->exists($user->image)) {
-            $storage->delete($user->image);
-        }
+        $imageExtension = $this->getExtension($image);
+        $imageNameOrig = "{$user->username}-orig.{$imageExtension}";
+        $imageName = "{$user->username}-{$this->placeholder}.{$imageExtension}";
 
         $path = "/images/user/{$user->id}";
 
-        $imagePath = $storage->putFileAs($path, $image, $imageNameOrig);
+        $imagePath = $this->getStorage()->putFileAs($path, $image, $imageNameOrig);
 
         $this->makeThumbs($path, $imageName, 'user');
 
@@ -94,7 +107,7 @@ class MediaRepository implements MediaRepositoryInterface
      */
     public function savePostImage($image, $user)
     {
-        $imageExtension = $image->getClientOriginalExtension();
+        $imageExtension = $this->getExtension($image);
         $currentYear = date('Y');
         $namePrefix = date('Ymdhis') . '-' . $user->username;
 
@@ -124,7 +137,7 @@ class MediaRepository implements MediaRepositoryInterface
         $currentYear = date('Y');
         $namePrefix = date('Ymdhis') . '-' . $user->username;
 
-        $mediaName = "{$namePrefix}.{$media->getClientOriginalExtension()}";
+        $mediaName = "{$namePrefix}.{$this->getExtension($media)}";
 
         $path = "videos/post/{$user->id}/{$currentYear}";
 
@@ -167,6 +180,8 @@ class MediaRepository implements MediaRepositoryInterface
         foreach ($thumbs as $thumbName => $thumbFormat) {
             $thumbImages[] = str_replace($this->placeholder, $thumbName, $imagePath);
         }
+
+        $thumbImages[] = str_replace($this->placeholder, 'orig', $imagePath);
 
         return $this->getStorage()->delete($thumbImages);
     }

@@ -12,7 +12,7 @@ interface MediaRepositoryInterface
     public function savePostImage($image, $User);
     public function savePostVideoOrThumbnail($media, $user);
     public function makeThumbs($path, $mediaName, $thumbsFor);
-    public function updateUserImage($image, $user);
+    public function saveUserImage($image, $user);
 
     public function deletePostImage($imagePath);
     public function deleteFiles($filePaths);

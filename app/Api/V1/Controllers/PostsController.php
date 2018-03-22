@@ -166,15 +166,15 @@ class PostsController extends ApiController
 
         $success = false;
         if ($post->type_id === Post::TYPE_IMAGE) {
-            $success = $mediaRepo->deletePostImage($post->image);
+            $success = $mediaRepo->deletePostImage($post->media);
         } else if ($post->type_id === Post::TYPE_VIDEO) {
-            $success = $mediaRepo->deleteFiles($post->video);
+            $success = $mediaRepo->deleteFiles($post->media);
         }
 
         if (!$post->delete()) {
             return $this->respondInternalError('Failed to delete post');
         }
 
-        return $this->respondWithMessage('Post deleted; image/video files deletion ' . ($success ? 'succeeded.' : 'failed!'));
+        return $this->respondWithMessage('Post deleted; image or video files deletion ' . ($success ? 'succeeded.' : 'failed!'));
     }
 }

@@ -96,11 +96,10 @@ class PostsControllerTest extends TestCase
         $this->paginationPropertyAmountMissing();
     }
 
-    public function testCreatePost()
+    public function testCreateImagePost()
     {
         $res = $this->apiPost([
             'image' => DataProvider::getFakeImage(),
-            'thumbnail' => DataProvider::getFakeImage(),
             'description' => 'Test description',
         ]);
 
@@ -110,14 +109,13 @@ class PostsControllerTest extends TestCase
     }
 
     /**
-     * @depends testCreatePost
+     * @depends testCreateImagePost
      *
      * @param $id
      */
-    public function testUpdatePost($id)
+    public function testUpdateImagePost($id)
     {
         $res = $this->apiPatch([
-//            'thumbnail' => DataProvider::getFakeImage(),
             'description' => 'Test description updated',
         ], '/' . $id);
 
@@ -127,11 +125,49 @@ class PostsControllerTest extends TestCase
     }
 
     /**
-     * @depends testUpdatePost
+     * @depends testUpdateImagePost
      *
      * @param $id
      */
-    public function testDeletePost($id)
+    public function testDeleteImagePost($id)
+    {
+        $this->apiDelete($id)->assertSuccessful();
+    }
+
+    public function testCreateVideoPost()
+    {
+        $res = $this->apiPost([
+            'image' => DataProvider::getFakeImage(),
+            'description' => 'Test description',
+        ]);
+
+        $res->assertSuccessful();
+
+        return $res->decodeResponseJson()['data']['id'];
+    }
+
+    /**
+     * @depends testCreateVideoPost
+     *
+     * @param $id
+     */
+    public function testUpdateVideoPost($id)
+    {
+        $res = $this->apiPatch([
+            'description' => 'Test description updated',
+        ], '/' . $id);
+
+        $res->assertSuccessful();
+
+        return $res->decodeResponseJson()['data']['id'];
+    }
+
+    /**
+     * @depends testUpdateImagePost
+     *
+     * @param $id
+     */
+    public function testDeleteVideoPost($id)
     {
         $this->apiDelete($id)->assertSuccessful();
     }

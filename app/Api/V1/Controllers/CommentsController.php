@@ -63,7 +63,8 @@ class CommentsController extends ApiController
     {
         $comment = Comment::find($comment);
 
-        if (!$this->belongsToAuthUser($comment)) {
+        $canDelete = $this->belongsToAuthUser($comment) || $this->belongsToAuthUser(\App\Post::find($comment->post_id));
+        if (!$canDelete) {
             return $this->respondForbidden('This comment is not yours!');
         }
 
