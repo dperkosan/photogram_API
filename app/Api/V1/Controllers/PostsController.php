@@ -132,7 +132,6 @@ class PostsController extends ApiController
             $hashtagRepository->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
         }
 
-        // TODO: Thumbnails
         if (isset($request->thumbnail)) {
             $user = $this->authUser();
 

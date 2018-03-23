@@ -85,6 +85,8 @@ class Generator
           'user_id',
         ]);
 
+        $this->delete('/followers/user_id', 'Unfollow a user with user_id');
+
         $this->get('/followers/mutual', 'Get users that are mutual followers for you and the user with user_id.', [
           'user_id', 'amount', 'page'
         ]);

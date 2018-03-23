@@ -93,12 +93,12 @@ class PostRepository extends Repository implements PostRepositoryInterface
      * @param Collection|\App\Post $posts
      * @param int                  $limit
      *
-     * @return Post|Collection
+     * @return Post|Collection|null
      */
     public function addComments($posts, $limit = 5)
     {
         if (!$posts) {
-            return;
+            return null;
         } else if ($posts instanceof Post) {
             $this->addCommentsToSingePost($posts, $limit);
         } else {

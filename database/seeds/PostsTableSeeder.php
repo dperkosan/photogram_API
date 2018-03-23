@@ -1,6 +1,7 @@
 <?php
 
 use App\Post;
+use App\User;
 
 class PostsTableSeeder extends BaseTableSeeder
 {
@@ -17,7 +18,7 @@ class PostsTableSeeder extends BaseTableSeeder
 
         $faker = Faker\Factory::create();
 
-        $allUserIds = collect(App\User::pluck('id')->toArray());
+        $allUserIds = User::pluck('id');
 
         $allPosts = [];
 
@@ -52,14 +53,12 @@ class PostsTableSeeder extends BaseTableSeeder
 
     public function customSeeder()
     {
-        // TODO: make some custom posts
-
         $posts = [];
         $images1 = [
           'images/post/2/',
           'images/post/2/',
           'images/post/2/',
-          'images/post/2/',
+          'images/post/2/',``
         ];
 
         foreach ($images1 as $image) {

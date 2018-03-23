@@ -7,43 +7,39 @@ class CommentsTableSeeder extends BaseTableSeeder
 {
     public function run()
     {
+        // This is double because one comment gets this many comments additionally
         $numberOfCommentsToSeed = 1000;
 
         $period = $this->getDatePeriod($numberOfCommentsToSeed);
 
         $faker = Faker\Factory::create();
 
-        $allUserIds = collect(User::pluck('id')->toArray());
-
-        $allPostIds = collect(Post::pluck('id')->toArray());
+        $allUserIds = User::pluck('id');
+        $allUsernames = User::pluck('username');
+        $allPostIds = Post::pluck('id');
 
         $lastPostId = $allPostIds->last();
 
         $allComments = [];
-
-        $allPosts = Post::with('comments')->get();
 
         foreach ($period as $date) {
 
             $userId = $allUserIds->random();
             $postId = $allPostIds->random();
 
-            // If there is a comment on the post with $postId
-            // then there is a 1 in 5 chance that this new comment
-            // will be on another comment
-            $commentId = null;
-            $commentIds = $allPosts->where('id', $postId)->first()->comments->pluck('id');
-            if ($commentIds->count() >= 1 && mt_rand(1, 5) === 5) {
-                $commentId = $commentIds->random();
+            // Every 5-th comment is a reply to some random user
+            $commentReplyUsername = null;
+            if (mt_rand(1, 5) === 5) {
+                $commentReplyUsername = $allUsernames->random();
             }
 
             $formattedDate = $date->format('Y-m-d H:i:s');
 
             $allComments[] = [
-              'body'       => $faker->text(255),
+              'body'       => ($commentReplyUsername ? "@{$commentReplyUsername} " : '') . $faker->text(255),
               'user_id'    => $userId,
               'post_id'    => $postId,
-              'comment_id' => $commentId,
+              'reply_username' => $commentReplyUsername,
               'created_at' => $formattedDate,
             ];
 
@@ -54,7 +50,7 @@ class CommentsTableSeeder extends BaseTableSeeder
               'body'       => $faker->text(255),
               'user_id'    => $userId,
               'post_id'    => $lastPostId,
-              'comment_id' => null,
+              'reply_username' => null,
               'created_at' => $formattedDate,
             ];
         }

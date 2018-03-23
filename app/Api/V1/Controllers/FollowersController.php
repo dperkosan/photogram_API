@@ -41,8 +41,11 @@ class FollowersController extends ApiController
         return $this->followers->getFollowers($this->authUser()->id);
     }
 
-    public function mutual(FollowerPaginationRequest $request, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepo)
-    {
+    public function mutual(
+        FollowerPaginationRequest $request,
+        UserRepositoryInterface $userRepository,
+        MediaRepositoryInterface $mediaRepo
+    ) {
         $authUserId = $this->authUser()->id;
         $userIds[] = $authUserId;
         $userIds[] = $request->user_id;
@@ -66,40 +69,39 @@ class FollowersController extends ApiController
     {
         $followedId = $request->get('user_id');
 
-        //check if user exists
-        if(!$this->followers->userExists($followedId)) {
+        // Check if user exists
+        if (!$this->followers->userExists($followedId)) {
             return $this->respondNotFound('User does not exist');
         }
 
         $followerId = $this->authUser()->id;
 
-        //check if the following already exists
-        if($this->followers->followExists($followerId, $followedId)) {
+        // Check if the following already exists
+        if ($this->followers->followExists($followerId, $followedId)) {
             return $this->respondWrongArgs('You already follow this user.');
         }
 
-        //check if dude try to follow himself
-        if($followerId == $followedId) {
+        // Check if dude try to follow himself
+        if ($followerId == $followedId) {
             return $this->respondWrongArgs('You already follow yourself.');
         }
 
         $follow = $this->followers->follow($followerId, $followedId);
 
-        if ($follow) {
+        if (!$follow) {
+            return $this->respondInternalError('There was an error while trying to follow this user.');
+        }
 
-            // broadcast the event for notifications...
+        // broadcast the event for notifications...
 //            $followedUser = (new UserRepository(User::find($followedId)))->getById($followedId);
 //            $followedUser = User::find($followedId);
 //            event(new NewFollower($followedUser, $this->jwtAuth), $this->jwtAuth);
 
-            if(env('SEND_NOTIFICATION_ON_FOLLOW')){
-                event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
-            }
+//        if (env('SEND_NOTIFICATION_ON_FOLLOW')) {
+//            event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
+//        }
 
-            return $this->respondSuccess();
-        }
-
-        return $this->respondInternalError('There was an error while trying to follow this user.');
+        return $this->respondSuccess();
 
     }
 

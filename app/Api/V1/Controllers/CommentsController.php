@@ -23,12 +23,12 @@ class CommentsController extends ApiController
         return $this->respondWithData($comments);
     }
 
-    public function store(CommentRequest $request, HashtagRepositoryInterface $hashtagRepository)
+    public function store(CommentRequest $request, CommentRepositoryInterface $commentRepository, HashtagRepositoryInterface $hashtagRepository)
     {
         $commentData = $request->only(['body', 'post_id', 'comment_id']);
         $commentData['user_id'] = $this->authUser()->id;
 
-        $comment = Comment::create($commentData);
+        $comment = $commentRepository->create($commentData);
 
         $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
 

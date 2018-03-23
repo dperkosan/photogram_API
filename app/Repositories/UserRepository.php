@@ -84,10 +84,16 @@ class UserRepository extends Repository implements UserRepositoryInterface
         if (!isset($user->id)) {
             return;
         }
-        $user->auth_follow = \DB::table('followers')->where([
-          'follower_id' => $authUserId,
-          'followed_id' => $user->id,
-        ])->exists();
+        if ($user->id == $authUserId) {
+            $user->auth_follow = null;
+        } else {
+            $user->auth_follow = \DB::table('followers')->where([
+                'follower_id' => $authUserId,
+                'followed_id' => $user->id,
+            ])->exists();
+        }
+
+
     }
 
     public function usersFromLikes($likableId, $likableType, $amount, $page)
