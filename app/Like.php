@@ -12,8 +12,6 @@ class Like extends Model
 
     protected $fillable = ['user_id', 'likable_id', 'likable_type'];
 
-    protected $hidden = ['created_at','updated_at'];
-
     /**
      * Get all of the owning commentable models.
      */

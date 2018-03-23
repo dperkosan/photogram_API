@@ -18,7 +18,6 @@ class CreateHashtagsTable extends Migration
             $table->string('name')->unique();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 

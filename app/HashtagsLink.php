@@ -20,10 +20,5 @@ class HashtagsLink extends Model
     {
         return $this->morphTo();
     }
-    
-    public function hashtag()
-    {
-
-    }
 
 }

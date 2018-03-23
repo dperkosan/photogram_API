@@ -25,10 +25,14 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
      * @param Collection $posts
      * @param integer    $authUserId user id of the auth user
      *
-     * @return Collection $posts
+     * @return Collection| $posts
      */
     public function addAuthLikeToPosts($posts, $authUserId)
     {
+        if (!($posts instanceof Collection)) {
+            return $this->addAuthLikeToSinglePost($posts, $authUserId);
+        }
+
         $likableIds = [];
 
         foreach ($posts as $post) {
@@ -40,8 +44,6 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
 
         $likes = $this->getLikesForAuth(array_unique($likableIds), $authUserId);
 
-//        if ($likes->isNotEmpty()) {
-
         foreach ($posts as $post) {
             $this->addLikeId($post, $this->likablePost, $likes);
 
@@ -49,9 +51,28 @@ class LikeRepository extends Repository implements LikeRepositoryInterface
                 $this->addLikeId($comment, $this->likableComment, $likes);
             }
         }
-//        }
 
         return $posts;
+    }
+
+    protected function addAuthLikeToSinglePost($post, $authUserId)
+    {
+        $likableIds = [];
+
+        $likableIds[] = $post->id;
+        foreach ($post->comments as $comment) {
+            $likableIds[] = $comment->id;
+        }
+
+        $likes = $this->getLikesForAuth(array_unique($likableIds), $authUserId);
+
+        $this->addLikeId($post, $this->likablePost, $likes);
+
+        foreach ($post->comments as $comment) {
+            $this->addLikeId($comment, $this->likableComment, $likes);
+        }
+
+        return $post;
     }
 
     /**

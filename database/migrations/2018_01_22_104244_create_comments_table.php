@@ -20,11 +20,10 @@ class CreateCommentsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('post_id')->unsigned();
             $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-            $table->integer('comment_id')->unsigned()->nullable();
-            $table->foreign('comment_id')->references('id')->on('comments')->onDelete('cascade');
+            $table->integer('reply_username')->nullable();
+            $table->foreign('reply_username')->references('username')->on('users')->onDelete('set null');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 

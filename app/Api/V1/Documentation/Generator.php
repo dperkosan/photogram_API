@@ -130,6 +130,10 @@ class Generator
 
         $this->delete('/likes/like_id', 'Delete a like.');
 
+        $this->get('/search', 'Search for a username or hashtag. If query string starts with @ usernames will be searched. If it starts with # hashtags will be searched.', [
+            'q',
+        ]);
+
         return $this;
     }
 
@@ -306,6 +310,11 @@ class Generator
               'name'            => 'body',
               'description'     => 'comment body',
               'possible_values' => 'string',
+            ],
+            [
+                'name'            => 'q',
+                'description'     => 'query string to search for',
+                'possible_values' => 'string starting with @ or #',
             ],
         ];
     }

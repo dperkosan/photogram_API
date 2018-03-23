@@ -17,9 +17,6 @@ class PostsController extends ApiController
 {
     use ThumbsTrait;
 
-    /**
-     * @var \App\Repositories\PostRepository
-     */
     private $posts;
     private $jwtAuth;
 
@@ -75,16 +72,16 @@ class PostsController extends ApiController
 
     public function show($post, MediaRepositoryInterface $mediaRepo)
     {
-        $posts = $this->posts->getPost($post);
+        $post = $this->posts->getPost($post);
 
         $authUser = $this->authUser();
         if ($authUser) {
-            $this->posts->addAuthLike($posts, $authUser->id);
+            $this->posts->addAuthLike($post, $authUser->id);
         }
-        $mediaRepo->addThumbsToPosts($posts);
-        $mediaRepo->addThumbsToUsers($posts, 'user_image');
+        $mediaRepo->addThumbsToPosts($post);
+        $mediaRepo->addThumbsToUsers($post, 'user_image');
 
-        return $this->respondWithData($posts->first());
+        return $this->respondWithData($post);
     }
 
     public function store(PostRequest $request, MediaRepositoryInterface $mediaRepo, HashtagRepositoryInterface $hashtags)
@@ -170,6 +167,10 @@ class PostsController extends ApiController
         } else if ($post->type_id === Post::TYPE_VIDEO) {
             $success = $mediaRepo->deleteFiles($post->media);
         }
+
+        // Delete polymorphic relations cause they don't delete themselves through foreign keys
+        $post->likes()->delete();
+        $post->hashtags()->delete();
 
         if (!$post->delete()) {
             return $this->respondInternalError('Failed to delete post');

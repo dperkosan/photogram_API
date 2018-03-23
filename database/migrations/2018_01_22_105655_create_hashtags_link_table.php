@@ -22,7 +22,6 @@ class CreateHashtagsLinkTable extends Migration
             $table->unique(['hashtag_id', 'taggable_id', 'taggable_type']);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 

@@ -68,6 +68,10 @@ class CommentsController extends ApiController
             return $this->respondForbidden('This comment is not yours!');
         }
 
+        // Delete polymorphic relations cause they don't delete themselves through foreign keys
+        $comment->likes()->delete();
+        $comment->hashtags()->delete();
+
         if (!$comment->delete()) {
             return $this->respondInternalError('Failed to delete comment');
         }

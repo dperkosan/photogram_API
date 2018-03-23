@@ -24,7 +24,6 @@ class CreateTagsTable extends Migration
             $table->integer('y_axis');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Hashtag;
+use App\HashtagsLink;
 use App\Interfaces\HashtagRepositoryInterface;
 
 class HashtagRepository implements HashtagRepositoryInterface
@@ -30,7 +31,7 @@ class HashtagRepository implements HashtagRepositoryInterface
         $hashtags = array_unique($matches[1]);
 
         // delete old hashtag links
-        \DB::table('hashtags_link')->where([
+        HashtagsLink::where([
           'taggable_id' => $taggableId,
           'taggable_type' => $taggableType,
         ])->delete();

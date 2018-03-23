@@ -22,7 +22,6 @@ class CreateLikesTable extends Migration
             $table->unique(['user_id', 'likable_id', 'likable_type']);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 

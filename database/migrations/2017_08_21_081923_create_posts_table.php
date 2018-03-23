@@ -23,7 +23,6 @@ class CreatePostsTable extends Migration
             $table->string('description', 2200)->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
-            $table->softDeletes();
         });
     }
 

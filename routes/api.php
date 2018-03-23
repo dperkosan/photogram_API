@@ -30,6 +30,7 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
     $api->get('/users/exists', 'UsersController@exists');
     $api->get('/users/find', 'UsersController@find');
+    $api->get('/search', 'SearchController@search');
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 

@@ -11,8 +11,6 @@ class Post extends Model
 
     protected $fillable = ['user_id', 'type_id', 'media', 'thumbnail', 'description'];
 
-    protected $hidden = ['deleted_at'];
-
     public function user()
     {
         return $this->belongsTo(User::class)->withoutGlobalScopes();
@@ -25,11 +23,13 @@ class Post extends Model
 
     public function likes()
     {
-        return $this->morphMany('App\Like', 'likable');
+        return $this->morphMany(Like::class, 'likable');
     }
 
     public function hashtags()
     {
-        return $this->morphMany('App\HashtagsLink', 'taggable');
+        return $this->morphMany(HashtagsLink::class, 'taggable');
     }
+
+
 }
