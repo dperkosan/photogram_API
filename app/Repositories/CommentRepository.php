@@ -17,7 +17,8 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
 
     public function create($commentData)
     {
-        preg_match_all('/#(\w+)/', $text, $matches);
+//        return $this->comment->create($commentData);
+//        preg_match_all('/#(\w+)/', $text, $matches);
     }
 
     /**

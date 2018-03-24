@@ -28,7 +28,9 @@ class CommentsController extends ApiController
         $commentData = $request->only(['body', 'post_id', 'comment_id']);
         $commentData['user_id'] = $this->authUser()->id;
 
-        $comment = $commentRepository->create($commentData);
+        // TODO: deal with reply_username
+//        $comment = $commentRepository->create($commentData);
+        $comment = Comment::create($commentData);
 
         $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
 
