@@ -68,9 +68,9 @@ class FollowersController extends ApiController
     public function follow(FollowRequest $request)
     {
         $followedId = $request->get('user_id');
-
+        $user = User::find($followedId);
         // Check if user exists
-        if (!$this->followers->userExists($followedId)) {
+        if (!$user) {
             return $this->respondNotFound('User does not exist');
         }
 
@@ -98,7 +98,7 @@ class FollowersController extends ApiController
 //            event(new NewFollower($followedUser, $this->jwtAuth), $this->jwtAuth);
 
         if (env('SEND_NOTIFICATION_ON_FOLLOW')) {
-            event(new NewFollower(User::find($followedId), $this->jwtAuth), $this->jwtAuth);
+            event(new NewFollower($user, $this->jwtAuth), $this->jwtAuth);
         }
 
         return $this->respondSuccess();

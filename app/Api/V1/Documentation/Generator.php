@@ -113,7 +113,7 @@ class Generator
         ]);
 
         $this->post('/comments', 'Create a comment. The parameter comment_id is deprecated', [
-          'post_id', 'comment_id', 'body',
+          'post_id', 'reply_username', 'body',
         ]);
 
         $this->patch('/comments', 'Change the body of a comment. This is used for editing the comment.', [
@@ -317,6 +317,11 @@ class Generator
                 'name'            => 'q',
                 'description'     => 'query string to search for',
                 'possible_values' => 'string starting with @ or #',
+            ],
+            [
+                'name'            => 'reply_username',
+                'description'     => 'username to whom the comment is replied',
+                'possible_values' => 'string|max:25',
             ],
         ];
     }

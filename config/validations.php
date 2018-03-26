@@ -65,7 +65,7 @@ return [
     'comment' => [
         'body'       => 'required|max:255',
         'post_id'    => 'required|integer',
-        'comment_id' => 'nullable|integer',
+        'reply_username' => 'nullable|max:25',
     ],
 
     'like_pagination' => [

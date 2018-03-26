@@ -25,7 +25,7 @@ class CommentsController extends ApiController
 
     public function store(CommentRequest $request, CommentRepositoryInterface $commentRepository, HashtagRepositoryInterface $hashtagRepository)
     {
-        $commentData = $request->only(['body', 'post_id', 'comment_id']);
+        $commentData = $request->only(['body', 'post_id', 'reply_username']);
         $commentData['user_id'] = $this->authUser()->id;
 
         // TODO: deal with reply_username
