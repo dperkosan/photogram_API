@@ -13,11 +13,11 @@ class UsersController extends ApiController
 {
     use ThumbsTrait;
 
-    protected $users;
+    protected $userRepository;
 
     public function __construct(UserRepositoryInterface $users)
     {
-        $this->users = $users;
+        $this->userRepository = $users;
     }
 
     public function updateAuthUser(UserRequest $request)
@@ -61,7 +61,7 @@ class UsersController extends ApiController
             return $this->respondForbidden();
         }
 
-        $this->users->addCounts($user);
+        $this->userRepository->addCounts($user);
         $mediaRepo->addThumbsToUsers($user);
 
         return $this->respondWithData($user);
@@ -69,7 +69,7 @@ class UsersController extends ApiController
 
     public function exists(Request $request)
     {
-        $exists = $this->users->existsWhere($request->only([
+        $exists = $this->userRepository->existsWhere($request->only([
           'username', 'email', 'name', 'gender_id'
         ]));
         return $this->respondWithData(['exists' => $exists]);
@@ -78,18 +78,18 @@ class UsersController extends ApiController
     public function find(Request $request, JWTAuth $JWTAuth, MediaRepositoryInterface $mediaRepo)
     {
         if ($request->id) {
-            $user = $this->users->findById($request->id);
+            $user = $this->userRepository->findById($request->id);
         } else {
-            $user = $this->users->findWhere($request->only([
+            $user = $this->userRepository->findWhere($request->only([
                 'username', 'email', 'name', 'gender_id'
             ]));
         }
 
         if ($user) {
-            $this->users->addCounts($user);
+            $this->userRepository->addCounts($user);
             $mediaRepo->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
-                $this->users->addIsFollowed($user, $authUser->id);
+                $this->userRepository->addIsFollowed($user, $authUser->id);
             }
         }
 
@@ -104,10 +104,10 @@ class UsersController extends ApiController
         $user = User::find($user);
 
         if ($user) {
-            $this->users->addCounts($user);
+            $this->userRepository->addCounts($user);
             $mediaRepo->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
-                $this->users->addIsFollowed($user, $authUser->id);
+                $this->userRepository->addIsFollowed($user, $authUser->id);
             }
         }
 

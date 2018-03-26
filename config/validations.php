@@ -54,7 +54,7 @@ return [
         'amount'     => 'required|max:100',
         'page'       => 'required|max:50',
         'post_id'    => 'required|integer',
-        'comment_id' => 'nullable|integer',
+        'reply_username' => 'nullable|integer|unique:users,username',
     ],
 
     'like' => [
@@ -65,6 +65,7 @@ return [
     'comment' => [
         'body'       => 'required|max:255',
         'post_id'    => 'required|integer',
+        'reply_user_id' => 'nullable|integer',
         'reply_username' => 'nullable|max:25',
     ],
 

@@ -116,7 +116,7 @@ class Generator
           'post_id', 'reply_username', 'body',
         ]);
 
-        $this->patch('/comments', 'Change the body of a comment. This is used for editing the comment.', [
+        $this->patch('/comments/comment_id', 'Change the body of a comment. This is used for editing the comment.', [
           'body',
         ]);
 

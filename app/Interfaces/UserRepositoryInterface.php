@@ -52,4 +52,6 @@ interface UserRepositoryInterface
     public function store($data);
 
     public function sendConfirmEmailNotification($token);
+
+    public function getUserIdFromUsername($username);
 }

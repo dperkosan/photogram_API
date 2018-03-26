@@ -8,6 +8,7 @@ use App\HashtagsLink;
 use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\PostRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\Post;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\JWTAuth;
@@ -45,7 +46,7 @@ class PostsController extends ApiController
         return $this->respondWithData($posts);
     }
 
-    public function index(PostPaginationRequest $request, MediaRepositoryInterface $mediaRepo)
+    public function index(PostPaginationRequest $request, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepo)
     {
         if (isset($request->news_feed)) {
             return $this->baseNewsFeed($request, $mediaRepo);
@@ -53,7 +54,7 @@ class PostsController extends ApiController
 
         $userId = null;
         if ($request->username) {
-            $userId = \App\User::where('username', $request->username)->first()->id;
+            $userId = $userRepository->getUserIdFromUsername($request->username);
         } else if ($request->user_id) {
             $userId = $request->user_id;
         }

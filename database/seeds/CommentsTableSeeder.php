@@ -15,7 +15,6 @@ class CommentsTableSeeder extends BaseTableSeeder
         $faker = Faker\Factory::create();
 
         $allUserIds = User::pluck('id');
-        $allUsernames = User::pluck('username');
         $allPostIds = Post::pluck('id');
 
         $lastPostId = $allPostIds->last();
@@ -28,18 +27,18 @@ class CommentsTableSeeder extends BaseTableSeeder
             $postId = $allPostIds->random();
 
             // Every 5-th comment is a reply to some random user
-            $commentReplyUsername = null;
+            $commentReplyUserId = null;
             if (mt_rand(1, 5) === 5) {
-                $commentReplyUsername = $allUsernames->random();
+                $commentReplyUserId = $allUserIds->random();
             }
 
             $formattedDate = $date->format('Y-m-d H:i:s');
 
             $allComments[] = [
-              'body'       => ($commentReplyUsername ? "@{$commentReplyUsername} " : '') . $faker->text(255),
+              'body'       => $faker->text(255),
               'user_id'    => $userId,
               'post_id'    => $postId,
-              'reply_username' => $commentReplyUsername,
+              'reply_user_id' => $commentReplyUserId,
               'created_at' => $formattedDate,
             ];
 
@@ -50,7 +49,7 @@ class CommentsTableSeeder extends BaseTableSeeder
               'body'       => $faker->text(255),
               'user_id'    => $userId,
               'post_id'    => $lastPostId,
-              'reply_username' => null,
+              'reply_user_id' => null,
               'created_at' => $formattedDate,
             ];
         }

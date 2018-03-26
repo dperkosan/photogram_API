@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Comment;
 use App\Interfaces\CommentRepositoryInterface;
 use App\Interfaces\LikeRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 
 class CommentRepository extends Repository implements CommentRepositoryInterface
 {
@@ -15,10 +16,23 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
         $this->comment = $comment;
     }
 
+    /**
+     * @param array $commentData
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     */
     public function create($commentData)
     {
-//        return $this->comment->create($commentData);
-//        preg_match_all('/#(\w+)/', $text, $matches);
+        // Transform reply_username into reply_user_id and/or remove reply_username
+        if (!empty($commentData['reply_username'])) {
+            if (!empty($commentData['reply_user_id'])) {
+                unset($commentData['reply_username']);
+            } else {
+                $commentData['reply_user_id'] = app(UserRepositoryInterface::class)->getUserIdFromUsername($commentData['reply_username']);
+            }
+        }
+
+        return $this->comment->create($commentData);
     }
 
     /**
@@ -32,7 +46,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
     public function getComments($postId, $commentId = null, $amount, $page)
     {
         $query = $this->fullQuery($amount, $page)
-          ->where('post_id', $postId);
+            ->where('post_id', $postId);
 
         if ($commentId) {
             $query->where('comment_id', $commentId);
@@ -52,12 +66,19 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
         $offset = $this->calcOffset($amount, $page);
 
         return $this->comment
-          ->select(['comments.*', 'users.username', 'users.image as user_image'])
-          ->join('users', 'users.id', '=' , 'comments.user_id')
-          ->withCount('likes')
-          ->orderBy('created_at', 'DESC')
-          ->offset($offset)
-          ->limit($amount);
+            ->select([
+                'comments.*',
+                'users.username',
+                'users.image as user_image',
+                'reply_users.id as reply_user_id',
+                'reply_users.username as reply_username',
+            ])
+            ->join('users', 'users.id', '=', 'comments.user_id')
+            ->join('users as reply_users', 'users.id', '=', 'comments.reply_user_id')
+            ->withCount('likes')
+            ->orderBy('created_at', 'DESC')
+            ->offset($offset)
+            ->limit($amount);
     }
 
     public function addAuthLike($comments, $userId)

@@ -245,4 +245,9 @@ class UserRepository extends Repository implements UserRepositoryInterface
     {
         $this->user->notify(new FollowedNotification($token));
     }
+
+    public function getUserIdFromUsername($username)
+    {
+        return $this->user->select('id')->where('username', $username)->first()->id;
+    }
 }
