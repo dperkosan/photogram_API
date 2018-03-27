@@ -73,7 +73,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
 
     protected function fullQueryById($id)
     {
-        return $this->baseFullQuery()->where('id', '=', $id);
+        return $this->baseFullQuery()->where('comments.id', '=', $id);
     }
 
     protected function baseFullQuery()
