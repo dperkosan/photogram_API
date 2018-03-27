@@ -15,7 +15,7 @@ class CommentsController extends ApiController
 {
     public function index(CommentPaginationRequest $request, CommentRepositoryInterface $commentRepository, MediaRepositoryInterface $mediaRepo)
     {
-        $comments = $commentRepository->getComments($request->post_id, $request->comment_id, $request->amount, $request->page);
+        $comments = $commentRepository->getComments($request->post_id, $request->amount, $request->page);
 
         $commentRepository->addAuthLike($comments, $this->authUser()->id);
         $mediaRepo->addThumbsToUsers($comments, 'user_image');

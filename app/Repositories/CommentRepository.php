@@ -37,20 +37,15 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
 
     /**
      * @param int $postId
-     * @param int $commentId
      * @param int $amount
      * @param int $page
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getComments($postId, $commentId = null, $amount, $page)
+    public function getComments($postId, $amount, $page)
     {
         $query = $this->fullQuery($amount, $page)
             ->where('post_id', $postId);
-
-        if ($commentId) {
-            $query->where('comment_id', $commentId);
-        }
 
         return $query->get();
     }
@@ -74,7 +69,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
                 'reply_users.username as reply_username',
             ])
             ->join('users', 'users.id', '=', 'comments.user_id')
-            ->join('users as reply_users', 'users.id', '=', 'comments.reply_user_id')
+            ->leftJoin('users as reply_users', 'users.id', '=', 'comments.reply_user_id')
             ->withCount('likes')
             ->orderBy('created_at', 'DESC')
             ->offset($offset)
