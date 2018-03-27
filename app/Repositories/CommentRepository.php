@@ -50,6 +50,11 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
         return $query->get();
     }
 
+    public function getComment($id)
+    {
+        return $this->fullQueryById($id)->first();
+    }
+
     /**
      * @param int $amount
      * @param int $page
@@ -60,6 +65,19 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
     {
         $offset = $this->calcOffset($amount, $page);
 
+        return $this->baseFullQuery()
+            ->orderBy('created_at', 'DESC')
+            ->offset($offset)
+            ->limit($amount);
+    }
+
+    protected function fullQueryById($id)
+    {
+        return $this->baseFullQuery()->where('id', '=', $id);
+    }
+
+    protected function baseFullQuery()
+    {
         return $this->comment
             ->select([
                 'comments.*',
@@ -70,10 +88,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
             ])
             ->join('users', 'users.id', '=', 'comments.user_id')
             ->leftJoin('users as reply_users', 'users.id', '=', 'comments.reply_user_id')
-            ->withCount('likes')
-            ->orderBy('created_at', 'DESC')
-            ->offset($offset)
-            ->limit($amount);
+            ->withCount('likes');
     }
 
     public function addAuthLike($comments, $userId)

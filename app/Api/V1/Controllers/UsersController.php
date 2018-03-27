@@ -14,10 +14,12 @@ class UsersController extends ApiController
     use ThumbsTrait;
 
     protected $userRepository;
+    protected $mediaRepository;
 
-    public function __construct(UserRepositoryInterface $users)
+    public function __construct(UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepository)
     {
-        $this->userRepository = $users;
+        $this->userRepository = $userRepository;
+        $this->mediaRepository = $mediaRepository;
     }
 
     public function updateAuthUser(UserRequest $request)
@@ -50,10 +52,13 @@ class UsersController extends ApiController
             return $this->respondInternalError('Could not update user.');
         }
 
+        $this->userRepository->addCounts($user);
+        $this->mediaRepository->addThumbsToUsers($user);
+
         return $this->respondWithData($user);
     }
 
-    public function getAuthUser(MediaRepositoryInterface $mediaRepo)
+    public function getAuthUser()
     {
         $user = $this->authUser();
 
@@ -62,7 +67,7 @@ class UsersController extends ApiController
         }
 
         $this->userRepository->addCounts($user);
-        $mediaRepo->addThumbsToUsers($user);
+        $this->mediaRepository->addThumbsToUsers($user);
 
         return $this->respondWithData($user);
     }
@@ -75,7 +80,7 @@ class UsersController extends ApiController
         return $this->respondWithData(['exists' => $exists]);
     }
 
-    public function find(Request $request, JWTAuth $JWTAuth, MediaRepositoryInterface $mediaRepo)
+    public function find(Request $request, JWTAuth $JWTAuth)
     {
         if ($request->id) {
             $user = $this->userRepository->findById($request->id);
@@ -87,7 +92,7 @@ class UsersController extends ApiController
 
         if ($user) {
             $this->userRepository->addCounts($user);
-            $mediaRepo->addThumbsToUsers($user);
+            $this->mediaRepository->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->userRepository->addIsFollowed($user, $authUser->id);
             }
@@ -99,13 +104,13 @@ class UsersController extends ApiController
     /*
      * 2018-03-21 not used atm
      */
-    public function show($user, JWTAuth $JWTAuth, MediaRepositoryInterface $mediaRepo)
+    public function show($user, JWTAuth $JWTAuth)
     {
         $user = User::find($user);
 
         if ($user) {
             $this->userRepository->addCounts($user);
-            $mediaRepo->addThumbsToUsers($user);
+            $this->mediaRepository->addThumbsToUsers($user);
             if ($authUser = $JWTAuth->authenticate($JWTAuth->getToken())) {
                 $this->userRepository->addIsFollowed($user, $authUser->id);
             }
@@ -114,7 +119,7 @@ class UsersController extends ApiController
         return $this->respondWithData($user);
     }
 
-    public function updateAuthProfileImage(Request $request, MediaRepositoryInterface $mediaRepo)
+    public function updateAuthProfileImage(Request $request)
     {
         $this->validate($request, [
           'image' => 'required|image'
@@ -123,14 +128,14 @@ class UsersController extends ApiController
         $image = $request->file('image');
         $user = $this->authUser();
 
-        $mediaRepo->deleteFiles($user->image);
-        $imagePath = $mediaRepo->saveUserImage($image, $user);
+        $this->mediaRepository->deleteFiles($user->image);
+        $imagePath = $this->mediaRepository->saveUserImage($image, $user);
 
         if ($user->image !== $imagePath) {
             $user->image = $imagePath;
             $user->save();
         }
-        $mediaRepo->addThumbsToUsers($user);
+        $this->mediaRepository->addThumbsToUsers($user);
 
         return $this->respondWithData(['image' => $user->image]);
     }

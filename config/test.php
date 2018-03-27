@@ -66,7 +66,6 @@ return [
             'id',
             'user_id',
             'post_id',
-            'comment_id',
             'created_at',
             'username',
             'user_image' => $userImage,

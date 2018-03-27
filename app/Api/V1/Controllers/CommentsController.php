@@ -28,12 +28,11 @@ class CommentsController extends ApiController
         $commentData = $request->only(['body', 'post_id', 'reply_user_id', 'reply_username']);
         $commentData['user_id'] = $this->authUser()->id;
 
-        // TODO: deal with reply_username
         $comment = $commentRepository->create($commentData);
 
         $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
 
-        return $this->respondWithData($comment);
+        return $this->respondWithData($commentRepository->getComment($comment->id));
     }
 
     public function update(Request $request, $comment, HashtagRepositoryInterface $hashtagRepository)
