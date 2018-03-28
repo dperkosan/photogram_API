@@ -44,17 +44,13 @@ class FollowerRepository extends Repository implements FollowerRepositoryInterfa
     /**
      * Get followings for authenticated user
      *
-     * @param $amount
-     * @param $page
      * @param $followerId
      *
      * @return mixed
      */
-    public function getFollowings($amount, $page, $followerId)
+    public function getFollowings($followerId)
     {
-        $offset = $this->calcOffset($amount, $page);
-
-        return $this->follower->offset($offset)->limit($amount)->where('follower_id', $followerId)->get();
+        return $this->follower->where('follower_id', $followerId)->get();
     }
 
     /**
