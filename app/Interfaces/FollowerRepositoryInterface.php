@@ -8,18 +8,24 @@ interface FollowerRepositoryInterface
     /**
      * Get all followers by logged in user id
      *
+     * @param $amount
+     * @param $page
      * @param $id
+     *
      * @return mixed
      */
-    public function getFollowers($id);
+    public function getFollowers($amount, $page, $id);
 
     /**
      * Get all followings by logged in user id
      *
+     * @param $amount
+     * @param $page
      * @param $id
+     *
      * @return mixed
      */
-    public function getFollowings($id);
+    public function getFollowings($amount, $page, $id);
 
     /**
      * Follow user

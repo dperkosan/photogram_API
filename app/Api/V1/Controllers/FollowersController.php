@@ -34,11 +34,13 @@ class FollowersController extends ApiController
     /**
      * Get followers for authenticated user
      *
+     * @param Request $request
+     *
      * @return mixed
      */
-    public function getFollowers()
+    public function getFollowers(Request $request)
     {
-        return $this->followers->getFollowers($this->authUser()->id);
+        return $this->followers->getFollowers($request->amount, $request->page, $this->authUser()->id);
     }
 
     public function mutual(

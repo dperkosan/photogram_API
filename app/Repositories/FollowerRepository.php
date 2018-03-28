@@ -7,7 +7,7 @@ use App\User;
 use App\Follower;
 use App\Interfaces\FollowerRepositoryInterface;
 
-class FollowerRepository implements FollowerRepositoryInterface
+class FollowerRepository extends Repository implements FollowerRepositoryInterface
 {
     /**
      * @var User
@@ -28,23 +28,33 @@ class FollowerRepository implements FollowerRepositoryInterface
     /**
      * Get followers for authenticated user
      *
+     * @param $amount
+     * @param $page
      * @param $followedId
+     *
      * @return mixed
      */
-    public function getFollowers($followedId)
+    public function getFollowers($amount, $page, $followedId)
     {
-        return $this->user->find($followedId)->followers()->get();
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->user->find($followedId)->followers()->offset($offset)->limit($amount)->get();
     }
 
     /**
      * Get followings for authenticated user
      *
+     * @param $amount
+     * @param $page
      * @param $followerId
+     *
      * @return mixed
      */
-    public function getFollowings($followerId)
+    public function getFollowings($amount, $page, $followerId)
     {
-        return $this->follower->where('follower_id', $followerId)->get();
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->follower->offset($offset)->limit($amount)->where('follower_id', $followerId)->get();
     }
 
     /**
