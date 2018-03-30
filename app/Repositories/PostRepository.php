@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\CommentRepositoryInterface;
 use App\Interfaces\FollowerRepositoryInterface;
 use App\Interfaces\LikeRepositoryInterface;
 use App\Post;
@@ -13,16 +14,18 @@ class PostRepository extends Repository implements PostRepositoryInterface
     /**
      * @var \App\Post
      */
-    private $post;
-    private $follower;
+    protected $post;
+    protected $followerRepository;
+    protected $commentRepository;
 
     const TYPE_IMAGE = 1;
     const TYPE_VIDEO = 2;
 
-    public function __construct(Post $post, FollowerRepositoryInterface $follower)
+    public function __construct(Post $post, FollowerRepositoryInterface $followerRepository, CommentRepositoryInterface $commentRepository)
     {
         $this->post = $post;
-        $this->follower = $follower;
+        $this->followerRepository = $followerRepository;
+        $this->commentRepository = $commentRepository;
     }
 
     public function getPost($id)
@@ -62,7 +65,7 @@ class PostRepository extends Repository implements PostRepositoryInterface
      */
     public function newsFeed($userId, $amount, $page = 1)
     {
-        $followedIds = $this->follower->getFollowings($userId)->pluck('followed_id');
+        $followedIds = $this->followerRepository->getFollowings($userId)->pluck('followed_id');
 
         return $this->standardFetch($amount, $page, function ($query) use ($followedIds) {
             $query->whereIn('user_id', $followedIds);
@@ -119,11 +122,16 @@ class PostRepository extends Repository implements PostRepositoryInterface
         if (!isset($post->comments_count) || $post->comments_count > 0) {
             $post->load(['comments' => function ($query) use ($limit) {
                 $query
-                  ->select(['comments.*', 'users.username', 'users.image as user_image'])
-                  ->join('users', 'users.id', '=' , 'comments.user_id')
-                  ->withCount('likes')
-                  ->orderBy('created_at', 'DESC')
-                  ->limit($limit);
+                    ->select([
+                        'comments.*',
+                        'comments_users.username',
+                        'comments_users.image as user_image',
+                        'reply_users.id as reply_user_id',
+                        'reply_users.username as reply_username',
+                    ])
+                    ->join('users as comments_users', 'comments_users.id', '=', 'comments.user_id')
+                    ->leftJoin('users as reply_users', 'reply_users.id', '=', 'comments.reply_user_id')
+                    ->withCount('likes');
             }]);
         }
     }

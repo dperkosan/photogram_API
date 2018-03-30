@@ -248,6 +248,12 @@ class UserRepository extends Repository implements UserRepositoryInterface
 
     public function getUserIdFromUsername($username)
     {
-        return $this->user->select('id')->where('username', $username)->first()->id;
+        $user = $this->user->select('id')->where('username', $username)->first();
+
+        if (!$user) {
+            return null;
+        }
+
+        return $user->id;
     }
 }

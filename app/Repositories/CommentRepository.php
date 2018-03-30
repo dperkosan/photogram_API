@@ -93,7 +93,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
      *
      * @return \Illuminate\Database\Eloquent\Builder|mixed
      */
-    protected function fullQuery($amount, $page)
+    public function fullQuery($amount = 1, $page = 1)
     {
         $offset = $this->calcOffset($amount, $page);
 
