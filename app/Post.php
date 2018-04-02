@@ -3,9 +3,12 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Elasticquent\ElasticquentTrait;
 
 class Post extends Model
 {
+    use ElasticquentTrait;
+
     const TYPE_IMAGE = 1;
     const TYPE_VIDEO = 2;
 

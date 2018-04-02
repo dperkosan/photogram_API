@@ -183,6 +183,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
+        Elasticquent\ElasticquentServiceProvider::class,
     ],
 
     /*
@@ -237,6 +238,7 @@ return [
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
         'Debugbar' => Barryvdh\Debugbar\Facade::class,
         'Image' => Intervention\Image\Facades\Image::class,
+        'Es' => Elasticquent\ElasticquentElasticsearchFacade::class,
     ],
 
 ];

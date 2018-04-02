@@ -32,6 +32,9 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
     $api->get('/users/find', 'UsersController@find');
     $api->get('/search', 'SearchController@search');
 
+    $api->get('/elastic/add-to-index/posts', 'ElasticController@testIndexPosts');
+    $api->get('/elastic/search', 'ElasticController@search');
+
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
         $api->group(['prefix' => 'followers'], function (Router $api) {
