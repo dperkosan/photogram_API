@@ -3,10 +3,12 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Elasticquent\ElasticquentTrait;
 
 class User extends Authenticatable
 {
     use Notifiable;
+    use ElasticquentTrait;
 
     const GENDER_MALE = 1;
     const GENDER_FEMALE = 2;
