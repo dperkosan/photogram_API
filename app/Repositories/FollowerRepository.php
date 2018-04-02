@@ -25,32 +25,71 @@ class FollowerRepository extends Repository implements FollowerRepositoryInterfa
         $this->follower = $follower;
     }
 
-    /**
-     * Get followers for authenticated user
-     *
-     * @param $amount
-     * @param $page
-     * @param $followedId
-     *
-     * @return mixed
-     */
-    public function getFollowers($amount, $page, $followedId)
+    public function getMutualFollowers(array $userIds, $amount, $page)
     {
         $offset = $this->calcOffset($amount, $page);
 
-        return $this->user->find($followedId)->followers()->offset($offset)->limit($amount)->get();
+        return $this->user
+            ->select(['users.id', 'users.username', 'users.image'])
+            ->join('followers', 'users.id', '=', 'followers.follower_id')
+            ->whereIn('followers.follower_id', $userIds)
+            ->groupBy('followers.follower_id')
+            ->havingRaw('COUNT(`followers`.`follower_id`) >= ' . count($userIds))
+            ->offset($offset)
+            ->limit($amount)
+            ->get();
+    }
+
+    /**
+     * Get followers for authenticated user
+     *
+     * @param integer $followedId
+     * @param integer $amount
+     * @param integer $page
+     *
+     * @return mixed
+     */
+    public function getFollowers($followedId, $amount, $page)
+    {
+        return $this->getFollowersFollowings('follower_id', 'followed_id', $followedId, $amount, $page);
     }
 
     /**
      * Get followings for authenticated user
      *
-     * @param $followerId
+     * @param integer $followerId
+     * @param integer $amount
+     * @param integer $page
      *
      * @return mixed
      */
-    public function getFollowings($followerId)
+    public function getFollowings($followerId, $amount, $page)
     {
-        return $this->follower->where('follower_id', $followerId)->get();
+        return $this->getFollowersFollowings('followed_id', 'follower_id', $followerId, $amount, $page);
+    }
+
+    /**
+     * Helper function because getFollowers and getFollowings is pretty much the same
+     *
+     * @param string  $joinColumn
+     * @param string  $whereClauseColumn
+     * @param integer $id
+     * @param integer $amount
+     * @param integer $page
+     *
+     * @return mixed
+     */
+    protected function getFollowersFollowings($joinColumn, $whereClauseColumn, $id, $amount, $page)
+    {
+        $offset = $this->calcOffset($amount, $page);
+
+        return $this->user
+            ->select(['users.id', 'users.username', 'users.image'])
+            ->join('followers', 'users.id', '=', "followers.$joinColumn")
+            ->where("followers.$whereClauseColumn", $id)
+            ->offset($offset)
+            ->limit($amount)
+            ->get();
     }
 
     /**
@@ -82,17 +121,6 @@ class FollowerRepository extends Repository implements FollowerRepositoryInterfa
     public function followExists($followerId, $followedId)
     {
         return ($this->follower->where(['follower_id' => $followerId, 'followed_id' => $followedId])->count() > 0);
-    }
-
-    /**
-     * Check if followed user exists
-     *
-     * @param $user_id
-     * @return bool
-     */
-    public function userExists($user_id)
-    {
-        return $this->user->find($user_id)->exists();
     }
 
     /**

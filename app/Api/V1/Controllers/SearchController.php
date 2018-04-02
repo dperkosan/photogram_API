@@ -2,44 +2,40 @@
 
 namespace App\Api\V1\Controllers;
 
-
-
 use App\Hashtag;
+use App\Interfaces\MediaRepositoryInterface;
+use App\Interfaces\UserRepositoryInterface;
 use App\User;
 use Illuminate\Http\Request;
 
 class SearchController extends ApiController
 {
-    public function search(Request $request)
+    public function searchUsername(Request $request, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepository)
     {
         $this->validate($request, [
-            'q' => 'string|min:3|max:100'
+            'q' => 'required|string|min:3|max:100'
         ]);
-        $q = $request->q;
+        $query = $request->q;
 
-        $symbol = substr($q, 0, 1);
+        $users = User::where('username', 'LIKE', "%$query%")->get(['id', 'username', 'image']);
 
-        $query = substr($q, 1);
-
-        if ($symbol === '@') {
-            $results = $this->searchUsername($query);
-        } else if ($symbol === '#') {
-            $results = $this->searchHashtag($query);
-        } else {
-            return $this->respondWrongArgs('Query parameter needs to start with symbol @ or #.');
+        if ($users && $authUser = $this->authUser()) {
+            $userRepository->addIsFollowed($users, $authUser->id);
         }
 
-        return $this->respondWithData($results);
-    }
+        $mediaRepository->addThumbsToUsers($users);
 
-    protected function searchUsername($query)
-    {
-        return User::where('username', 'LIKE', "%$query%")->pluck('username');
+        return $this->respondWithData($users);
 
     }
 
-    public function searchHashtag($query)
+    public function searchHashtag(Request $request)
     {
+        $this->validate($request, [
+            'q' => 'required|string|min:3|max:100'
+        ]);
+        $query = $request->q;
+
         return Hashtag::where('name', 'LIKE', "%$query%")->pluck('name');
     }
 }

@@ -30,13 +30,12 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
     $api->get('/users/exists', 'UsersController@exists');
     $api->get('/users/find', 'UsersController@find');
-    $api->get('/search', 'SearchController@search');
 
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
         $api->group(['prefix' => 'followers'], function (Router $api) {
             $api->get('/', 'FollowersController@getFollowers');
-            $api->get('/mutual', 'FollowersController@mutual');
+            $api->get('/mutual', 'FollowersController@getMutual');
             $api->post('/', 'FollowersController@follow');
             $api->delete('/{user_id}', 'FollowersController@unfollow');
         });
@@ -74,6 +73,11 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->get('/', 'LikesController@index');
             $api->post('/', 'LikesController@store');
             $api->delete('{like}', 'LikesController@destroy');
+        });
+
+        $api->group(['prefix' => 'search'], function (Router $api) {
+            $api->get('/users', 'SearchController@searchUsername');
+            $api->get('/hashtags', 'SearchController@searchHashtag');
         });
 
         $api->get('refresh', ['middleware' => 'jwt.refresh', function() {

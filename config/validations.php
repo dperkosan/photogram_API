@@ -44,15 +44,15 @@ return [
     ],
 
     'post_pagination' => [
-        'amount'   => 'required|max:100',
-        'page'     => 'required|max:50',
-        'user_id'  => 'nullable',
+        'amount'   => 'required|integer|max:100',
+        'page'     => 'required|integer|max:50',
+        'user_id'  => 'nullable|integer',
         'username' => 'nullable',
     ],
 
     'comment_pagination' => [
-        'amount'     => 'required|max:100',
-        'page'       => 'required|max:50',
+        'amount'     => 'required|integer|max:100',
+        'page'       => 'required|integer|max:50',
         'post_id'    => 'required|integer',
         'reply_username' => 'nullable|integer|unique:users,username',
     ],
@@ -72,14 +72,19 @@ return [
     'like_pagination' => [
         'likable_id'   => 'required|integer',
         'likable_type' => 'required|integer',
-        'amount'       => 'required|max:100',
-        'page'         => 'required|max:50',
+        'amount'       => 'required|integer|max:100',
+        'page'         => 'required|integer|max:50',
     ],
 
     'follower_pagination' => [
+        'amount'  => 'required|integer|max:100',
+        'page'    => 'required|integer|max:50',
+    ],
+
+    'mutual_follower_pagination' => [
         'user_id' => 'required|integer',
-        'amount'  => 'required|max:100',
-        'page'    => 'required|max:50',
+        'amount'  => 'required|integer|max:100',
+        'page'    => 'required|integer|max:50',
     ],
 
 ];
