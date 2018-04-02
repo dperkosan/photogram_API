@@ -17,7 +17,7 @@ interface PostRepositoryInterface
 
     public function addComments($posts, $limit = 5);
     public function addCommentsToSingePost($post, $limit = 5);
-    public function addThumbs($posts);
+//    public function addThumbs($posts);
     public function addAuthLike($posts, $userId);
 
     
