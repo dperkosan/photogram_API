@@ -13,6 +13,8 @@ class HashtagsLink extends Model
 
     protected $fillable = ['hashtag_id', 'taggable_id', 'taggable_type'];
 
+
+
     /**
      * Get all of the owning commentable models.
      */

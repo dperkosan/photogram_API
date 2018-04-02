@@ -2,6 +2,8 @@
 
 namespace App\Repositories;
 
+use App\Follower;
+use App\Post;
 use App\User;
 use Illuminate\Database\Eloquent\Collection;
 use Tymon\JWTAuth\JWTAuth;
@@ -28,42 +30,11 @@ class UserRepository extends Repository implements UserRepositoryInterface
         $this->JWTAuth = $JWTAuth;
     }
 
-    public function addThumbs($users, $imageAttr = 'image')
-    {
-        $thumbs = config('boilerplate.thumbs.user');
-
-        if ($users instanceof Collection) {
-            foreach ($users as $user) {
-                $this->addThumbsToOneUser($user, $thumbs);
-            }
-        } else {
-            $this->addThumbsToOneUser($users, $thumbs, $imageAttr);
-        }
-    }
-
-    protected function addThumbsToOneUser($user, $thumbs, $imageAttr = 'image')
-    {
-        $user->thumbs = null;
-
-        if (!isset($user->$imageAttr) || empty($user->$imageAttr)) {
-            $user->thumbs = config('boilerplate.default_user_images');
-
-        } else if (strpos($user->$imageAttr, '[~FORMAT~]') !== false) {
-
-            $arr_thumbs = [];
-            foreach ($thumbs as $thumb_name => $thumb_format) {
-                $arr_thumbs[$thumb_name] = str_replace('[~FORMAT~]', $thumb_name, $user->$imageAttr);
-            }
-            $arr_thumbs['orig'] = str_replace('[~FORMAT~]', 'orig', $user->$imageAttr);
-            $user->thumbs = $arr_thumbs;
-        }
-    }
-
     public function addCounts($user)
     {
-        $user->posts_count = \App\Post::where('user_id', $user->id)->count();
-        $user->followers_count = \App\Follower::where('followed_id', $user->id)->count();
-        $user->following_count = \App\Follower::where('follower_id', $user->id)->count();
+        $user->posts_count = Post::where('user_id', $user->id)->count();
+        $user->followers_count = Follower::where('followed_id', $user->id)->count();
+        $user->following_count = Follower::where('follower_id', $user->id)->count();
 
         return $user;
     }
@@ -85,7 +56,7 @@ class UserRepository extends Repository implements UserRepositoryInterface
             return;
         }
         if ($user->id == $authUserId) {
-            $user->auth_follow = null;
+            $user->auth_follow = false;
         } else {
             $user->auth_follow = \DB::table('followers')->where([
                 'follower_id' => $authUserId,
@@ -107,21 +78,6 @@ class UserRepository extends Repository implements UserRepositoryInterface
             'likable_id' => $likableId,
             'likable_type' => $likableType,
           ])
-          ->offset($offset)
-          ->limit($amount)
-          ->get();
-    }
-
-    public function usersMutualFollowers(array $userIds, $amount, $page)
-    {
-        $offset = $this->calcOffset($amount, $page);
-
-        return $this->user
-          ->select(['users.id', 'users.username', 'users.image'])
-          ->join('followers', 'users.id', '=', 'followers.follower_id')
-          ->whereIn('followers.follower_id', $userIds)
-          ->groupBy('followers.follower_id')
-          ->havingRaw('COUNT(`followers`.`follower_id`) >= ' . count($userIds))
           ->offset($offset)
           ->limit($amount)
           ->get();
@@ -178,8 +134,11 @@ class UserRepository extends Repository implements UserRepositoryInterface
     public function store($data)
     {
         $user = $this->fillUserObject($data);
-        if($user->save()) return $user;
-        return false;
+        if (!$user->save()) {
+            return false;
+        }
+
+        return $user;
     }
 
     /**
@@ -248,6 +207,12 @@ class UserRepository extends Repository implements UserRepositoryInterface
 
     public function getUserIdFromUsername($username)
     {
-        return $this->user->select('id')->where('username', $username)->first()->id;
+        $user = $this->user->select('id')->where('username', $username)->first();
+
+        if (!$user) {
+            return null;
+        }
+
+        return $user->id;
     }
 }

@@ -8,24 +8,31 @@ interface FollowerRepositoryInterface
     /**
      * Get all followers by logged in user id
      *
-     * @param $id
+     * @param integer $id
+     * @param integer $amount
+     * @param integer $page
+     *
      * @return mixed
      */
-    public function getFollowers($id);
+    public function getFollowers($id, $amount, $page);
 
     /**
      * Get all followings by logged in user id
      *
-     * @param $id
+     * @param integer $id
+     * @param integer $amount
+     * @param integer $page
+     *
      * @return mixed
      */
-    public function getFollowings($id);
+    public function getFollowings($id, $amount, $page);
 
     /**
      * Follow user
      *
-     * @param $followerId
-     * @param $followedId
+     * @param integer $followerId
+     * @param integer $followedId
+     *
      * @return mixed
      */
     public function follow($followerId, $followedId);
@@ -33,23 +40,28 @@ interface FollowerRepositoryInterface
     /**
      * Unfollow user
      *
-     * @param $followerId
-     * @param $followedId
+     * @param integer $followerId
+     * @param integer $followedId
+     *
      * @return mixed
      */
     public function unfollow($followerId, $followedId);
 
     /**
-     * @param $user_id
-     *
-     * @return mixed
-     */
-    public function userExists($user_id);
-
-    /**
-     * @param $user_id
+     * @param integer $followerId
+     * @param integer $followedId
      *
      * @return mixed
      */
     public function followExists($followerId, $followedId);
+
+    /**
+     * @param array   $userIds
+     * @param integer $amount
+     * @param integer $page
+     *
+     * @return mixed
+     */
+    public function getMutualFollowers(array $userIds, $amount, $page);
+
 }

@@ -3,71 +3,61 @@
 namespace App\Api\V1\Controllers;
 
 use App\Api\V1\Requests\FollowerPaginationRequest;
+use App\Api\V1\Requests\MutualFollowerPaginationRequest;
 use App\Api\V1\Requests\FollowRequest;
-use App\Events\NewFollower;
 use App\Interfaces\MediaRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 use App\User;
-use Auth;
-use Tymon\JWTAuth\JWTAuth;
-use Dingo\Api\Http\Request;
 use App\Interfaces\FollowerRepositoryInterface;
 
 class FollowersController extends ApiController
 {
-    /**
-     * @var \App\Repositories\FollowerRepository
-     */
-    private $followers;
+    private $followerRepository;
 
-    /**
-     * @var JWTAuth
-     */
-    private $jwtAuth;
-
-    public function __construct(JWTAuth $jwtAuth, FollowerRepositoryInterface $followers)
+    public function __construct(FollowerRepositoryInterface $followerRepository)
     {
-        $this->jwtAuth = $jwtAuth;
-        $this->followers = $followers;
+        $this->followerRepository = $followerRepository;
     }
 
-    /**
-     * Get followers for authenticated user
-     *
-     * @return mixed
-     */
-    public function getFollowers()
+    public function getFollowers(FollowerPaginationRequest $request, MediaRepositoryInterface $mediaRepository, UserRepositoryInterface $userRepository)
     {
-        return $this->followers->getFollowers($this->authUser()->id);
+        $users = $this->followerRepository->getFollowers($this->authUser()->id, $request->amount, $request->page);
+
+        $mediaRepository->addThumbsToUsers($users);
+
+        $userRepository->addIsFollowed($users, $this->authUser()->id);
+
+        return $this->respondWithData($users);
     }
 
-    public function mutual(
-        FollowerPaginationRequest $request,
-        UserRepositoryInterface $userRepository,
-        MediaRepositoryInterface $mediaRepo
-    ) {
+    public function getFollowings(FollowerPaginationRequest $request, MediaRepositoryInterface $mediaRepository, UserRepositoryInterface $userRepository)
+    {
+        $users = $this->followerRepository->getFollowings($this->authUser()->id, $request->amount, $request->page);
+
+        $mediaRepository->addThumbsToUsers($users);
+
+        $userRepository->addIsFollowed($users, $this->authUser()->id);
+
+        return $this->respondWithData($users);
+    }
+
+    public function getMutual(MutualFollowerPaginationRequest $request, FollowerRepositoryInterface $followerRepository, UserRepositoryInterface $userRepository, MediaRepositoryInterface $mediaRepository)
+    {
         $authUserId = $this->authUser()->id;
         $userIds[] = $authUserId;
         $userIds[] = $request->user_id;
 
-        $users = $userRepository->usersMutualFollowers($userIds, $request->amount, $request->page);
+        $users = $followerRepository->getMutualFollowers($userIds, $request->amount, $request->page);
 
-        $mediaRepo->addThumbsToUsers($users);
+        $mediaRepository->addThumbsToUsers($users);
         $userRepository->addIsFollowed($users, $authUserId);
 
         return $this->respondWithData($users);
     }
 
-    /**
-     * Follow another user
-     *
-     * @param FollowRequest|Request $request
-     *
-     * @return mixed
-     */
     public function follow(FollowRequest $request)
     {
-        $followedId = $request->get('user_id');
+        $followedId = $request->user_id;
         $user = User::find($followedId);
         // Check if user exists
         if (!$user) {
@@ -77,7 +67,7 @@ class FollowersController extends ApiController
         $followerId = $this->authUser()->id;
 
         // Check if the following already exists
-        if ($this->followers->followExists($followerId, $followedId)) {
+        if ($this->followerRepository->followExists($followerId, $followedId)) {
             return $this->respondWrongArgs('You already follow this user.');
         }
 
@@ -86,10 +76,10 @@ class FollowersController extends ApiController
             return $this->respondWrongArgs('You already follow yourself.');
         }
 
-        $follow = $this->followers->follow($followerId, $followedId);
+        $follow = $this->followerRepository->follow($followerId, $followedId);
 
         if (!$follow) {
-            return $this->respondInternalError('There was an error while trying to follow this user.');
+            return $this->respondInternalError('Failed to follow this user.');
         }
 
         // broadcast the event for notifications...
@@ -97,35 +87,28 @@ class FollowersController extends ApiController
 //            $followedUser = User::find($followedId);
 //            event(new NewFollower($followedUser, $this->jwtAuth), $this->jwtAuth);
 
-        if (env('SEND_NOTIFICATION_ON_FOLLOW')) {
-            event(new NewFollower($user, $this->jwtAuth), $this->jwtAuth);
-        }
+//        if (env('SEND_NOTIFICATION_ON_FOLLOW')) {
+//            event(new NewFollower($user, $this->jwtAuth), $this->jwtAuth);
+//        }
 
         return $this->respondSuccess();
 
     }
 
-    /**
-     * Unfollow another user
-     *
-     * @param $user_id
-     *
-     * @return bool|mixed
-     */
     public function unfollow($user_id)
     {
         $userId = $this->authUser()->id;
         $followedId = $user_id;
 
-        if (!$this->followers->followExists($userId, $followedId)) {
+        if (!$this->followerRepository->followExists($userId, $followedId)) {
             return $this->respondWrongArgs('You are not following this user.');
         }
 
-        $unfollowSuccessful = $this->followers->unfollow($userId, $followedId);
-        if ($unfollowSuccessful) {
-            return $this->respondWithMessage('You no longer follow this user.');
+        $success = $this->followerRepository->unfollow($userId, $followedId);
+        if (!$success) {
+            return $this->respondInternalError('Failed to unfollow user');
         }
 
-        return false;
+        return $this->respondWithMessage('You no longer follow this user.');
     }
 }

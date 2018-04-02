@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Comment;
+use App\HashtagsLink;
 use App\Interfaces\CommentRepositoryInterface;
+use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\LikeRepositoryInterface;
 use App\Interfaces\UserRepositoryInterface;
 
@@ -23,16 +25,46 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
      */
     public function create($commentData)
     {
-        // Transform reply_username into reply_user_id and/or remove reply_username
-        if (!empty($commentData['reply_username'])) {
-            if (!empty($commentData['reply_user_id'])) {
-                unset($commentData['reply_username']);
-            } else {
-                $commentData['reply_user_id'] = app(UserRepositoryInterface::class)->getUserIdFromUsername($commentData['reply_username']);
-            }
+        $this->processCommentData($commentData);
+
+        $comment = $this->comment->create($commentData);
+
+        app(HashtagRepositoryInterface::class)->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
+
+        return $comment;
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Model $comment
+     * @param array                               $commentData
+     *
+     * @return mixed
+     */
+    public function save($comment, array $commentData)
+    {
+        $this->processCommentData($commentData);
+
+        if (isset($commentData['body'])) {
+            $comment->body = $commentData['body'];
+            app(HashtagRepositoryInterface::class)->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
         }
 
-        return $this->comment->create($commentData);
+        if (isset($commentData['reply_user_id'])) {
+            $comment->reply_user_id = $commentData['reply_user_id'];
+        }
+
+        return $comment->save();
+    }
+
+    protected function processCommentData(&$commentData)
+    {
+        // Transform reply_username into reply_user_id and/or remove reply_username
+        if (!empty($commentData['reply_username'])) {
+            if (empty($commentData['reply_user_id'])) {
+                $commentData['reply_user_id'] = app(UserRepositoryInterface::class)->getUserIdFromUsername($commentData['reply_username']);
+            }
+            unset($commentData['reply_username']);
+        }
     }
 
     /**
@@ -61,7 +93,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
      *
      * @return \Illuminate\Database\Eloquent\Builder|mixed
      */
-    protected function fullQuery($amount, $page)
+    public function fullQuery($amount = 1, $page = 1)
     {
         $offset = $this->calcOffset($amount, $page);
 
@@ -87,7 +119,7 @@ class CommentRepository extends Repository implements CommentRepositoryInterface
                 'reply_users.username as reply_username',
             ])
             ->join('users', 'users.id', '=', 'comments.user_id')
-            ->leftJoin('users as reply_users', 'users.id', '=', 'comments.reply_user_id')
+            ->leftJoin('users as reply_users', 'reply_users.id', '=', 'comments.reply_user_id')
             ->withCount('likes');
     }
 

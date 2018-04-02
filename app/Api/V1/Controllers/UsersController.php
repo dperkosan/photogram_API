@@ -49,7 +49,7 @@ class UsersController extends ApiController
         }
 
         if (!$user->update($updateData)) {
-            return $this->respondInternalError('Could not update user.');
+            return $this->respondInternalError('Failed to update user.');
         }
 
         $this->userRepository->addCounts($user);

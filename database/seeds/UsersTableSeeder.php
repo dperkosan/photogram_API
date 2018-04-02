@@ -109,6 +109,18 @@ class UsersTableSeeder extends Seeder
             'active'    => 1,
             'type_id'   => 1,
           ],
+          [
+              'username'  => 'kris',
+              'name'      => 'Kristina Paunić',
+              'email'     => 'kristina.paunic@diwanee.com',
+              'password'  => bcrypt('1'),
+              'gender_id' => User::GENDER_FEMALE,
+              'phone'     => '123456',
+              'about'     => 'about me something',
+              'image'     => 'images/user/2/kris-[~FORMAT~].jpg',
+              'active'    => 1,
+              'type_id'   => 1,
+          ],
           $testUser
         ];
 

@@ -10,13 +10,11 @@ interface UserRepositoryInterface
      */
     public function addCounts($user);
 
-    public function addThumbs($users);
+//    public function addThumbs($users);
 
     public function addIsFollowed($users, $authUserId);
 
     public function usersFromLikes($likableId, $likableType, $amount, $page);
-
-    public function usersMutualFollowers(array $userIds, $amount, $page);
 
     /**
      * @return \App\User

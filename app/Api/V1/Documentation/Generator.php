@@ -132,7 +132,11 @@ class Generator
 
         $this->delete('/likes/like_id', 'Delete a like.');
 
-        $this->get('/search', 'Search for a username or hashtag. If query string starts with @ usernames will be searched. If it starts with # hashtags will be searched.', [
+        $this->get('/search/users', 'Search for a username.', [
+            'q',
+        ]);
+
+        $this->get('/search/hashtags', 'Search for a hashtag.', [
             'q',
         ]);
 

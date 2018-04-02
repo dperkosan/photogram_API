@@ -5,9 +5,7 @@ namespace App\Api\V1\Controllers;
 use App\Api\V1\Requests\CommentPaginationRequest;
 use App\Api\V1\Requests\CommentRequest;
 use App\Comment;
-use App\HashtagsLink;
 use App\Interfaces\CommentRepositoryInterface;
-use App\Interfaces\HashtagRepositoryInterface;
 use App\Interfaces\MediaRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -23,40 +21,47 @@ class CommentsController extends ApiController
         return $this->respondWithData($comments);
     }
 
-    public function store(CommentRequest $request, CommentRepositoryInterface $commentRepository, HashtagRepositoryInterface $hashtagRepository)
+    public function store(CommentRequest $request, CommentRepositoryInterface $commentRepository, MediaRepositoryInterface $mediaRepo)
     {
         $commentData = $request->only(['body', 'post_id', 'reply_user_id', 'reply_username']);
         $commentData['user_id'] = $this->authUser()->id;
 
         $comment = $commentRepository->create($commentData);
 
-        $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
+        $fullComment = $commentRepository->getComment($comment->id);
+        $commentRepository->addAuthLike([$fullComment], $this->authUser()->id);
+        $mediaRepo->addThumbsToUsers($fullComment, 'user_image');
 
-        return $this->respondWithData($commentRepository->getComment($comment->id));
+
+        return $this->respondWithData($fullComment);
     }
 
-    public function update(Request $request, $comment, HashtagRepositoryInterface $hashtagRepository)
+    public function update(Request $request, $comment, CommentRepositoryInterface $commentRepository, MediaRepositoryInterface $mediaRepo)
     {
         $this->validate($request, [
-            'body' => 'required',
+            'body' => 'nullable|string',
+            'reply_user_id' => 'nullable|integer',
+            'reply_username' => 'nullable|string',
         ]);
-
         $comment = Comment::find($comment);
 
         if (!$this->belongsToAuthUser($comment)) {
             return $this->respondForbidden('This comment is not yours!');
         }
 
-        if (isset($request->body)) {
-            $comment->body = $request->body;
-            $hashtagRepository->saveHashtags($comment->id, HashtagsLink::TAGGABLE_COMMENT, $comment->body);
-        }
+        $commentSaved = $commentRepository->save($comment, $request->only([
+            'body', 'reply_user_id', 'reply_username',
+        ]));
 
-        if (!$comment->save()) {
+        if (!$commentSaved) {
             return $this->respondInternalError('Failed to save comment');
         }
 
-        return $this->respondWithData($comment);
+        $fullComment = $commentRepository->getComment($comment->id);
+        $commentRepository->addAuthLike([$fullComment], $this->authUser()->id);
+        $mediaRepo->addThumbsToUsers($fullComment, 'user_image');
+
+        return $this->respondWithData($fullComment);
     }
 
     public function destroy($comment)
