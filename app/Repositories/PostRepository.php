@@ -43,10 +43,11 @@ class PostRepository extends Repository implements PostRepositoryInterface
      * @param integer $amount number of posts to return
      * @param int     $page
      * @param null    $userId
+     * @param null    $hashtag
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getPosts($amount, $page = 1, $userId = null)
+    public function getPosts($amount, $page = 1, $userId = null, $hashtag = null)
     {
         return $this->standardFetch($amount, $page, function ($query) use ($userId) {
             if ($userId) {
@@ -67,7 +68,7 @@ class PostRepository extends Repository implements PostRepositoryInterface
     public function newsFeed($userId, $amount, $page = 1)
     {
         $followedIds = Follower::where('follower_id', $userId)->pluck('followed_id');
-        
+
         return $this->standardFetch($amount, $page, function ($query) use ($followedIds) {
             $query->whereIn('user_id', $followedIds);
         });

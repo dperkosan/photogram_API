@@ -59,7 +59,7 @@ class PostsController extends ApiController
             $userId = $request->user_id;
         }
 
-        $posts = $this->posts->getPosts($request->amount, $request->page, $userId);
+        $posts = $this->posts->getPosts($request->amount, $request->page, $userId, $request->hashtag);
 
         $authUser = $this->authUser();
         if ($authUser) {

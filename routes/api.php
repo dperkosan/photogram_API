@@ -36,6 +36,11 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
     $api->get('/elastic/add-to-index/hashtags', 'ElasticController@testIndexHashtags');
     $api->get('/elastic/search', 'ElasticController@search');
 
+    $api->group(['prefix' => 'search'], function (Router $api) {
+        $api->get('/users', 'SearchController@searchUsername');
+        $api->get('/hashtags', 'SearchController@searchHashtag');
+    });
+
     $api->group(['middleware' => 'jwt.auth'], function(Router $api) {
 
         $api->group(['prefix' => 'followers'], function (Router $api) {
@@ -80,10 +85,7 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->delete('{like}', 'LikesController@destroy');
         });
 
-        $api->group(['prefix' => 'search'], function (Router $api) {
-            $api->get('/users', 'SearchController@searchUsername');
-            $api->get('/hashtags', 'SearchController@searchHashtag');
-        });
+
 
         $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
                 return response()->json([

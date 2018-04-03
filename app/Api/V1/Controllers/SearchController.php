@@ -36,6 +36,12 @@ class SearchController extends ApiController
         ]);
         $query = $request->q;
 
-        return Hashtag::where('name', 'LIKE', "%$query%")->pluck('name');
+        if (starts_with($query, '#')) {
+            $query = substr($query, 1);
+        }
+
+        $hashtags = Hashtag::where('name', 'LIKE', "%$query%")->get(['name'])->pluck('with_hash');
+
+        return $this->respondWithData($hashtags);
     }
 }
