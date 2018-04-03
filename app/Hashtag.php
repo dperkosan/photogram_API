@@ -15,4 +15,9 @@ class Hashtag extends Model
     {
         return $this->hasMany(HashtagsLink::class);
     }
+
+    public function getWithHashAttribute()
+    {
+        return '#' . $this->name;
+    }
 }
