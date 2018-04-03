@@ -53,10 +53,10 @@ class ElasticController extends ApiController
 
         if ($symbol === '@') {
             $query = substr($q, 1);
-            $results = User::searchByQuery(array('match' => array('username' => $query)));
+            $results = User::searchByQuery(array('prefix' => array('username' => $query)));
         } else if ($symbol === '#') {
             $query = substr($q, 1);
-            $results = Hashtag::searchByQuery(array('match' => array('name' => $query)));
+            $results = Hashtag::searchByQuery(array('prefix' => array('name' => $query)));
         } else {
             $results = Post::searchByQuery(array('match' => array('description' => $q)));
         }
