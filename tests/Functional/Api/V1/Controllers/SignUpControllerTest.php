@@ -20,8 +20,6 @@ class SignUpControllerTest extends TestCase
     {
         $res = $this->post('api/auth/signup', $this->signUpUser);
 
-//        echo $res->getContent();
-
         $res->assertStatus(201);
 
         \DB::table('users')->where('email', '=', $this->signUpUser['email'])->delete();

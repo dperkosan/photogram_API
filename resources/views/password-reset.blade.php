@@ -8,8 +8,11 @@
     <title>Password reset</title>
 </head>
 <body>
-    <form method="POST" action="{{route('post.reset.password')}}">
+    <form method="POST" action="/api/auth/reset">
+        <input type="text" name="email" value="" hidden>
         <input type="text" name="password" placeholder="new password">
+        <input type="text" name="password_confirmation" placeholder="confirm password">
+        <input type="submit" value="Submit">
     </form>
 </body>
 </html>

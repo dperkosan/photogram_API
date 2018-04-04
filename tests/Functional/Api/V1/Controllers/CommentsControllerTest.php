@@ -21,7 +21,6 @@ class CommentsControllerTest extends TestCase
         ]);
 
         $res->assertSuccessful();
-        echo $res->getContent();
         $res->assertJsonStructure([
             'data' => [
                 config('test.json_structure.comment')

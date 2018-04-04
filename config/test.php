@@ -70,7 +70,7 @@ return [
             'username',
             'user_image' => $userImage,
             'reply_user_id',
-            'reply_user_username',
+            'reply_username',
             'likes_count',
             'auth_like_id',
         ],

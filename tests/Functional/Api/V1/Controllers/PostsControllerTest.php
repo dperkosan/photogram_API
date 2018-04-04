@@ -133,42 +133,4 @@ class PostsControllerTest extends TestCase
     {
         $this->apiDelete($id)->assertSuccessful();
     }
-
-    public function testCreateVideoPost()
-    {
-        $res = $this->apiPost([
-            'image' => DataProvider::getFakeImage(),
-            'description' => 'Test description',
-        ]);
-
-        $res->assertSuccessful();
-
-        return $res->decodeResponseJson()['data']['id'];
-    }
-
-    /**
-     * @depends testCreateVideoPost
-     *
-     * @param $id
-     */
-    public function testUpdateVideoPost($id)
-    {
-        $res = $this->apiPatch([
-            'description' => 'Test description updated',
-        ], '/' . $id);
-
-        $res->assertSuccessful();
-
-        return $res->decodeResponseJson()['data']['id'];
-    }
-
-    /**
-     * @depends testUpdateImagePost
-     *
-     * @param $id
-     */
-    public function testDeleteVideoPost($id)
-    {
-        $this->apiDelete($id)->assertSuccessful();
-    }
 }

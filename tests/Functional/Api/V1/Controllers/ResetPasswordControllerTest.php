@@ -24,8 +24,6 @@ class ResetPasswordControllerTest extends TestCase
     {
         $res = $this->post('api/auth/reset', $this->getResetPasswordData());
 
-        echo $res->getContent();
-
         $res->assertStatus(204);
 
         $updateArray = [
