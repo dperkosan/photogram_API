@@ -47,6 +47,7 @@ class ElasticController extends ApiController
             // contains
             $results = Hashtag::searchByQuery(array('regexp' => array('name' => '.*' . $query . '.*')));
         } else {
+            $query = $q;
             // exact word match
             // $results = Post::searchByQuery(array('match' => array('description' => $q))); 
 
