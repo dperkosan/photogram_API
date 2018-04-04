@@ -19,27 +19,6 @@ class ElasticController extends ApiController
         return $this->respondWithData($posts);
     }
 
-
-    public function testIndexUsers()
-    {
-        $posts = User::where('id', '<', 6)->get();
-
-        $posts->addToIndex();
-
-        return $this->respondWithData($posts);
-    }
-
-
-    public function testIndexHashtags()
-    {
-        $posts = User::where('id', '<', 6)->get();
-
-        $posts->addToIndex();
-
-        return $this->respondWithData($posts);
-    }
-
-
     public function search(Request $request)
     {
         $this->validate($request, [
@@ -68,16 +47,28 @@ class ElasticController extends ApiController
             // contains
             $results = Hashtag::searchByQuery(array('regexp' => array('name' => '.*' . $query . '.*')));
         } else {
-            // exact match
-            $results = Post::searchByQuery(array('match' => array('description' => $q))); 
+            // exact word match
+            // $results = Post::searchByQuery(array('match' => array('description' => $q))); 
+
+            // contains
+            $results = User::searchByQuery(array('regexp' => array('username' => '.*' . $query . '.*')));
         }
 
         return $this->respondWithData($results);
     }
 
-
     public function indexPosts()
     {
+        return Post::addAllToIndex();
+    }
 
+    public function indexUsers()
+    {
+        return User::addAllToIndex();
+    }
+
+    public function indexHashtags()
+    {
+        return Hashtag::addAllToIndex();
     }
 }
