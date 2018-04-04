@@ -30,7 +30,6 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
 
     $api->get('/users/exists', 'UsersController@exists');
 
-    $api->get('/elastic/add-to-index/posts', 'ElasticController@indexPosts');
     $api->get('/elastic/add-to-index/users', 'ElasticController@indexUsers');
     $api->get('/elastic/add-to-index/hashtags', 'ElasticController@indexHashtags');
     $api->get('/elastic/search', 'ElasticController@search');

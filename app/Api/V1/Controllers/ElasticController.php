@@ -57,11 +57,6 @@ class ElasticController extends ApiController
         return $this->respondWithData($results);
     }
 
-    public function indexPosts()
-    {
-        return Post::addAllToIndex();
-    }
-
     public function indexUsers()
     {
         return User::addAllToIndex();
