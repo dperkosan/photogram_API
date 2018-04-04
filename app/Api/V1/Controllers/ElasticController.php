@@ -22,7 +22,7 @@ class ElasticController extends ApiController
     public function search(Request $request)
     {
         $this->validate($request, [
-            'q' => 'string|min:3|max:100'
+            'q' => 'required|string|min:3|max:100'
         ]);
         $q = $request->q;
 

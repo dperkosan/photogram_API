@@ -113,7 +113,7 @@ class UsersTableSeeder extends Seeder
               'username'  => 'kris',
               'name'      => 'Kristina Paunić',
               'email'     => 'kristina.paunic@diwanee.com',
-              'password'  => bcrypt('1'),
+              'password'  => bcrypt('kristina'),
               'gender_id' => User::GENDER_FEMALE,
               'phone'     => '123456',
               'about'     => 'about me something',
