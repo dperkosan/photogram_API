@@ -133,7 +133,8 @@ class PostRepository extends Repository implements PostRepositoryInterface
                     ])
                     ->join('users as comments_users', 'comments_users.id', '=', 'comments.user_id')
                     ->leftJoin('users as reply_users', 'reply_users.id', '=', 'comments.reply_user_id')
-                    ->withCount('likes');
+                    ->withCount('likes')
+                    ->orderBy('created_at', 'DESC');
             }]);
         }
     }
