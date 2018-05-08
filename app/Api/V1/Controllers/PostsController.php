@@ -87,6 +87,7 @@ class PostsController extends ApiController
 
     public function store(PostRequest $request, MediaRepositoryInterface $mediaRepo, HashtagRepositoryInterface $hashtags)
     {
+        $this->dLogWithTime('Starting...');
         $mediaType = $request->image ? 'image' : 'video';
         $isImage = $mediaType === 'image';
         $media = $request->file($mediaType);
@@ -114,8 +115,10 @@ class PostsController extends ApiController
         }
 
         $post = Post::create($postData);
+        $this->dLogWithTime('Post inserted in db');
 
         $hashtags->saveHashtags($post->id, HashtagsLink::TAGGABLE_POST, $post->description);
+        $this->dLogWithTime('Hashtags saved in db');
 
         return $this->setStatusCode(201)->respondWithData($post);
 

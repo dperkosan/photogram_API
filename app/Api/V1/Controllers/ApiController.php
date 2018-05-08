@@ -17,19 +17,24 @@ class ApiController extends Controller
      *
      * @var string
      */
-    protected $debugMessage = '';
+    protected $debugMessage = [];
 
     /**
      * If you use this method there will be another property in json called debug
      *
-     * @param $message
+     * @param array $debugData
      */
-    public function dLog($message)
+    public function dLog(array $debugData)
     {
-        if ($this->debugMessage) {
-            $this->debugMessage .= '|';
-        }
-        $this->debugMessage .= $message;
+        $this->debugMessage[] = $debugData;
+    }
+
+    public function dLogWithTime($message)
+    {
+        $this->debugMessage[] = [
+            'message' => $message,
+            'time' => microtime(true),
+        ];
     }
 
     protected function authUser()

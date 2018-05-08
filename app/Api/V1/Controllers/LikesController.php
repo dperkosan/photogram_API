@@ -30,10 +30,13 @@ class LikesController extends ApiController
 
     public function store(LikeRequest $request)
     {
+        $this->dLogWithTime('Starting...');
+
         $likeData = $request->only(['likable_id', 'likable_type']);
         $likeData['user_id'] = $this->authUser()->id;
 
         $like = Like::create($likeData);
+        $this->dLogWithTime('Like inserted in db');
 
         return $this->respondWithData($like);
     }

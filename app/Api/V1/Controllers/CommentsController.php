@@ -23,16 +23,20 @@ class CommentsController extends ApiController
 
     public function store(CommentRequest $request, CommentRepositoryInterface $commentRepository, MediaRepositoryInterface $mediaRepo)
     {
+        $this->dLogWithTime('Starting...');
+
         $commentData = $request->only(['body', 'post_id', 'reply_user_id', 'reply_username']);
         $commentData['user_id'] = $this->authUser()->id;
 
         $comment = $commentRepository->create($commentData);
+        $this->dLogWithTime('Comment inserted in db');
 
         $fullComment = $commentRepository->getComment($comment->id);
         $commentRepository->addAuthLike([$fullComment], $this->authUser()->id);
         $mediaRepo->addThumbsToUsers($fullComment, 'user_image');
 
-
+        $this->dLogWithTime('Responding...');
+        
         return $this->respondWithData($fullComment);
     }
 

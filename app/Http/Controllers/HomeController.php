@@ -25,10 +25,10 @@ class HomeController extends BaseController
         return view('documentation', compact(['endpoints', 'intro']));
     }
 
-    public function passwordReset()
+    public function passwordReset($token)
     {
         return view('password-reset', [
-          'token' => request()->token
+          'token' => $token
         ]);
     }
 }

@@ -9,6 +9,7 @@
 </head>
 <body>
     <form method="POST" action="/api/auth/reset">
+        <input type="hidden" name="token" value="{{ $token }}">
         <input type="text" name="email" value="" hidden>
         <input type="text" name="password" placeholder="new password">
         <input type="text" name="password_confirmation" placeholder="confirm password">
