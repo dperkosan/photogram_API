@@ -84,12 +84,12 @@ $api->group(['version' => 'v1', 'namespace' => 'App\Api\V1\Controllers'], functi
             $api->get('/hashtags', 'SearchController@searchHashtag');
         });
 
-        $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
-                return response()->json([
-                  'success' => true,
-                  'message' => 'Token is refreshed, grab it from the header.'
-                ]);
-            }
-        ]);
+//        $api->get('refresh', ['middleware' => 'jwt.refresh', function() {
+//                return response()->json([
+//                  'success' => true,
+//                  'message' => 'Token is refreshed, grab it from the header.'
+//                ]);
+//            }
+//        ]);
     });
 });
