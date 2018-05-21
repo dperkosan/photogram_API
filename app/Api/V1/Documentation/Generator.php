@@ -320,7 +320,7 @@ class Generator
             [
                 'name'            => 'q',
                 'description'     => 'query string to search for',
-                'possible_values' => 'string starting with @ or #',
+                'possible_values' => 'string|min:3',
             ],
             [
                 'name'            => 'reply_username',
